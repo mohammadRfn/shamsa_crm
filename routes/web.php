@@ -5,26 +5,72 @@ use App\Http\Controllers\PartOrderController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\WorkRequestController;
 use Illuminate\Support\Facades\Route;
+
+/*
+|--------------------------------------------------------------------------
+| Public Routes
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
-Route::middleware('auth')->group(function () {
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    Route::resource('users', UserController::class);
-    Route::resource('reports', ReportController::class);
-    Route::post('/reports/{report}/approve', [ReportController::class, 'approve'])->name('reports.approve');
-    Route::post('/reports/{report}/reject', [ReportController::class, 'reject'])->name('reports.reject');
-    Route::resource('partorders', PartOrderController::class);
-    Route::resource('comments', CommentController::class);
-});
-
+/*
+|--------------------------------------------------------------------------
+| Auth Routes
+|--------------------------------------------------------------------------
+*/
 require __DIR__ . '/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Authenticated Routes
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::patch('/', [ProfileController::class, 'update'])->name('update');
+        Route::delete('/', [ProfileController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::middleware('ceo')->group(function () {
+        Route::resource('users', UserController::class);
+    });
+
+    Route::resource('reports', ReportController::class);
+    Route::middleware('approver')->group(function () {
+        Route::post('/reports/{report}/approve', [ReportController::class, 'approve'])->name('reports.approve');
+        Route::post('/reports/{report}/reject', [ReportController::class, 'reject'])->name('reports.reject');
+    });
+
+    Route::resource('partorders', PartOrderController::class);
+    Route::middleware('approver')->group(function () {
+        Route::post('/partorders/{partorder}/approve', [PartOrderController::class, 'approve'])->name('partorders.approve');
+        Route::post('/partorders/{partorder}/reject', [PartOrderController::class, 'reject'])->name('partorders.reject');
+    });
+
+    Route::resource('workrequests', WorkRequestController::class);
+    Route::middleware('approver')->group(function () {
+        Route::post('/workrequests/{workrequest}/approve', [WorkRequestController::class, 'approve'])->name('workrequests.approve');
+        Route::post('/workrequests/{workrequest}/reject', [WorkRequestController::class, 'reject'])->name('workrequests.reject');
+    });
+    Route::middleware('ceo')->group(function () {
+        Route::post('/workrequests/{workrequest}/financial', [WorkRequestController::class, 'updateFinancial'])->name('workrequests.financial');
+    });
+
+    Route::prefix('comments')->name('comments.')->group(function () {
+        Route::get('/', [CommentController::class, 'index'])->name('index');
+        Route::post('/', [CommentController::class, 'store'])->name('store');
+        Route::get('/{type}/{id}', [CommentController::class, 'show'])->name('show');
+        Route::delete('/{comment}', [CommentController::class, 'destroy'])->name('destroy');
+    });
+});

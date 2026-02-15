@@ -8,36 +8,20 @@ use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
-        'role',  
+        'role',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -46,6 +30,7 @@ class User extends Authenticatable
         ];
     }
 
+    // Relations
     public function reports()
     {
         return $this->hasMany(Report::class);
@@ -56,33 +41,59 @@ class User extends Authenticatable
         return $this->hasMany(PartOrder::class);
     }
 
+    public function workRequests()
+    {
+        return $this->hasMany(WorkRequest::class);
+    }
+
     public function comments()
     {
         return $this->hasMany(Comment::class);
     }
 
-    public function isTechnician()
+    public function approvals()
+    {
+        return $this->hasMany(Approval::class);
+    }
+
+    // Role Helper Methods
+    public function isTechnician(): bool
     {
         return $this->role === 'technician';
     }
 
-    public function isReception()
+    public function isReception(): bool
     {
         return $this->role === 'reception';
     }
 
-    public function isSupply()
+    public function isSupply(): bool
     {
         return $this->role === 'supply';
     }
 
-    public function isCeO()
+    public function isCEO(): bool
     {
         return $this->role === 'ceo';
     }
 
-    public function isAdmin()
+    public function isApprover(): bool
     {
-        return in_array($this->role, ['ceo']);
+        return in_array($this->role, ['reception', 'supply', 'ceo']);
+    }
+
+    public function canApprove(): bool
+    {
+        return $this->isApprover();
+    }
+
+    public function canCreateReport(): bool
+    {
+        return $this->isTechnician();
+    }
+
+    public function canViewAllReports(): bool
+    {
+        return in_array($this->role, ['reception', 'supply', 'ceo']);
     }
 }

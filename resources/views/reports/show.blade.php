@@ -31,8 +31,13 @@
                 <p><b>شماره درخواست:</b> {{ $report->request_number }}</p>
                 <p><b>شماره سریال:</b> {{ $report->serial_number }}</p>
                 <p><b>مدل دستگاه:</b> {{ $report->device_model }}</p>
-                <p><b>تعداد نیرو:</b> {{ $report->workers_count ?? '-' }} نفر</p>
-                <p><b>ساعت هر نفر:</b> {{ $report->hours_per_worker ?? '-' }} ساعت</p>
+                <p><b>نفر/ساعت:</b> {{ $report->workers_count ?? '-' }} / {{ $report->hours_per_worker ?? '-' }}</p>
+                <!-- <p><b>ساعت :</b> {{ $report->hours_per_worker ?? '-' }} ساعت</p> -->
+
+            </div>
+            <div>
+                <p class="font-bold text-gray-800 mb-1">شرح ایراد:</p>
+                <div class="bg-gray-50 p-4 rounded-lg border text-gray-700 whitespace-pre-line">{{ $report->issue_description }}</div>
             </div>
         </section>
 
@@ -41,10 +46,7 @@
         <section class="bg-white shadow-sm hover:shadow-md duration-200 rounded-xl p-6 sm:p-7 space-y-6 border border-gray-200">
             <h3 class="text-xl font-semibold text-gray-700 flex items-center gap-2">📝 شرح و فعالیت</h3>
 
-            <div>
-                <p class="font-bold text-gray-800 mb-1">شرح ایراد:</p>
-                <div class="bg-gray-50 p-4 rounded-lg border text-gray-700 whitespace-pre-line">{{ $report->issue_description }}</div>
-            </div>
+
 
             <div>
                 <p class="font-bold text-gray-800 mb-1">گزارش فعالیت:</p>
@@ -68,35 +70,27 @@
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5 text-sm">
 
-                <div class="p-4 rounded-xl text-center border transition
-                @if($report->request_approval===1) border-green-500 bg-green-50 text-green-700
-                @elseif($report->request_approval===0) border-red-500 bg-red-50 text-red-700
-                @else border-gray-300 bg-gray-50 text-gray-600 @endif">
-                    <b>پذیرش</b><br>
-                    @if($report->request_approval===1) ✔ تایید
-                    @elseif($report->request_approval===0) ✖ رد
-                    @else در انتظار @endif
-                </div>
+                @php
+                $statusClasses = [
+                1 => ['bg-green-50', 'text-green-700', 'border-green-500', '✔ تایید'],
+                0 => ['bg-red-50', 'text-red-700', 'border-red-500', '✖ رد'],
+                null => ['bg-gray-50', 'text-gray-600', 'border-gray-300', 'در انتظار']
+                ];
+                @endphp
 
-                <div class="p-4 rounded-xl text-center border transition
-                @if($report->supply_approval===1) border-green-500 bg-green-50 text-green-700
-                @elseif($report->supply_approval===0) border-red-500 bg-red-50 text-red-700
-                @else border-gray-300 bg-gray-50 text-gray-600 @endif">
-                    <b>تامین</b><br>
-                    @if($report->supply_approval===1) ✔ تایید
-                    @elseif($report->supply_approval===0) ✖ رد
-                    @else در انتظار @endif
+                @foreach([
+                ['label' => 'پذیرش', 'status' => $report->request_approval],
+                ['label' => 'تامین', 'status' => $report->supply_approval],
+                ['label' => 'مدیر', 'status' => $report->ceo_approval]
+                ] as $approval)
+                @php
+                $classes = $statusClasses[$approval['status']] ?? $statusClasses[null];
+                @endphp
+                <div class="p-4 rounded-xl text-center border transition {{ $classes[2] }} {{ $classes[0] }} {{ $classes[1] }}">
+                    <b>{{ $approval['label'] }}</b><br>
+                    {{ $classes[3] }}
                 </div>
-
-                <div class="p-4 rounded-xl text-center border transition
-                @if($report->ceo_approval===1) border-green-500 bg-green-50 text-green-700
-                @elseif($report->ceo_approval===0) border-red-500 bg-red-50 text-red-700
-                @else border-gray-300 bg-gray-50 text-gray-600 @endif">
-                    <b>مدیر</b><br>
-                    @if($report->ceo_approval===1) ✔ تایید
-                    @elseif($report->ceo_approval===0) ✖ رد
-                    @else در انتظار @endif
-                </div>
+                @endforeach
 
             </div>
         </section>

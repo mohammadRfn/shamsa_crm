@@ -3,143 +3,222 @@
 namespace App\Http\Controllers;
 
 use App\Models\PartOrder;
+use App\Models\Approval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class PartOrderController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = Auth::user();
 
-        if ($user->role == 'technician') {
-            $partOrders = PartOrder::where('user_id', $user->id)->get();
-        } elseif ($user->role == 'reception' || $user->role == 'supply') {
-            $partOrders = PartOrder::where('status', 'pending')->get();
-        } elseif ($user->role == 'ceo') {
-            $partOrders = PartOrder::all();
+        $query = PartOrder::query()->with(['user', 'lastActionBy']);
+        $query->forRole($user->role);
+
+        if ($request->search) {
+            $query->where(function ($q) use ($request) {
+                $q->where('part_name', 'like', "%{$request->search}%")
+                    ->orWhere('order_number', 'like', "%{$request->search}%")
+                    ->orWhere('equipment_name', 'like', "%{$request->search}%")
+                    ->orWhereHas('user', function ($q) use ($request) {
+                        $q->where('name', 'like', "%{$request->search}%");
+                    });
+            });
         }
+
+        $partOrders = $query->orderBy('created_at', 'desc')->paginate(10);
 
         return view('partorders.index', compact('partOrders'));
     }
 
     public function create()
     {
-        if (Auth::user()->role == 'technician') {
-            return view('partorders.create');
+        if (!Auth::user()->isTechnician()) {
+            return redirect()->route('partorders.index')
+                ->with('error', 'فقط تکنسین‌ها می‌توانند سفارش ثبت کنند.');
         }
 
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه ایجاد سفارش ندارید.');
+        return view('partorders.create');
     }
 
     public function store(Request $request)
     {
-        if (Auth::user()->role != 'technician') {
-            return redirect()->route('partorders.index')->with('error', 'شما اجازه ایجاد سفارش ندارید.');
+        if (!Auth::user()->isTechnician()) {
+            return redirect()->route('partorders.index')
+                ->with('error', 'فقط تکنسین‌ها می‌توانند سفارش ثبت کنند.');
         }
-        $request->validate([
+
+        $validated = $request->validate([
             'equipment_name' => 'required|string|max:255',
             'order_date' => 'required|date',
-            'order_number' => 'required|string|max:50',
+            'order_number' => 'required|string|max:255',
             'part_name' => 'required|string|max:255',
             'specifications' => 'required|string',
-            'package' => 'required|string',
-            'quantity' => 'required|integer',
+            'package' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'description' => 'required|string',
         ]);
 
         PartOrder::create([
             'user_id' => auth()->id(),
-            'equipment_name' => $request->equipment_name,
-            'order_date' => $request->order_date,
-            'order_number' => $request->order_number,
-            'part_name' => $request->part_name,
-            'specifications' => $request->specifications,
-            'package' => $request->package,
-            'quantity' => $request->quantity,
-            'description' => $request->description,
+            ...$validated,
             'status' => 'pending',
         ]);
 
-        return redirect()->route('partorders.index');
+        return redirect()->route('partorders.index')
+            ->with('success', 'سفارش قطعه با موفقیت ثبت شد.');
     }
 
-    public function show(PartOrder $partOrder)
+    public function show(PartOrder $partorder)
     {
-        if (Auth::user()->role == 'technician' || Auth::user()->role == 'ceo' || Auth::user()->role == 'reception' || Auth::user()->role == 'supply') {
-            return view('partorders.show', compact('partOrder'));
+        $user = Auth::user();
+
+        if ($user->isTechnician() && $partorder->user_id !== $user->id) {
+            abort(403, 'شما اجازه دسترسی ندارید.');
         }
 
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه دسترسی به این سفارش را ندارید.');
+        $partorder->load(['user', 'approvals.user', 'comments' => function ($query) use ($user) {
+            $query->active()
+                ->parentOnly()
+                ->forUser($user)
+                ->with(['user', 'replies.user'])
+                ->latest();
+        }]);
+
+        return view('partorders.show', compact('partorder'));
     }
 
-    public function edit(PartOrder $partOrder)
+    public function edit(PartOrder $partorder)
     {
-        if (Auth::user()->id == $partOrder->user_id && Auth::user()->role == 'technician') {
-            return view('partorders.edit', compact('partOrder'));
+        $user = Auth::user();
+
+        if (!$user->isTechnician() || $partorder->user_id !== $user->id) {
+            return redirect()->route('partorders.index')
+                ->with('error', 'شما اجازه ویرایش ندارید.');
         }
 
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه ویرایش این سفارش را ندارید.');
+        if (!in_array($partorder->status, ['new', 'pending'])) {
+            return redirect()->route('partorders.index')
+                ->with('error', 'این سفارش قابل ویرایش نیست.');
+        }
+
+        return view('partorders.edit', compact('partorder'));
     }
 
-    public function update(Request $request, PartOrder $partOrder)
+    public function update(Request $request, PartOrder $partorder)
     {
-        if (Auth::user()->id == $partOrder->user_id && Auth::user()->role == 'technician') {
-            $request->validate([
-                'equipment_name' => 'required|string|max:255',
-                'order_date' => 'required|date',
-                'order_number' => 'required|string|max:50',
-                'part_name' => 'required|string|max:255',
-                'specifications' => 'required|string',
-                'package' => 'required|string',
-                'quantity' => 'required|integer',
+        $user = Auth::user();
+
+        if (!$user->isTechnician() || $partorder->user_id !== $user->id) {
+            return redirect()->route('partorders.index')
+                ->with('error', 'شما اجازه ویرایش ندارید.');
+        }
+
+        $validated = $request->validate([
+            'equipment_name' => 'required|string|max:255',
+            'part_name' => 'required|string|max:255',
+            'specifications' => 'required|string',
+            'package' => 'required|string|max:255',
+            'quantity' => 'required|integer|min:1',
+            'description' => 'required|string',
+        ]);
+
+        $partorder->update($validated);
+
+        return redirect()->route('partorders.show', $partorder)
+            ->with('success', 'سفارش با موفقیت بروزرسانی شد.');
+    }
+
+    public function destroy(PartOrder $partorder)
+    {
+        $user = Auth::user();
+
+        if (!$user->isTechnician() || $partorder->user_id !== $user->id) {
+            return redirect()->route('partorders.index')
+                ->with('error', 'شما اجازه حذف ندارید.');
+        }
+
+        $partorder->delete();
+
+        return redirect()->route('partorders.index')
+            ->with('success', 'سفارش با موفقیت حذف شد.');
+    }
+
+    public function approve(Request $request, PartOrder $partorder)
+    {
+        $user = Auth::user();
+
+        if (!$user->isApprover()) {
+            return back()->with('error', 'شما اجازه تایید ندارید.');
+        }
+
+        if (!$partorder->canBeApprovedBy($user)) {
+            return back()->with('error', 'شما قبلاً نظر داده‌اید.');
+        }
+
+        DB::transaction(function () use ($partorder, $user, $request) {
+            Approval::create([
+                'approvable_type' => 'App\Models\PartOrder',
+                'approvable_id' => $partorder->id,
+                'user_id' => $user->id,
+                'role' => $user->role,
+                'action' => 'approved',
+                'comment' => $request->comment,
             ]);
 
-            // $partOrder->update([
-            //     'equipment_name' => $request->equipment_name,
-            //     'order_date' => $request->order_date,
-            //     'order_number' => $request->order_number,
-            //     'part_name' => $request->part_name,
-            //     'specifications' => $request->specifications,
-            //     'package' => $request->package,
-            //     'quantity' => $request->quantity,
-            //     'description' => $request->description,
-            // ]);
-            $partOrder->update($request->all());
-            return redirect()->route('partorders.index');
-        }
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه ویرایش این سفارش را ندارید.');
+            match ($user->role) {
+                'reception' => $partorder->update(['reception_approval' => 1]),
+                'supply' => $partorder->update(['supply_approval' => 1]),
+                'ceo' => $partorder->update(['ceo_approval' => 1]),
+            };
+
+            $partorder->increment('approved_by_count');
+            $partorder->update([
+                'last_action_at' => now(),
+                'last_action_by' => $user->id,
+            ]);
+
+            if ($partorder->fresh()->isFullyApproved()) {
+                $partorder->update(['status' => 'approved']);
+            }
+        });
+
+        return back()->with('success', 'تایید شما ثبت شد.');
     }
 
-    public function destroy(PartOrder $partOrder)
+    public function reject(Request $request, PartOrder $partorder)
     {
-        if (Auth::user()->id == $partOrder->user_id && Auth::user()->role == 'technician') {
-            $partOrder->delete();
-            return redirect()->route('partorders.index');
+        $user = Auth::user();
+
+        if (!$user->isApprover()) {
+            return back()->with('error', 'شما اجازه رد ندارید.');
         }
 
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه حذف این سفارش را ندارید.');
-    }
-    public function approve(PartOrder $partOrder)
-    {
-        if (Auth::user()->role == 'ceo' || Auth::user()->role == 'reception' || Auth::user()->role == 'supply') {
-            $partOrder->status = 'approved';
-            $partOrder->save();
+        DB::transaction(function () use ($partorder, $user, $request) {
+            Approval::create([
+                'approvable_type' => 'App\Models\PartOrder',
+                'approvable_id' => $partorder->id,
+                'user_id' => $user->id,
+                'role' => $user->role,
+                'action' => 'rejected',
+                'comment' => $request->comment,
+            ]);
 
-            return redirect()->route('partorders.index')->with('success', 'سفارش قطعه تایید شد');
-        }
+            match ($user->role) {
+                'reception' => $partorder->update(['reception_approval' => 0]),
+                'supply' => $partorder->update(['supply_approval' => 0]),
+                'ceo' => $partorder->update(['ceo_approval' => 0]),
+            };
 
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه دسترسی به این سفارش را ندارید.');
-    }
+            $partorder->increment('rejected_by_count');
+            $partorder->update([
+                'last_action_at' => now(),
+                'last_action_by' => $user->id,
+            ]);
+        });
 
-    public function reject(PartOrder $partOrder)
-    {
-        if (Auth::user()->role == 'ceo' || Auth::user()->role == 'reception' || Auth::user()->role == 'supply') {
-            $partOrder->status = 'rejected';
-            $partOrder->save();
-
-            return redirect()->route('partorders.index')->with('success', 'سفارش قطعه رد شد');
-        }
-
-        return redirect()->route('partorders.index')->with('error', 'شما اجازه دسترسی به این سفارش را ندارید.');
+        return back()->with('error', 'رد شما ثبت شد.');
     }
 }
