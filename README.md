@@ -10,8 +10,8 @@
 
 **توضیح کامل پروژه: یک اپلیکیشن وب مدرن با Laravel backend و Blade frontend استایل‌شده با Tailwind CSS. بدون API جداگانه (SPA یا RESTful API)، فقط صفحات Blade خالص با Tailwind برای استایلینگ.**
 
-[![Laravel](https://img.shields.io/badge/Laravel-10.x-F05340?style=flat&logo=laravel&logoColor=white)](https://laravel.com)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v3.4-3B82F6?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![Laravel](https://img.shields.io/badge/Laravel-12.x-F05340?style=flat&logo=laravel&logoColor=white)](https://laravel.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-3B82F6?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?style=flat&logo=php&logoColor=white)](https://www.php.net)
 [![License](https://img.shields.io/github/license/yourusername/your-repo.svg?style=flat&logo=github)](LICENSE)
 
@@ -22,7 +22,7 @@
 - **Laravel Backend**: مسیریابی، کنترلرها، مدل‌ها، مایگریشن‌ها و validation کامل
 - **Blade Views**: صفحات frontend با Blade templates (بدون SPA یا React/Vue)
 - **Tailwind CSS**: استایلینگ مدرن و responsive با Tailwind (نصب via npm)
-- **Database**: MySQL/PostgreSQL با Eloquent ORM
+- **Database**: MySQL با Eloquent ORM
 - **Validation & Forms**: فرم‌های امن با Laravel validation
 
 ## 📋 نیازمندی‌ها
@@ -70,7 +70,8 @@
     php artisan serve
     npm run dev
 
-# کپی فایل محیطی
+```bash
+## کپی فایل محیطی
 cp .env.example .env
 
 # نصب dependencies PHP (Composer)
