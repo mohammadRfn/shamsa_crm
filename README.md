@@ -1,59 +1,89 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<div align="center">
+  
+# Project Name
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/dark-github.svg">
+  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/github.svg">
+  <img alt="Ask Me Anything" src="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/github.svg" width="450">
+</picture>
 
-## About Laravel
+**توضیح کامل پروژه: یک اپلیکیشن وب مدرن با Laravel backend و Blade frontend استایل‌شده با Tailwind CSS. بدون API جداگانه (SPA یا RESTful API)، فقط صفحات Blade خالص با Tailwind برای استایلینگ.**
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+[![Laravel](https://img.shields.io/badge/Laravel-10.x-F05340?style=flat&logo=laravel&logoColor=white)](https://laravel.com)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v3.4-3B82F6?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
+[![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?style=flat&logo=php&logoColor=white)](https://www.php.net)
+[![License](https://img.shields.io/github/license/yourusername/your-repo.svg?style=flat&logo=github)](LICENSE)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+</div>
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## ✨ ویژگی‌ها
 
-## Learning Laravel
+- **Laravel Backend**: مسیریابی، کنترلرها، مدل‌ها، مایگریشن‌ها و validation کامل
+- **Blade Views**: صفحات frontend با Blade templates (بدون SPA یا React/Vue)
+- **Tailwind CSS**: استایلینگ مدرن و responsive با Tailwind (نصب via npm)
+- **Database**: MySQL/PostgreSQL با Eloquent ORM
+- **Validation & Forms**: فرم‌های امن با Laravel validation
+- **Caching**: Redis (اختیاری)
+- **Queue Jobs**: پردازش پس‌زمینه با Laravel queues
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+## 📋 نیازمندی‌ها
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+| مورد       | نسخه حداقل          |
+|------------|---------------------|
+| PHP        | 8.4.7              |
+| Composer   | 2.7+               |
+| Node.js    | 20+                |
+| npm        | 10+                |
+| MySQL      | 8.0+               |
+| Git        | 2.30+              |
 
-## Laravel Sponsors
+---
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🚀 نصب و راه‌اندازی کامل (گام به گام)
 
-### Premium Partners
+### 1️⃣ Clone Repository و Setup اولیه Laravel
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+```bash
+# Clone پروژه
+1. git clone https://github.com/yourusername/your-repo.git
+cd your-repo
 
-## Contributing
+2. **Install Backend Dependencies (Laravel)**
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+   ```bash
+   composer install
 
-## Code of Conduct
+3. **Setup Environment File**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **Run Database Migrations**
+   ```bash
+   php artisan migrate
 
-## Security Vulnerabilities
+5. **Install Frontend Dependencies (blade)**
+    ```bash
+    npm install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+6. **Start the Development Servers**
+    ```bash
+    php artisan serve
+    npm run dev
 
-## License
+# کپی فایل محیطی
+cp .env.example .env
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# نصب dependencies PHP (Composer)
+composer install --optimize-autoloader --no-dev
+
+# تولید Application Key
+php artisan key:generate --force
+
+# تنظیم مجوزهای فولدرها (Linux/Mac)
+chmod -R 775 storage bootstrap/cache
+sudo chown -R $USER:www-data storage bootstrap/cache
+
+# پاک کردن cache (اختیاری)
+php artisan optimize:clear
