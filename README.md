@@ -1,6 +1,6 @@
 <div align="center">
   
-# Project Name
+# OfficeManager
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/dark-github.svg">
