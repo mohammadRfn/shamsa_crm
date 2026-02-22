@@ -24,8 +24,6 @@
 - **Tailwind CSS**: استایلینگ مدرن و responsive با Tailwind (نصب via npm)
 - **Database**: MySQL/PostgreSQL با Eloquent ORM
 - **Validation & Forms**: فرم‌های امن با Laravel validation
-- **Caching**: Redis (اختیاری)
-- **Queue Jobs**: پردازش پس‌زمینه با Laravel queues
 
 ## 📋 نیازمندی‌ها
 
@@ -44,10 +42,10 @@
 
 ### 1️⃣ Clone Repository و Setup اولیه Laravel
 
-```bash
 # Clone پروژه
 1. git clone https://github.com/yourusername/your-repo.git
-cd your-repo
+    ```bash
+    cd your-repo
 
 2. **Install Backend Dependencies (Laravel)**
 
