@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class WorkRequest extends Model
 {
@@ -20,6 +21,7 @@ class WorkRequest extends Model
         'contact_person',
         'contact_phone',
         'work_description',
+        'workflow_description',
         'issue_description',
         'request_type',
         'estimated_cost',
@@ -80,7 +82,17 @@ class WorkRequest extends Model
     {
         return match ($role) {
             'technician' => $query->where('user_id', auth()->id()),
-            'reception', 'supply' => $query->whereIn('status', ['new', 'pending']),
+
+            'reception' => $query->where(function ($q) {
+                $q->whereIn('status', ['new', 'pending'])
+                    ->orWhereNotNull('reception_approval');
+            }),
+
+            'supply' => $query->where(function ($q) {
+                $q->whereIn('status', ['new', 'pending'])
+                    ->orWhereNotNull('supply_approval');
+            }),
+
             'ceo' => $query,
             default => $query->where('id', 0),
         };
@@ -95,13 +107,37 @@ class WorkRequest extends Model
     {
         return $query->whereIn('status', ['new', 'pending']);
     }
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
+
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
 
     // Helper Methods
+    // درست - با boolean cast سازگار
     public function isFullyApproved(): bool
     {
-        return $this->request_approval === 1
-            && $this->supply_approval === 1
-            && $this->ceo_approval === 1;
+        return $this->request_approval === true
+            && $this->supply_approval === true
+            && $this->ceo_approval === true;
+    }
+
+    public function isFullyRejected(): bool
+    {
+        return $this->request_approval === false
+            && $this->supply_approval === false
+            && $this->ceo_approval === false;
+    }
+
+    public function hasAnyRejection(): bool
+    {
+        return $this->request_approval === false
+            || $this->supply_approval === false
+            || $this->ceo_approval === false;
     }
 
     public function canBeApprovedBy(User $user): bool
@@ -113,9 +149,41 @@ class WorkRequest extends Model
             default => false,
         };
     }
+    protected static function booted()
+    {
+        static::saving(function ($workRequest) {
+            // اگر همه true باشن → approved
+            if (
+                $workRequest->request_approval === true
+                && $workRequest->supply_approval === true
+                && $workRequest->ceo_approval === true
+            ) {
+                $workRequest->status = 'approved';
+            }
+            // اگر همه false باشن → rejected  
+            elseif (
+                $workRequest->request_approval === false
+                && $workRequest->supply_approval === false
+                && $workRequest->ceo_approval === false
+            ) {
+                $workRequest->status = 'rejected';
+            }
+            // اگر هر کدوم null یا تغییر کرده → pending
+            else {
+                $workRequest->status = 'pending';
+            }
+        });
+    }
 
     public function isPaid(): bool
     {
         return !empty($this->payment_status);
+    }
+
+    protected function requestDateJalali(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->request_date ? toJalali($this->request_date) : '---'
+        );
     }
 }

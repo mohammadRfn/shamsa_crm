@@ -50,7 +50,11 @@ class ReportController extends Controller
      */
     public function create()
     {
-        $this->authorize('create', Report::class);
+        // فقط تکنسین می‌تونه گزارش بسازه
+        if (!Auth::user()->isTechnician()) {
+            return redirect()->route('reports.index')
+                ->with('error', 'فقط تکنسین‌ها می‌توانند گزارش ثبت کنند.');
+        }
 
         return view('reports.create');
     }
@@ -60,7 +64,16 @@ class ReportController extends Controller
      */
     public function store(Request $request)
     {
-        $this->authorize('create', Report::class);
+        if (!Auth::user()->isTechnician()) {
+            return redirect()->route('reports.index')
+                ->with('error', 'فقط تکنسین‌ها می‌توانند گزارش ثبت کنند.');
+        }
+        if ($request->has('request_date')) {
+            $request->merge(['request_date' => toGregorian($request->request_date)]);
+        }
+        if ($request->has('end_date')) {
+            $request->merge(['end_date' => toGregorian($request->end_date)]);
+        }
 
         $validated = $request->validate([
             'part_name' => 'required|string|max:255',
@@ -70,11 +83,16 @@ class ReportController extends Controller
             'device_model' => 'required|string|max:50',
             'issue_description' => 'required|string',
             'activity_report' => 'required|string',
-            'used_parts_list' => 'nullable|string',
+            'used_parts_list' => 'nullable|array',
             'workers_count' => 'required|integer|min:1',
             'hours_per_worker' => 'required|numeric|min:0.5',
             'end_date' => 'required|date|after_or_equal:request_date',
         ]);
+
+        // تبدیل آرایه به JSON
+        $usedPartsList = !empty($validated['used_parts_list'])
+            ? json_encode(array_filter($validated['used_parts_list']))
+            : null;
 
         $report = Report::create([
             'user_id' => auth()->id(),
@@ -85,7 +103,7 @@ class ReportController extends Controller
             'device_model' => $validated['device_model'],
             'issue_description' => $validated['issue_description'],
             'activity_report' => $validated['activity_report'],
-            'used_parts_list' => $validated['used_parts_list'],
+            'used_parts_list' => $usedPartsList,
             'workers_count' => $validated['workers_count'],
             'hours_per_worker' => $validated['hours_per_worker'],
             'end_date' => $validated['end_date'],
@@ -103,17 +121,13 @@ class ReportController extends Controller
     {
         $user = Auth::user();
 
+        // بررسی دسترسی
         if ($user->isTechnician() && $report->user_id !== $user->id) {
             abort(403, 'شما اجازه دسترسی به این گزارش را ندارید.');
         }
 
-        $report->load(['user', 'approvals.user', 'comments' => function ($query) use ($user) {
-            $query->active()
-                ->parentOnly()
-                ->forUser($user)
-                ->with(['user', 'replies.user'])
-                ->latest();
-        }]);
+        // Load relations - جایگزین کن
+        $report->load(['user', 'approvals.user']);
 
         return view('reports.show', compact('report'));
     }
@@ -130,6 +144,7 @@ class ReportController extends Controller
                 ->with('error', 'شما اجازه ویرایش این گزارش را ندارید.');
         }
 
+        // فقط گزارشات pending و new قابل ویرایش هستن
         if (!in_array($report->status, ['new', 'pending'])) {
             return redirect()->route('reports.index')
                 ->with('error', 'این گزارش قابل ویرایش نیست.');
@@ -154,6 +169,12 @@ class ReportController extends Controller
             return redirect()->route('reports.index')
                 ->with('error', 'این گزارش قابل ویرایش نیست.');
         }
+        if ($request->has('request_date')) {
+            $request->merge(['request_date' => toGregorian($request->request_date)]);
+        }
+        if ($request->has('end_date')) {
+            $request->merge(['end_date' => toGregorian($request->end_date)]);
+        }
 
         $validated = $request->validate([
             'part_name' => 'required|string|max:255',
@@ -162,13 +183,29 @@ class ReportController extends Controller
             'device_model' => 'required|string|max:50',
             'issue_description' => 'required|string',
             'activity_report' => 'required|string',
-            'used_parts_list' => 'nullable|string',
+            'used_parts_list' => 'nullable|array',
             'workers_count' => 'required|integer|min:1',
             'hours_per_worker' => 'required|numeric|min:0.5',
             'end_date' => 'required|date',
         ]);
 
-        $report->update($validated);
+        // تبدیل آرایه به JSON
+        $usedPartsList = !empty($validated['used_parts_list'])
+            ? json_encode(array_filter($validated['used_parts_list']))
+            : null;
+
+        $report->update([
+            'part_name' => $validated['part_name'],
+            'request_date' => $validated['request_date'],
+            'serial_number' => $validated['serial_number'],
+            'device_model' => $validated['device_model'],
+            'issue_description' => $validated['issue_description'],
+            'activity_report' => $validated['activity_report'],
+            'used_parts_list' => $usedPartsList,
+            'workers_count' => $validated['workers_count'],
+            'hours_per_worker' => $validated['hours_per_worker'],
+            'end_date' => $validated['end_date'],
+        ]);
 
         return redirect()->route('reports.show', $report)
             ->with('success', 'گزارش با موفقیت بروزرسانی شد.');
@@ -186,6 +223,7 @@ class ReportController extends Controller
                 ->with('error', 'شما اجازه حذف این گزارش را ندارید.');
         }
 
+        // فقط گزارشات new و pending قابل حذف هستن
         if (!in_array($report->status, ['new', 'pending'])) {
             return redirect()->route('reports.index')
                 ->with('error', 'این گزارش قابل حذف نیست.');
@@ -208,39 +246,55 @@ class ReportController extends Controller
             return back()->with('error', 'شما اجازه تایید ندارید.');
         }
 
-        if (!$report->canBeApprovedBy($user)) {
-            return back()->with('error', 'شما قبلاً نظر خود را ثبت کرده‌اید.');
-        }
-
         $request->validate([
             'comment' => 'nullable|string|max:500',
         ]);
 
         DB::transaction(function () use ($report, $user, $request) {
-            // ثبت در جدول approvals
-            Approval::create([
-                'approvable_type' => 'App\Models\Report',
-                'approvable_id' => $report->id,
-                'user_id' => $user->id,
-                'role' => $user->role,
-                'action' => 'approved',
-                'comment' => $request->comment,
-            ]);
+            // ابتدا approval قبلی این کاربر رو پیدا کن
+            $existingApproval = Approval::where('approvable_type', 'App\Models\Report') // یا PartOrder یا WorkRequest
+                ->where('approvable_id', $report->id)
+                ->where('user_id', $user->id)
+                ->first();
 
+            if ($existingApproval) {
+                // اگه قبلاً رأی داده، آپدیت کن
+                $existingApproval->update([
+                    'action' => 'approved', // یا 'rejected'
+                    'comment' => $request->comment,
+                ]);
+            } else {
+                // اگه رأی نداده، ایجاد کن
+                Approval::create([
+                    'approvable_type' => 'App\Models\Report',
+                    'approvable_id' => $report->id,
+                    'user_id' => $user->id,
+                    'role' => $user->role,
+                    'action' => 'approved', // یا 'rejected'
+                    'comment' => $request->comment,
+                ]);
+            }
+
+            // آپدیت فیلد approval مربوطه
             match ($user->role) {
                 'reception' => $report->update(['request_approval' => 1]),
                 'supply' => $report->update(['supply_approval' => 1]),
                 'ceo' => $report->update(['ceo_approval' => 1]),
             };
 
+            // آپدیت counters
             $report->increment('approved_by_count');
             $report->update([
                 'last_action_at' => now(),
                 'last_action_by' => $user->id,
             ]);
 
-            if ($report->fresh()->isFullyApproved()) {
+            // بررسی تایید کامل
+            $report->refresh();
+            if ($report->isFullyApproved()) {
                 $report->update(['status' => 'approved']);
+            } elseif ($report->status == 'new') {
+                $report->update(['status' => 'pending']);
             }
         });
 
@@ -258,24 +312,35 @@ class ReportController extends Controller
             return back()->with('error', 'شما اجازه رد کردن ندارید.');
         }
 
-        if (!$report->canBeApprovedBy($user)) {
-            return back()->with('error', 'شما قبلاً نظر خود را ثبت کرده‌اید.');
-        }
 
         $request->validate([
             'comment' => 'required|string|max:500',
         ]);
 
         DB::transaction(function () use ($report, $user, $request) {
-            // ثبت در جدول approvals
-            Approval::create([
-                'approvable_type' => 'App\Models\Report',
-                'approvable_id' => $report->id,
-                'user_id' => $user->id,
-                'role' => $user->role,
-                'action' => 'rejected',
-                'comment' => $request->comment,
-            ]);
+            // ابتدا approval قبلی این کاربر رو پیدا کن
+            $existingApproval = Approval::where('approvable_type', 'App\Models\Report') // یا PartOrder یا WorkRequest
+                ->where('approvable_id', $report->id)
+                ->where('user_id', $user->id)
+                ->first();
+
+            if ($existingApproval) {
+                // اگه قبلاً رأی داده، آپدیت کن
+                $existingApproval->update([
+                    'action' => 'rejected', // یا 'rejected'
+                    'comment' => $request->comment,
+                ]);
+            } else {
+                // اگه رأی نداده، ایجاد کن
+                Approval::create([
+                    'approvable_type' => 'App\Models\Report',
+                    'approvable_id' => $report->id,
+                    'user_id' => $user->id,
+                    'role' => $user->role,
+                    'action' => 'rejected', // یا 'rejected'
+                    'comment' => $request->comment,
+                ]);
+            }
 
             // آپدیت فیلد approval مربوطه
             match ($user->role) {
@@ -292,8 +357,11 @@ class ReportController extends Controller
             ]);
 
             // بررسی رد کامل
-            if ($report->fresh()->isFullyRejected()) {
+            $report->refresh();
+            if ($report->isFullyRejected()) {
                 $report->update(['status' => 'rejected']);
+            } elseif ($report->status == 'new') {
+                $report->update(['status' => 'pending']);
             }
         });
 

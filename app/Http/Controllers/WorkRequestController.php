@@ -76,17 +76,22 @@ class WorkRequestController extends Controller
             return redirect()->route('workrequests.index')
                 ->with('error', 'فقط تکنسین‌ها می‌توانند درخواست ثبت کنند.');
         }
-
+        if ($request->has('request_date')) {
+            $request->merge([
+                'request_date' => toGregorian($request->request_date)
+            ]);
+        }
         $validated = $request->validate([
             'request_number' => 'required|string|max:255',
             'request_date' => 'required|date',
             'serial_number' => 'required|string|max:255',
             'device_model' => 'required|string|max:255',
-            'equipment_name' => 'required|string|max:255',
+            'equipment_name' => 'nullable|string|max:255',
             'request_unit' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:20',
             'work_description' => 'required|string',
+            'workflow_description' => 'nullable|string',
             'issue_description' => 'nullable|string',
             'request_type' => 'required|in:repair,service,install,sale',
             'estimated_cost' => 'nullable|numeric|min:0',
@@ -117,17 +122,7 @@ class WorkRequestController extends Controller
         }
 
         // Load relations
-        $workrequest->load([
-            'user',
-            'approvals.user',
-            'comments' => function ($query) use ($user) {
-                $query->active()
-                    ->parentOnly()
-                    ->forUser($user)
-                    ->with(['user', 'replies.user'])
-                    ->latest();
-            }
-        ]);
+        $workrequest->load(['user', 'approvals.user']);
 
         return view('workrequests.show', compact('workrequest'));
     }
@@ -169,15 +164,22 @@ class WorkRequestController extends Controller
             return redirect()->route('workrequests.index')
                 ->with('error', 'این درخواست قابل ویرایش نیست.');
         }
+        if ($request->has('request_date')) {
+            $request->merge([
+                'request_date' => toGregorian($request->request_date)
+            ]);
+        }
 
         $validated = $request->validate([
             'serial_number' => 'required|string|max:255',
+            'request_date' => 'required|date',
             'device_model' => 'required|string|max:255',
-            'equipment_name' => 'required|string|max:255',
+            'equipment_name' => 'nullable|string|max:255',
             'request_unit' => 'required|string|max:255',
             'contact_person' => 'required|string|max:255',
             'contact_phone' => 'required|string|max:20',
             'work_description' => 'required|string',
+            'workflow_description' => 'nullable|string',
             'issue_description' => 'nullable|string',
             'request_type' => 'required|in:repair,service,install,sale',
             'estimated_cost' => 'nullable|numeric|min:0',
@@ -226,9 +228,9 @@ class WorkRequestController extends Controller
             return back()->with('error', 'شما اجازه تایید ندارید.');
         }
 
-        if (!$workrequest->canBeApprovedBy($user)) {
-            return back()->with('error', 'شما قبلاً نظر خود را ثبت کرده‌اید.');
-        }
+        // if (!$workrequest->canBeApprovedBy($user)) {
+        //     return back()->with('error', 'شما قبلاً نظر خود را ثبت کرده‌اید.');
+        // }
 
         $request->validate([
             'comment' => 'nullable|string|max:500',
@@ -260,8 +262,11 @@ class WorkRequestController extends Controller
             ]);
 
             // بررسی تایید کامل
-            if ($workrequest->fresh()->isFullyApproved()) {
+            $workrequest->refresh();
+            if ($workrequest->isFullyApproved()) {
                 $workrequest->update(['status' => 'approved']);
+            } elseif ($workrequest->status == 'new') {
+                $workrequest->update(['status' => 'pending']);
             }
         });
 
@@ -279,9 +284,9 @@ class WorkRequestController extends Controller
             return back()->with('error', 'شما اجازه رد کردن ندارید.');
         }
 
-        if (!$workrequest->canBeApprovedBy($user)) {
-            return back()->with('error', 'شما قبلاً نظر خود را ثبت کرده‌اید.');
-        }
+        // if (!$workrequest->canBeApprovedBy($user)) {
+        //     return back()->with('error', 'شما قبلاً نظر خود را ثبت کرده‌اید.');
+        // }
 
         $request->validate([
             'comment' => 'required|string|max:500',
@@ -313,8 +318,11 @@ class WorkRequestController extends Controller
             ]);
 
             // بررسی رد کامل
-            if ($workrequest->fresh()->isFullyRejected()) {
+            $workrequest->refresh();
+            if ($workrequest->isFullyRejected()) {
                 $workrequest->update(['status' => 'rejected']);
+            } elseif ($workrequest->status == 'new') {
+                $workrequest->update(['status' => 'pending']);
             }
         });
 
@@ -331,6 +339,8 @@ class WorkRequestController extends Controller
         }
 
         $validated = $request->validate([
+            'estimated_cost'       => 'nullable|numeric|min:0',
+            'initial_price_result' => 'nullable|string|max:255',
             'final_cost' => 'nullable|numeric|min:0',
             'payment_status' => 'nullable|in:credit,cash,documents',
             'invoice_number' => 'nullable|string|max:255',

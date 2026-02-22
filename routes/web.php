@@ -33,8 +33,11 @@ require __DIR__ . '/auth.php';
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', function () {
+        if (!auth()->user()->isCEO()) {
+            return redirect()->route('reports.index');
+        }
         return view('dashboard');
-    })->name('dashboard');
+    })->middleware(['auth', 'verified'])->name('dashboard');
 
     Route::prefix('profile')->name('profile.')->group(function () {
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');

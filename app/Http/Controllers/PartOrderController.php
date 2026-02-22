@@ -49,6 +49,10 @@ class PartOrderController extends Controller
             return redirect()->route('partorders.index')
                 ->with('error', 'فقط تکنسین‌ها می‌توانند سفارش ثبت کنند.');
         }
+        if ($request->has('order_date')) {
+            $request->merge(['order_date' => toGregorian($request->order_date)]);
+        }
+
 
         $validated = $request->validate([
             'equipment_name' => 'required|string|max:255',
@@ -79,14 +83,7 @@ class PartOrderController extends Controller
             abort(403, 'شما اجازه دسترسی ندارید.');
         }
 
-        $partorder->load(['user', 'approvals.user', 'comments' => function ($query) use ($user) {
-            $query->active()
-                ->parentOnly()
-                ->forUser($user)
-                ->with(['user', 'replies.user'])
-                ->latest();
-        }]);
-
+        $partorder->load(['user', 'approvals.user']);
         return view('partorders.show', compact('partorder'));
     }
 
@@ -115,9 +112,14 @@ class PartOrderController extends Controller
             return redirect()->route('partorders.index')
                 ->with('error', 'شما اجازه ویرایش ندارید.');
         }
+        if ($request->has('order_date')) {
+            $request->merge(['order_date' => toGregorian($request->order_date)]);
+        }
+
 
         $validated = $request->validate([
             'equipment_name' => 'required|string|max:255',
+            'order_date' => 'required|date',
             'part_name' => 'required|string|max:255',
             'specifications' => 'required|string',
             'package' => 'required|string|max:255',
@@ -154,9 +156,9 @@ class PartOrderController extends Controller
             return back()->with('error', 'شما اجازه تایید ندارید.');
         }
 
-        if (!$partorder->canBeApprovedBy($user)) {
-            return back()->with('error', 'شما قبلاً نظر داده‌اید.');
-        }
+        // if (!$partorder->canBeApprovedBy($user)) {
+        //     return back()->with('error', 'شما قبلاً نظر داده‌اید.');
+        // }
 
         DB::transaction(function () use ($partorder, $user, $request) {
             Approval::create([
@@ -180,8 +182,11 @@ class PartOrderController extends Controller
                 'last_action_by' => $user->id,
             ]);
 
-            if ($partorder->fresh()->isFullyApproved()) {
+            $partorder->refresh();
+            if ($partorder->isFullyApproved()) {
                 $partorder->update(['status' => 'approved']);
+            } elseif ($partorder->status == 'new') {
+                $partorder->update(['status' => 'pending']);
             }
         });
 
@@ -217,6 +222,12 @@ class PartOrderController extends Controller
                 'last_action_at' => now(),
                 'last_action_by' => $user->id,
             ]);
+            $partorder->refresh();
+            if ($partorder->isFullyRejected()) {
+                $partorder->update(['status' => 'rejected']);
+            } elseif ($partorder->status == 'new') {
+                $partorder->update(['status' => 'pending']);
+            }
         });
 
         return back()->with('error', 'رد شما ثبت شد.');

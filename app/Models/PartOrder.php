@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -68,7 +69,17 @@ class PartOrder extends Model
     {
         return match ($role) {
             'technician' => $query->where('user_id', auth()->id()),
-            'reception', 'supply' => $query->whereIn('status', ['new', 'pending']),
+
+            'reception' => $query->where(function ($q) {
+                $q->whereIn('status', ['new', 'pending'])
+                    ->orWhereNotNull('reception_approval');
+            }),
+
+            'supply' => $query->where(function ($q) {
+                $q->whereIn('status', ['new', 'pending'])
+                    ->orWhereNotNull('supply_approval');
+            }),
+
             'ceo' => $query,
             default => $query->where('id', 0),
         };
@@ -78,22 +89,37 @@ class PartOrder extends Model
     {
         return $query->whereIn('status', ['new', 'pending']);
     }
+    public function scopeApproved($query)
+    {
+        return $query->where('status', 'approved');
+    }
 
+    public function scopeRejected($query)
+    {
+        return $query->where('status', 'rejected');
+    }
     // Helper Methods
+    // درست - با boolean cast سازگار
     public function isFullyApproved(): bool
     {
-        return $this->supply_approval === 1
-            && $this->reception_approval === 1
-            && $this->ceo_approval === 1;
+        return $this->request_approval === true
+            && $this->supply_approval === true
+            && $this->ceo_approval === true;
     }
 
     public function isFullyRejected(): bool
     {
-        return $this->supply_approval === 0
-            && $this->reception_approval === 0
-            && $this->ceo_approval === 0;
+        return $this->request_approval === false
+            && $this->supply_approval === false
+            && $this->ceo_approval === false;
     }
 
+    public function hasAnyRejection(): bool
+    {
+        return $this->request_approval === false
+            || $this->supply_approval === false
+            || $this->ceo_approval === false;
+    }
     public function canBeApprovedBy(User $user): bool
     {
         return match ($user->role) {
@@ -102,5 +128,36 @@ class PartOrder extends Model
             'ceo' => $this->ceo_approval === null,
             default => false,
         };
+    }
+    protected static function booted()
+    {
+        static::saving(function ($partOrder) {
+            // اگر همه true باشن → approved
+            if (
+                $partOrder->reception_approval === true
+                && $partOrder->supply_approval === true
+                && $partOrder->ceo_approval === true
+            ) {
+                $partOrder->status = 'approved';
+            }
+            // اگر همه false باشن → failed
+            elseif (
+                $partOrder->reception_approval === false
+                && $partOrder->supply_approval === false
+                && $partOrder->ceo_approval === false
+            ) {
+                $partOrder->status = 'failed';
+            }
+            // اگر هر کدوم null یا تغییر کرده → pending
+            else {
+                $partOrder->status = 'pending';
+            }
+        });
+    }
+    protected function orderDateJalali(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->order_date ? toJalali($this->order_date) : null
+        );
     }
 }

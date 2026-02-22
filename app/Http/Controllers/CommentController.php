@@ -48,80 +48,89 @@ class CommentController extends Controller
         return view('comments.index', compact('comments', 'reportable', 'type'));
     }
 
-
     /**
      * ذخیره کامنت جدید
      */
     public function store(Request $request)
     {
-        $request->validate([
-            'comment' => 'required|string|max:1000',
-            'reportable_type' => 'required|in:report,partorder,workrequest',
+        $validated = $request->validate([
+            'reportable_type' => 'required|string|in:App\Models\Report,App\Models\PartOrder,App\Models\WorkRequest',
             'reportable_id' => 'required|integer',
-            'parent_id' => 'nullable|exists:comments,id',
+            'parent_id' => 'nullable|integer|exists:comments,id',
+            'comment' => 'required|string|max:1000',
         ]);
 
-        $user = Auth::user();
-        $reportable = $this->getReportable($request->reportable_type, $request->reportable_id);
+        $user = auth()->user();
+
+        // بررسی دسترسی به موجودیت اصلی
+        $reportable = $this->getReportable($validated['reportable_type'], $validated['reportable_id']);
 
         if (!$reportable) {
-            return redirect()->back()->with('error', 'آیتم یافت نشد.');
+            return back()->with('error', 'موردی یافت نشد.');
         }
 
-        // بررسی دسترسی
+        // اگه تکنسین باشه، فقط روی گزارش‌های خودش کامنت بذاره
         if ($user->isTechnician() && $reportable->user_id !== $user->id) {
-            return redirect()->back()->with('error', 'شما اجازه ثبت کامنت ندارید.');
+            return back()->with('error', 'شما اجازه کامنت روی این مورد را ندارید.');
         }
 
-        if ($request->parent_id) {
-            $parentComment = Comment::find($request->parent_id);
-
-            if (!$parentComment || !$parentComment->canBeRepliedBy($user)) {
-                return redirect()->back()->with('error', 'شما نمی‌توانید به این کامنت پاسخ دهید.');
+        // بررسی parent comment (اگه وجود داره)
+        if (isset($validated['parent_id']) && $validated['parent_id']) {
+            $parentComment = Comment::find($validated['parent_id']);
+            if (
+                !$parentComment ||
+                $parentComment->reportable_id != $validated['reportable_id'] ||
+                $parentComment->reportable_type != $validated['reportable_type']
+            ) {
+                return back()->with('error', 'کامنت والد نامعتبر است.');
             }
         }
 
-        $isVisibleToTechnician = false;
+        // تعیین visibility
+        $isVisibleToTechnician = $user->isApprover();
 
-        if ($user->isApprover()) {
-            $isVisibleToTechnician = true;
-        }
-
-        $comment = Comment::create([
+        Comment::create([
+            'reportable_type' => $validated['reportable_type'],
+            'reportable_id' => $validated['reportable_id'],
+            'parent_id' => $validated['parent_id'] ?? null,
             'user_id' => $user->id,
-            'reportable_id' => $reportable->id,
-            'reportable_type' => $this->getReportableClass($request->reportable_type),
-            'parent_id' => $request->parent_id,
-            'comment' => $request->comment,
             'role' => $user->role,
+            'comment' => $validated['comment'],
             'is_visible_to_technician' => $isVisibleToTechnician,
             'status' => 'active',
         ]);
 
-        return redirect()->back()->with('success', 'کامنت با موفقیت ثبت شد.');
+        return back()->with('success', 'نظر شما ثبت شد.');
     }
 
-    // Helper methods
-    private function getReportable(string $type, int $id)
+    /**
+     * حذف نرم کامنت
+     */
+    public function destroy(Comment $comment)
     {
-        return match ($type) {
-            'report' => Report::find($id),
-            'partorder' => PartOrder::find($id),
-            'workrequest' => WorkRequest::find($id),
-            default => null,
-        };
+        $user = auth()->user();
+
+        // فقط صاحب کامنت یا CEO می‌تونه حذف کنه
+        if ($comment->user_id !== $user->id && !$user->isCEO()) {
+            return back()->with('error', 'شما اجازه حذف این نظر را ندارید.');
+        }
+
+        $comment->softDelete();
+
+        return back()->with('success', 'نظر حذف شد.');
     }
 
-    private function getReportableClass(string $type): string
+    /**
+     * دریافت موجودیت قابل کامنت
+     */
+    private function getReportable($type, $id)
     {
-        return match ($type) {
-            'report' => 'App\Models\Report',
-            'partorder' => 'App\Models\PartOrder',
-            'workrequest' => 'App\Models\WorkRequest',
-            default => '',
-        };
-    }
+        if (!class_exists($type)) {
+            return null;
+        }
 
+        return $type::find($id);
+    }
     /**
      * نمایش کامنت‌های یک آیتم خاص
      */
@@ -149,23 +158,5 @@ class CommentController extends Controller
             ->get();
 
         return view('comments.show', compact('comments', 'reportable', 'type'));
-    }
-
-
-    /**
-     * حذف کامنت (soft delete)
-     */
-    public function destroy(Comment $comment)
-    {
-        $user = Auth::user();
-
-        // فقط صاحب کامنت یا CEO می‌تونه حذف کنه
-        if ($comment->user_id !== $user->id && !$user->isCEO()) {
-            return redirect()->back()->with('error', 'شما اجازه حذف این کامنت را ندارید.');
-        }
-
-        $comment->softDelete();
-
-        return redirect()->back()->with('success', 'کامنت با موفقیت حذف شد.');
     }
 }

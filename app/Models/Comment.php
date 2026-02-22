@@ -16,6 +16,8 @@ class Comment extends Model
         'comment',
         'role',
         'status',
+        'parent_id',
+        'is_visible_to_technician',
     ];
 
     protected $casts = [
@@ -62,12 +64,50 @@ class Comment extends Model
         return $query->where('is_visible_to_technician', true);
     }
 
-    public function scopeForUser($query, User $user)
+   // در قسمت Scopes، این متد رو اضافه کن:
+
+    /**
+     * Scope برای نمایش کامنت‌ها بر اساس نقش
+     */
+    public function scopeForUser($query, $user)
     {
+        // CEO همه چیز رو می‌بینه
+        if ($user->isCEO()) {
+            return $query;
+        }
+
+        // تعمیرکار: همه کامنت‌های آیتم‌هایی که متعلق به خودشه
+        // (این scope بعد از اینکه query روی یه reportable خاص اجرا میشه،
+        //  پس reportable_id و reportable_type قبلاً فیلتر شدن)
         if ($user->isTechnician()) {
-            return $query->where(function ($q) use ($user) {
-                $q->where('user_id', $user->id)
-                    ->orWhere('is_visible_to_technician', true);
+            // چون تعمیرکار فقط آیتم‌های خودشو می‌بینه (از controller چک شده)
+            // پس همه کامنت‌های اون آیتم رو باید ببینه
+            return $query;
+        }
+
+        // پذیرش و تامین:
+        // ۱. کامنت‌هایی که خودشون نوشتن (parent یا reply)
+        // ۲. کامنت‌هایی که کسی به اونها ریپلای زده
+        //    (یعنی id این کامنت، parent_id یه کامنت دیگه‌ست)
+        if ($user->isApprover()) {
+            $userId = $user->id;
+
+            return $query->where(function ($q) use ($userId) {
+                $q
+                    // کامنت‌های خودش
+                    ->where('user_id', $userId)
+                    // یا کامنت‌هایی که کسی بهشون ریپلای داده
+                    // (یعنی id این کامنت در parent_id جدول comments وجود داره)
+                    ->orWhereIn('id', function ($sub) use ($userId) {
+                        $sub->select('parent_id')
+                            ->from('comments')
+                            ->whereNotNull('parent_id')
+                            ->whereIn('parent_id', function ($sub2) use ($userId) {
+                                $sub2->select('id')
+                                    ->from('comments')
+                                    ->where('user_id', $userId);
+                            });
+                    });
             });
         }
 

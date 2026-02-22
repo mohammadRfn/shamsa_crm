@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -76,9 +77,19 @@ class Report extends Model
     {
         return match ($role) {
             'technician' => $query->where('user_id', auth()->id()),
-            'reception', 'supply' => $query->whereIn('status', ['new', 'pending']),
+
+            'reception' => $query->where(function ($q) {
+                $q->whereIn('status', ['new', 'pending'])
+                    ->orWhereNotNull('request_approval');
+            }),
+
+            'supply' => $query->where(function ($q) {
+                $q->whereIn('status', ['new', 'pending'])
+                    ->orWhereNotNull('supply_approval');
+            }),
+
             'ceo' => $query,
-            default => $query->where('id', 0), // No access
+            default => $query->where('id', 0),
         };
     }
 
@@ -97,25 +108,26 @@ class Report extends Model
         return $query->where('status', 'rejected');
     }
 
+    // درست - با boolean cast سازگار
     public function isFullyApproved(): bool
     {
-        return $this->request_approval === 1
-            && $this->supply_approval === 1
-            && $this->ceo_approval === 1;
+        return $this->request_approval === true
+            && $this->supply_approval === true
+            && $this->ceo_approval === true;
     }
 
     public function isFullyRejected(): bool
     {
-        return $this->request_approval === 0
-            && $this->supply_approval === 0
-            && $this->ceo_approval === 0;
+        return $this->request_approval === false
+            && $this->supply_approval === false
+            && $this->ceo_approval === false;
     }
 
     public function hasAnyRejection(): bool
     {
-        return $this->request_approval === 0
-            || $this->supply_approval === 0
-            || $this->ceo_approval === 0;
+        return $this->request_approval === false
+            || $this->supply_approval === false
+            || $this->ceo_approval === false;
     }
 
     public function getPendingApprovers(): array
@@ -135,16 +147,17 @@ class Report extends Model
         return $pending;
     }
 
+    // متد canBeApprovedBy رو پیدا کن و این‌طوری تغییرش بده:
+
     public function canBeApprovedBy(User $user): bool
     {
-        return match ($user->role) {
-            'reception' => $this->request_approval === null,
-            'supply' => $this->supply_approval === null,
-            'ceo' => $this->ceo_approval === null,
-            default => false,
-        };
-    }
+        if (!$user->isApprover()) {
+            return false;
+        }
 
+        // حذف بررسی قبلی - حالا همه می‌تونن دوباره رأی بدن
+        return true;
+    }
     public function hasApprovedBy(User $user): bool
     {
         return match ($user->role) {
@@ -167,10 +180,40 @@ class Report extends Model
 
     protected static function booted()
     {
-        static::saving(function ($report) {
-            if ($report->workers_count && $report->hours_per_worker) {
-                $report->total_man_hours = $report->workers_count * $report->hours_per_worker;
+        static::saving(function ($workRequest) {
+            // اگر همه true باشن → approved
+            if (
+                $workRequest->request_approval === true
+                && $workRequest->supply_approval === true
+                && $workRequest->ceo_approval === true
+            ) {
+                $workRequest->status = 'approved';
+            }
+            // اگر همه false باشن → rejected  
+            elseif (
+                $workRequest->request_approval === false
+                && $workRequest->supply_approval === false
+                && $workRequest->ceo_approval === false
+            ) {
+                $workRequest->status = 'rejected';
+            }
+            // اگر هر کدوم null یا تغییر کرده → pending
+            else {
+                $workRequest->status = 'pending';
             }
         });
+    }
+    protected function requestDateJalali(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->request_date ? toJalali($this->request_date) : null
+        );
+    }
+
+    protected function endDateJalali(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->end_date ? toJalali($this->end_date) : null
+        );
     }
 }
