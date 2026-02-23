@@ -64,7 +64,7 @@
    ```bash
    php artisan migrate
 
-5. **Install Frontend Dependencies (Vue.js)**
+5. **Install Frontend Dependencies**
     ```bash
     npm install
 
