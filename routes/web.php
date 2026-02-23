@@ -50,6 +50,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::resource('reports', ReportController::class);
+    Route::get('reports/{report}/pdf', [ReportController::class, 'downloadPdf'])->name('reports.pdf');
     Route::middleware('approver')->group(function () {
         Route::post('/reports/{report}/approve', [ReportController::class, 'approve'])->name('reports.approve');
         Route::post('/reports/{report}/reject', [ReportController::class, 'reject'])->name('reports.reject');

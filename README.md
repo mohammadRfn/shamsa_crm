@@ -1,88 +1,156 @@
-<div align="center">
-  
-# OfficeManager
+# Vazir Font
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/dark-github.svg">
-  <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/github.svg">
-  <img alt="Ask Me Anything" src="https://raw.githubusercontent.com/rajatverma01/rajatverma01/main/public/github.svg" width="450">
-</picture>
+Vazir is a Persian/Arabic font.
 
-**توضیح کامل پروژه: یک اپلیکیشن وب مدرن با Laravel backend و Blade frontend استایل‌شده با Tailwind CSS. بدون API جداگانه (SPA یا RESTful API)، فقط صفحات Blade خالص با Tailwind برای استایلینگ.**
+[![npm version](https://badge.fury.io/js/vazir-font.svg)](https://badge.fury.io/js/vazir-font)
 
-[![Laravel](https://img.shields.io/badge/Laravel-12.x-F05340?style=flat&logo=laravel&logoColor=white)](https://laravel.com)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4-3B82F6?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
-[![PHP](https://img.shields.io/badge/PHP-8.4+-777BB4?style=flat&logo=php&logoColor=white)](https://www.php.net)
-[![License](https://img.shields.io/github/license/yourusername/your-repo.svg?style=flat&logo=github)](LICENSE)
+<div dir='rtl'>
+
+فونت فارسی/عربی وزیر  
+[نمایش فونت - صفحه رسمی پروژه](https://rastikerdar.github.io/vazir-font/)  
+[راهنمای فونت وزیر](https://github.com/rastikerdar/vazir-font/blob/master/HELP.md)  
+[صفحه دریافت (دانلود) بسته فونت شامل فایل های ttf,woff,eot](https://github.com/rastikerdar/vazir-font/releases)  
+با تشکر از برنامه [FontForge](https://fontforge.github.io)  
+بر مبنای فونت [DejaVu Sans 2.35](https://dejavu-fonts.github.io)  
+نسخه‌های بدون حروف لاتین یا تمام ارقام فارسی و همچنین نسخه UI با ارتفاع کم درون بستهٔ فشرده موجود می‌باشد.  
+
+## توجه
+
+از نسخه ۲۷ نام فایل نسخه معمولی وزیر از Vazir به Vazir-Regular تغییر یافته است. لطفا پیش از نصب برای جلوگیری از تداخل، نسخه‌های قبل را حذف نمایید.
+
+## طریقه استفاده در صفحات وب
+
+کد زیر را در قسمت style یا فایل css وارد نمایید:
 
 </div>
 
-## ✨ ویژگی‌ها
+```css
+@font-face {
+    font-family: Vazir;
+    src: url('Vazir-Regular.eot');
+    src: url('Vazir-Regular.eot?#iefix') format('embedded-opentype'),
+         url('Vazir-Regular.woff2') format('woff2'),
+         url('Vazir-Regular.woff') format('woff'),
+         url('Vazir-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: Vazir;
+    src: url('Vazir-Bold.eot');
+    src: url('Vazir-Bold.eot?#iefix') format('embedded-opentype'),
+         url('Vazir-Bold.woff2') format('woff2'),
+         url('Vazir-Bold.woff') format('woff'),
+         url('Vazir-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: Vazir;
+    src: url('Vazir-Black.eot');
+    src: url('Vazir-Black.eot?#iefix') format('embedded-opentype'),
+         url('Vazir-Black.woff2') format('woff2'),
+         url('Vazir-Black.woff') format('woff'),
+         url('Vazir-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+@font-face {
+    font-family: Vazir;
+    src: url('Vazir-Medium.eot');
+    src: url('Vazir-Medium.eot?#iefix') format('embedded-opentype'),
+         url('Vazir-Medium.woff2') format('woff2'),
+         url('Vazir-Medium.woff') format('woff'),
+         url('Vazir-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+@font-face {
+    font-family: Vazir;
+    src: url('Vazir-Light.eot');
+    src: url('Vazir-Light.eot?#iefix') format('embedded-opentype'),
+         url('Vazir-Light.woff2') format('woff2'),
+         url('Vazir-Light.woff') format('woff'),
+         url('Vazir-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: Vazir;
+    src: url('Vazir-Thin.eot');
+    src: url('Vazir-Thin.eot?#iefix') format('embedded-opentype'),
+         url('Vazir-Thin.woff2') format('woff2'),
+         url('Vazir-Thin.woff') format('woff'),
+         url('Vazir-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+```
 
-- **Laravel Backend**: مسیریابی، کنترلرها، مدل‌ها، مایگریشن‌ها و validation کامل
-- **Blade Views**: صفحات frontend با Blade templates (بدون SPA یا React/Vue)
-- **Tailwind CSS**: استایلینگ مدرن و responsive با Tailwind (نصب via npm)
-- **Database**: MySQL با Eloquent ORM
-- **Validation & Forms**: فرم‌های امن با Laravel validation
+## Install
 
-## 📋 نیازمندی‌ها
+### Download
 
-| مورد       | نسخه حداقل          |
-|------------|---------------------|
-| PHP        | 8.4.7              |
-| Composer   | 2.7+               |
-| Node.js    | 20+                |
-| npm        | 10+                |
-| MySQL      | 8.0+               |
-| Git        | 2.30+              |
+Grab the [latest release](https://github.com/rastikerdar/vazir-font/releases/latest) file.
 
----
+### [npm](https://www.npmjs.com/package/vazir-font)
 
-## 🚀 نصب و راه‌اندازی کامل (گام به گام)
+```
+npm install vazir-font
+```
+Fonts will be copied to `node_modules/vazir-font/dist` directory
 
-### 1️⃣ Clone Repository و Setup اولیه Laravel
+### CDN
 
-# Clone پروژه
-1. git clone https://github.com/yourusername/your-repo.git
-    ```bash
-    cd your-repo
+Link fonts from the [jsDelivr](https://www.jsdelivr.com/) CDN:
 
-2. **Install Backend Dependencies (Laravel)**
+```html
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazir-font@v30.1.0/dist/font-face.css" rel="stylesheet" type="text/css" />
+```
 
-   ```bash
-   composer install
+and integrate the font into your CSS:
 
-3. **Setup Environment File**
-   ```bash
-   cp .env.example .env
-   php artisan key:generate
+```
+font-family: 'Vazir', sans-serif;
+```
 
-4. **Run Database Migrations**
-   ```bash
-   php artisan migrate
+### Arch Linux
 
-5. **Install Frontend Dependencies (blade)**
-    ```bash
-    npm install
+Arch user's could use [vazir-fonts](https://aur.archlinux.org/packages/vazir-fonts/) package from [AUR](https://aur.archlinux.org/) repository to install vazir font.
+Use your favourite [AUR helper](https://wiki.archlinux.org/index.php/AUR_helpers) like pacaur or yaourt for installing package:
 
-6. **Start the Development Servers**
-    ```bash
-    php artisan serve
-    npm run dev
+```shell
+pacaur -S vazir-fonts
+```
 
-```bash
-## کپی فایل محیطی
-cp .env.example .env
+### GNU/Linux
 
-# نصب dependencies PHP (Composer)
-composer install --optimize-autoloader --no-dev
+gnu/linux users could use [kateb](https://github.com/kiamazi/kateb) font manager, to install vazir font.
 
-# تولید Application Key
-php artisan key:generate --force
+```
+kateb install vazir
+or
+kateb update vazir
+```
 
-# تنظیم مجوزهای فولدرها (Linux/Mac)
-chmod -R 775 storage bootstrap/cache
-sudo chown -R $USER:www-data storage bootstrap/cache
+### [Chocolatey](https://chocolatey.org/packages/vazir-font)
+#### Install
+```
+choco install vazir-font
+```
+#### Upgrade
+```
+choco upgrade vazir-font
+```
+#### Uninstall
+```
+choco uninstall vazir-font
+```
 
-# پاک کردن cache (اختیاری)
-php artisan optimize:clear
+## Build instructions
+
+Light, Medium and Bold versions are created with interpolation method by [fontmake](https://github.com/googlefonts/fontmake) library. See the [README.md](/scripts/README.md) file in folder `scripts`. All build steps (generating outputs) are done by scripts.
+
+## License
+
+2015 Saber Rastikerdar ([@rastikerdar](https://github.com/rastikerdar)). See [OFL.txt](OFL.txt).

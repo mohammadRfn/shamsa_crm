@@ -49,7 +49,7 @@
                     </div>
 
                     <div class="section-inner">
-                        <label class="text-sm text-dark-400 block mb-1">نام قطعه</label>
+                        <label class="text-sm text-dark-400 block mb-1">شرح کار درخواستی</label>
                         <p class="text-cream-100 font-semibold">{{ $report->part_name }}</p>
                     </div>
 
@@ -59,7 +59,7 @@
                     </div>
 
                     <div class="section-inner">
-                        <label class="text-sm text-dark-400 block mb-1">شماره سریال</label>
+                        <label class="text-sm text-dark-400 block mb-1">شماره سریال دستگاه</label>
                         <p class="text-cream-100 font-semibold">{{ $report->serial_number }}</p>
                     </div>
 
@@ -83,10 +83,10 @@
                         <p class="text-cream-100 font-semibold">{{ $report->hours_per_worker }} ساعت</p>
                     </div>
 
-                    <div class="section-inner">
+                    <!-- <div class="section-inner">
                         <label class="text-sm text-dark-400 block mb-1">مجموع نفر‌ساعت</label>
                         <p class="text-primary-400 font-bold text-lg">{{ $report->total_man_hours }}</p>
-                    </div>
+                    </div> -->
                 </div>
             </div>
 
@@ -240,9 +240,18 @@
                             رد گزارش
                         </button>
                     </form>
+                    
                 </div>
             </div>
             @endif
+            <a href="{{ route('reports.pdf', $report) }}"
+                        class="btn-secondary inline-flex items-center gap-2" target="_blank">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        دانلود PDF
+                    </a>
             <!-- قبل از دکمه‌های ویرایش/حذف، اضافه کن: -->
             <x-comments-section
                 :reportable="$report"
@@ -266,6 +275,7 @@
                         حذف گزارش
                     </button>
                 </form>
+
             </div>
             @endif
 

@@ -7,6 +7,7 @@ use App\Models\Approval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 
 class ReportController extends Controller
 {
@@ -366,5 +367,33 @@ class ReportController extends Controller
         });
 
         return back()->with('error', 'رأی رد شما ثبت شد.');
+    }
+    public function downloadPdf(Report $report)
+    {
+        $report->load(['user', 'approvals.user']);
+        $parts = json_decode($report->used_parts_list) ?? [];
+
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'directionality' => 'rtl',
+            'fontDir' => [resource_path('fonts')],
+            'fontdata' => [
+                'vazir' => [
+                    'R' => 'Vazir-Regular.ttf',
+                    'B' => 'Vazir-Bold.ttf',
+                    'useOTL' => 0xFF,
+                    'useKashida' => 75,
+                ]
+            ],
+            'default_font' => 'vazir',
+        ]);
+
+        $html = view('reports.pdf', compact('report', 'parts'))->render();
+        $mpdf->WriteHTML($html);
+
+        return response()->streamDownload(function () use ($mpdf) {
+            echo $mpdf->Output('', 'S');
+        }, 'report-' . $report->request_number . '.pdf');
     }
 }

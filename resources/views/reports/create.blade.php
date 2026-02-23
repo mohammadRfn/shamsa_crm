@@ -35,7 +35,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <!-- فیلدهای قبلی بدون تغییر -->
                         <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">نام قطعه *</label>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">شرح کار درخواستی *</label>
                             <input type="text" name="part_name" required class="input-luxury w-full" placeholder="مثال: مادربرد اینورتر">
                             @error('part_name') <p class="text-red-400 text-xs mt-1">{{ $message }}</p> @enderror
                         </div>

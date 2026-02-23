@@ -34,7 +34,7 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">نام قطعه *</label>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">شرح کار درخواستی *</label>
                             <input type="text" name="part_name" value="{{ old('part_name', $report->part_name) }}" required
                                 class="input-luxury w-full">
                             @error('part_name')
