@@ -33,7 +33,11 @@ class PartOrder extends Model
 
     protected $casts = [
         'order_date' => 'date',
-        'quantity' => 'integer',
+        'part_name' => 'array',
+        'specifications' => 'array',
+        'package' => 'array',
+        'quantity' => 'array',
+        'description' => 'array',
         'supply_approval' => 'boolean',
         'reception_approval' => 'boolean',
         'request_approval' => 'boolean',

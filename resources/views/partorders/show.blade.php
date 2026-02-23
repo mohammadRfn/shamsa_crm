@@ -43,66 +43,54 @@
                     <h2 class="text-xl font-bold text-cream-100">مشخصات سفارش</h2>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                     <div class="section-inner">
                         <label class="text-sm text-dark-400 block mb-1">سفارش‌دهنده</label>
                         <p class="text-cream-100 font-semibold">{{ $partorder->user->name }}</p>
                     </div>
-
-                    <div class="section-inner">
-                        <label class="text-sm text-dark-400 block mb-1">نام قطعه</label>
-                        <p class="text-cream-100 font-semibold">{{ $partorder->part_name }}</p>
-                    </div>
-
                     <div class="section-inner">
                         <label class="text-sm text-dark-400 block mb-1">نام تجهیز</label>
                         <p class="text-cream-100 font-semibold">{{ $partorder->equipment_name }}</p>
                     </div>
-
                     <div class="section-inner">
                         <label class="text-sm text-dark-400 block mb-1">تاریخ سفارش</label>
                         <p class="text-cream-100 font-semibold">{{ $partorder->order_date_jalali }}</p>
                     </div>
+                </div>
 
-                    <div class="section-inner">
-                        <label class="text-sm text-dark-400 block mb-1">نوع بسته‌بندی</label>
-                        <p class="text-cream-100 font-semibold">{{ $partorder->package }}</p>
-                    </div>
-
-                    <div class="section-inner">
-                        <label class="text-sm text-dark-400 block mb-1">تعداد</label>
-                        <p class="text-primary-400 font-bold text-lg">{{ $partorder->quantity }}</p>
-                    </div>
+                <!-- جدول قطعات -->
+                <div class="overflow-x-auto">
+                    <table class="w-full border-collapse">
+                        <thead>
+                            <tr class="bg-dark-700/50">
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-10">ردیف</th>
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">نام قطعه</th>
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">مشخصات</th>
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">پکیج</th>
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-24">تعداد</th>
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">توضیحات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($partorder->part_name ?? [] as $i => $pname)
+                            <tr>
+                                <td class="border border-dark-600 px-2 py-2 text-center text-cream-400 text-sm">{{ $i + 1 }}</td>
+                                <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ $pname }}</td>
+                                <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ ($partorder->specifications ?? [])[$i] ?? '-' }}</td>
+                                <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ ($partorder->package ?? [])[$i] ?? '-' }}</td>
+                                <td class="border border-dark-600 px-3 py-2 text-center text-primary-400 font-bold text-sm">{{ ($partorder->quantity ?? [])[$i] ?? '-' }}</td>
+                                <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ ($partorder->description ?? [])[$i] ?? '-' }}</td>
+                            </tr>
+                            @empty
+                            <tr>
+                                <td colspan="6" class="border border-dark-600 px-3 py-4 text-center text-dark-400">قطعه‌ای ثبت نشده</td>
+                            </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
-            <!-- مشخصات فنی -->
-            <div class="card-luxury p-6 space-y-6">
-                <div class="flex items-center gap-3 pb-4 border-b-2 divider">
-                    <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-cream-100">جزئیات فنی</h2>
-                </div>
-
-                <div class="space-y-6">
-                    <div>
-                        <label class="text-sm font-semibold text-cream-200 mb-2 block">مشخصات فنی:</label>
-                        <div class="section-inner">
-                            <p class="text-cream-100 leading-relaxed whitespace-pre-wrap">{{ $partorder->specifications }}</p>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label class="text-sm font-semibold text-cream-200 mb-2 block">توضیحات تکمیلی:</label>
-                        <div class="section-inner">
-                            <p class="text-cream-100 leading-relaxed whitespace-pre-wrap">{{ $partorder->description }}</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
             <!-- وضعیت تاییدها -->
             <div class="card-luxury p-6 space-y-6">
@@ -150,7 +138,7 @@
                 @if($partorder->approvals->count() > 0)
                 <div class="mt-6 space-y-3">
                     <h3 class="text-sm font-semibold text-cream-200">تاریخچه تاییدها:</h3>
-                   @foreach($partorder->approvals as $approval)
+                    @foreach($partorder->approvals as $approval)
                     <div class="section-inner flex items-center justify-between">
                         <div class="flex items-center gap-3">
                             <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-cream-50 font-bold text-xs shadow-md">
@@ -206,6 +194,14 @@
                 </div>
             </div>
             @endif
+            <a href="{{ route('partorders.pdf', $partorder) }}"
+                class="btn-secondary inline-flex items-center gap-2" target="_blank">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                دانلود PDF
+            </a>
             <x-comments-section
                 :reportable="$partorder"
                 reportableType="App\Models\PartOrder" />

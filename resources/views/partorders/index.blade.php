@@ -71,7 +71,7 @@
                     <div class="flex items-start justify-between mb-4 pb-4 border-b-2 divider">
                         <div class="flex-1">
                             <h3 class="text-xl font-bold text-cream-100 group-hover:text-primary-400 transition-colors">
-                                {{ $order->part_name }}
+                                {{ implode('، ', $order->part_name ?? []) }}
                             </h3>
                             <p class="text-sm text-dark-400 mt-1">سفارش: {{ $order->order_number }}</p>
                         </div>
@@ -121,14 +121,14 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                             </svg>
                             <span class="text-dark-400">تعداد:</span>
-                            <span class="text-primary-400 font-bold">{{ $order->quantity }}</span>
+                            <span class="text-primary-400 font-bold">{{ implode('، ', array_map('strval', $order->quantity ?? [])) }}</span>
                         </div>
                     </div>
 
                     <!-- Package Info -->
                     <div class="section-inner mb-4">
                         <div class="text-xs text-dark-400 mb-1">بسته‌بندی:</div>
-                        <div class="text-sm text-cream-100 font-medium">{{ $order->package }}</div>
+                        <div class="text-sm text-cream-100 font-medium">{{ implode('، ', $order->package ?? []) }}</div>
                     </div>
 
                     <!-- Approval Status -->

@@ -21,7 +21,7 @@
                 @csrf
                 @method('PUT')
 
-                <!-- اطلاعات سفارش -->
+                <!-- اطلاعات ثابت -->
                 <div class="card-luxury p-6 space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                         <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -50,64 +50,62 @@
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">نام قطعه *</label>
-                            <input type="text" name="part_name" value="{{ old('part_name', $partorder->part_name) }}" required
-                                class="input-luxury w-full">
-                            @error('part_name')
-                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">نوع بسته‌بندی *</label>
-                            <input type="text" name="package" value="{{ old('package', $partorder->package) }}" required
-                                class="input-luxury w-full">
-                            @error('package')
-                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">تعداد *</label>
-                            <input type="number" name="quantity" value="{{ old('quantity', $partorder->quantity) }}" min="1" required
-                                class="input-luxury w-full">
-                            @error('quantity')
-                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
                     </div>
                 </div>
 
-                <!-- مشخصات فنی -->
-                <div class="card-luxury p-6 space-y-6">
-                    <div class="flex items-center gap-3 pb-4 border-b-2 divider">
-                        <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
-                            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                            </svg>
+                <!-- جدول قطعات -->
+                <div class="card-luxury p-6 space-y-4">
+                    <div class="flex items-center justify-between pb-4 border-b-2 divider">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+                                <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                                </svg>
+                            </div>
+                            <h2 class="text-xl font-bold text-cream-100">لیست قطعات</h2>
                         </div>
-                        <h2 class="text-xl font-bold text-cream-100">جزئیات فنی</h2>
+                        <button type="button" onclick="addRow()" class="btn-secondary text-sm px-4 py-2 inline-flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                            </svg>
+                            افزودن ردیف
+                        </button>
                     </div>
 
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">مشخصات فنی *</label>
-                            <textarea name="specifications" rows="4" required
-                                class="input-luxury w-full resize-none">{{ old('specifications', $partorder->specifications) }}</textarea>
-                            @error('specifications')
-                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">توضیحات تکمیلی *</label>
-                            <textarea name="description" rows="4" required
-                                class="input-luxury w-full resize-none">{{ old('description', $partorder->description) }}</textarea>
-                            @error('description')
-                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
-                            @enderror
-                        </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-dark-700/50">
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-10">ردیف</th>
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">نام قطعه</th>
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">مشخصات</th>
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">پکیج</th>
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-24">تعداد</th>
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">توضیحات</th>
+                                    <th class="border border-dark-600 px-2 py-2 w-10"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="parts-body">
+                                @php $partNames = old('part_name', $partorder->part_name ?? []); @endphp
+                                @foreach($partNames as $i => $pname)
+                                <tr class="part-row">
+                                    <td class="border border-dark-600 px-2 py-2 text-center text-cream-400 text-sm row-num">{{ $i + 1 }}</td>
+                                    <td class="border border-dark-600 px-1 py-1"><input type="text" name="part_name[]" value="{{ $pname }}" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
+                                    <td class="border border-dark-600 px-1 py-1"><input type="text" name="specifications[]" value="{{ ($partorder->specifications ?? [])[$i] ?? '' }}" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
+                                    <td class="border border-dark-600 px-1 py-1"><input type="text" name="package[]" value="{{ ($partorder->package ?? [])[$i] ?? '' }}" required class="input-luxury w-full text-sm py-1 min-w-[80px]"></td>
+                                    <td class="border border-dark-600 px-1 py-1"><input type="number" name="quantity[]" value="{{ ($partorder->quantity ?? [])[$i] ?? '' }}" min="1" required class="input-luxury w-full text-sm py-1"></td>
+                                    <td class="border border-dark-600 px-1 py-1"><input type="text" name="description[]" value="{{ ($partorder->description ?? [])[$i] ?? '' }}" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
+                                    <td class="border border-dark-600 px-1 py-1 text-center">
+                                        <button type="button" class="remove-row text-red-400 hover:text-red-300 {{ count($partNames) <= 1 ? 'hidden' : '' }}" onclick="removeRow(this)">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                            </svg>
+                                        </button>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -127,6 +125,7 @@
 
         </div>
     </div>
+
     <script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
     <script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
     <script>
@@ -137,5 +136,47 @@
                 initialValue: true
             });
         });
+
+        function addRow() {
+            const tbody = document.getElementById('parts-body');
+            const rowCount = tbody.querySelectorAll('.part-row').length;
+
+            const newRow = document.createElement('tr');
+            newRow.className = 'part-row';
+            newRow.innerHTML = `
+                <td class="border border-dark-600 px-2 py-2 text-center text-cream-400 text-sm row-num">${rowCount + 1}</td>
+                <td class="border border-dark-600 px-1 py-1"><input type="text" name="part_name[]" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
+                <td class="border border-dark-600 px-1 py-1"><input type="text" name="specifications[]" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
+                <td class="border border-dark-600 px-1 py-1"><input type="text" name="package[]" required class="input-luxury w-full text-sm py-1 min-w-[80px]"></td>
+                <td class="border border-dark-600 px-1 py-1"><input type="number" name="quantity[]" min="1" required class="input-luxury w-full text-sm py-1"></td>
+                <td class="border border-dark-600 px-1 py-1"><input type="text" name="description[]" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
+                <td class="border border-dark-600 px-1 py-1 text-center">
+                    <button type="button" class="remove-row text-red-400 hover:text-red-300" onclick="removeRow(this)">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(newRow);
+            tbody.querySelector('.remove-row').classList.remove('hidden');
+        }
+
+        function removeRow(btn) {
+            const tbody = document.getElementById('parts-body');
+            if (tbody.querySelectorAll('.part-row').length > 1) {
+                btn.closest('.part-row').remove();
+                updateRowNumbers();
+                if (tbody.querySelectorAll('.part-row').length === 1) {
+                    tbody.querySelector('.remove-row').classList.add('hidden');
+                }
+            }
+        }
+
+        function updateRowNumbers() {
+            document.querySelectorAll('.row-num').forEach((el, i) => {
+                el.textContent = i + 1;
+            });
+        }
     </script>
 </x-app-layout>

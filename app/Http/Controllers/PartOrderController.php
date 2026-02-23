@@ -7,6 +7,7 @@ use App\Models\Approval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 
 class PartOrderController extends Controller
 {
@@ -58,16 +59,28 @@ class PartOrderController extends Controller
             'equipment_name' => 'required|string|max:255',
             'order_date' => 'required|date',
             'order_number' => 'required|string|max:255',
-            'part_name' => 'required|string|max:255',
-            'specifications' => 'required|string',
-            'package' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
-            'description' => 'required|string',
+            'part_name' => 'required|array|min:1',
+            'part_name.*' => 'required|string|max:255',
+            'specifications' => 'required|array|min:1',
+            'specifications.*' => 'required|string',
+            'package' => 'required|array|min:1',
+            'package.*' => 'required|string|max:255',
+            'quantity' => 'required|array|min:1',
+            'quantity.*' => 'required|integer|min:1',
+            'description' => 'required|array|min:1',
+            'description.*' => 'required|string',
         ]);
 
         PartOrder::create([
             'user_id' => auth()->id(),
-            ...$validated,
+            'equipment_name' => $validated['equipment_name'],
+            'order_date' => $validated['order_date'],
+            'order_number' => $validated['order_number'],
+            'part_name' => $validated['part_name'],
+            'specifications' => $validated['specifications'],
+            'package' => $validated['package'],
+            'quantity' => $validated['quantity'],
+            'description' => $validated['description'],
             'status' => 'pending',
         ]);
 
@@ -120,11 +133,16 @@ class PartOrderController extends Controller
         $validated = $request->validate([
             'equipment_name' => 'required|string|max:255',
             'order_date' => 'required|date',
-            'part_name' => 'required|string|max:255',
-            'specifications' => 'required|string',
-            'package' => 'required|string|max:255',
-            'quantity' => 'required|integer|min:1',
-            'description' => 'required|string',
+            'part_name' => 'required|array|min:1',
+            'part_name.*' => 'required|string|max:255',
+            'specifications' => 'required|array|min:1',
+            'specifications.*' => 'required|string',
+            'package' => 'required|array|min:1',
+            'package.*' => 'required|string|max:255',
+            'quantity' => 'required|array|min:1',
+            'quantity.*' => 'required|integer|min:1',
+            'description' => 'required|array|min:1',
+            'description.*' => 'required|string',
         ]);
 
         $partorder->update($validated);
@@ -231,5 +249,32 @@ class PartOrderController extends Controller
         });
 
         return back()->with('error', 'رد شما ثبت شد.');
+    }
+    public function downloadPdf(PartOrder $partorder)
+    {
+        $partorder->load(['user', 'approvals.user']);
+
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'directionality' => 'rtl',
+            'fontDir' => [resource_path('fonts')],
+            'fontdata' => [
+                'vazir' => [
+                    'R' => 'Vazir-Regular.ttf',
+                    'B' => 'Vazir-Bold.ttf',
+                    'useOTL' => 0xFF,
+                    'useKashida' => 75,
+                ]
+            ],
+            'default_font' => 'vazir',
+        ]);
+
+        $html = view('partorders.pdf', compact('partorder'))->render();
+        $mpdf->WriteHTML($html);
+
+        return response()->streamDownload(function () use ($mpdf) {
+            echo $mpdf->Output('', 'S');
+        }, 'partorder-' . $partorder->order_number . '.pdf');
     }
 }

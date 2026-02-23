@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::resource('partorders', PartOrderController::class);
+    Route::get('partorders/{partorder}/pdf', [PartOrderController::class, 'downloadPdf'])->name('partorders.pdf');
     Route::middleware('approver')->group(function () {
         Route::post('/partorders/{partorder}/approve', [PartOrderController::class, 'approve'])->name('partorders.approve');
         Route::post('/partorders/{partorder}/reject', [PartOrderController::class, 'reject'])->name('partorders.reject');
