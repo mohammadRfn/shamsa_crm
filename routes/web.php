@@ -64,6 +64,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     });
 
     Route::resource('workrequests', WorkRequestController::class);
+    Route::get('workrequests/{workrequest}/pdf', [WorkRequestController::class, 'downloadPdf'])->name('workrequests.pdf');
     Route::middleware('approver')->group(function () {
         Route::post('/workrequests/{workrequest}/approve', [WorkRequestController::class, 'approve'])->name('workrequests.approve');
         Route::post('/workrequests/{workrequest}/reject', [WorkRequestController::class, 'reject'])->name('workrequests.reject');

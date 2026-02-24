@@ -21,19 +21,19 @@
                 <div class="flex flex-col gap-2 items-end">
                     @php
                     $statusConfig = match($workrequest->status) {
-                        'approved' => ['badge-success', 'تایید شده', '✓'],
-                        'rejected' => ['badge-danger', 'رد شده', '✕'],
-                        'pending' => ['badge-warning', 'در انتظار', '⏱'],
-                        'sent' => ['badge-info', 'ارسال شده', '📤'],
-                        default => ['badge-info', 'جدید', '★']
+                    'approved' => ['badge-success', 'تایید شده', '✓'],
+                    'rejected' => ['badge-danger', 'رد شده', '✕'],
+                    'pending' => ['badge-warning', 'در انتظار', '⏱'],
+                    'sent' => ['badge-info', 'ارسال شده', '📤'],
+                    default => ['badge-info', 'جدید', '★']
                     };
 
                     $typeConfig = match($workrequest->request_type) {
-                        'repair' => ['bg-red-500/20 text-red-400 border-red-500/30', '🔧 تعمیر'],
-                        'service' => ['bg-blue-500/20 text-blue-400 border-blue-500/30', '⚙️ سرویس'],
-                        'install' => ['bg-green-500/20 text-green-400 border-green-500/30', '🔌 نصب'],
-                        'sale' => ['bg-yellow-500/20 text-yellow-400 border-yellow-500/30', '💰 فروش'],
-                        default => ['bg-dark-700 text-dark-400 border-dark-600', '📋']
+                    'repair' => ['bg-red-500/20 text-red-400 border-red-500/30', '🔧 تعمیر'],
+                    'service' => ['bg-blue-500/20 text-blue-400 border-blue-500/30', '⚙️ سرویس'],
+                    'install' => ['bg-green-500/20 text-green-400 border-green-500/30', '🔌 نصب'],
+                    'sale' => ['bg-yellow-500/20 text-yellow-400 border-yellow-500/30', '💰 فروش'],
+                    default => ['bg-dark-700 text-dark-400 border-dark-600', '📋']
                     };
                     @endphp
                     <span class="badge {{ $statusConfig[0] }} text-lg shadow-lg">
@@ -71,7 +71,7 @@
                                 </td>
                                 <td class="border-2 border-dark-600 p-3">
                                     <div class="w-full bg-dark-900/50 border-0 text-cream-100 rounded-lg p-2 text-center">
-                                       {{ $workrequest->request_date_jalali }}
+                                        {{ $workrequest->request_date_jalali }}
                                     </div>
                                 </td>
                                 <td class="border-2 border-dark-600 p-3">
@@ -115,12 +115,12 @@
                         <label class="block text-sm font-medium text-cream-200 mb-2">نوع درخواست</label>
                         <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100 flex items-center justify-center">
                             @php
-                                $types = [
-                                    'repair' => '🔧 تعمیرات',
-                                    'service' => '⚙️ سرویس و نصب', 
-                                    'install' => '🔌 ساخت',
-                                    'sale' => '💰 فروش'
-                                ];
+                            $types = [
+                            'repair' => '🔧 تعمیرات',
+                            'service' => '⚙️ سرویس و نصب',
+                            'install' => '🔌 ساخت',
+                            'sale' => '💰 فروش'
+                            ];
                             @endphp
                             {{ $types[$workrequest->request_type] ?? '---' }}
                         </div>
@@ -238,9 +238,9 @@
                         <label class="block text-sm font-medium text-cream-200 mb-2">وضعیت پرداخت</label>
                         <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100">
                             @switch($workrequest->payment_status)
-                                @case('credit') اعتباری @break
-                                @case('cash') نقدی @break
-                                @case('documents') اسنادی @break
+                            @case('credit') اعتباری @break
+                            @case('cash') نقدی @break
+                            @case('documents') اسنادی @break
                             @endswitch
                         </div>
                     </div>
@@ -312,22 +312,22 @@
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     @php
                     $approvals = [
-                        ['label' => 'پذیرش', 'status' => $workrequest->request_approval, 'role' => 'reception'],
-                        ['label' => 'تامین', 'status' => $workrequest->supply_approval, 'role' => 'supply'],
-                        ['label' => 'مدیر عامل', 'status' => $workrequest->ceo_approval, 'role' => 'ceo'],
+                    ['label' => 'پذیرش', 'status' => $workrequest->request_approval, 'role' => 'reception'],
+                    ['label' => 'تامین', 'status' => $workrequest->supply_approval, 'role' => 'supply'],
+                    ['label' => 'مدیر عامل', 'status' => $workrequest->ceo_approval, 'role' => 'ceo'],
                     ];
                     @endphp
 
                     @foreach($approvals as $approval)
                     @php
-                        $statusVal = $approval['status'];
-                        if ($statusVal === 1 || $statusVal === '1' || $statusVal === true) {
-                            $config = ['bg-green-500/25 border-green-500/40', 'text-green-300', '✓ تایید شده'];
-                        } elseif ($statusVal === 0 || $statusVal === '0' || $statusVal === false) {
-                            $config = ['bg-red-500/25 border-red-500/40', 'text-red-300', '✕ رد شده'];
-                        } else {
-                            $config = ['bg-dark-800/50 border-dark-600', 'text-dark-400', '⏱ در انتظار'];
-                        }
+                    $statusVal = $approval['status'];
+                    if ($statusVal === 1 || $statusVal === '1' || $statusVal === true) {
+                    $config = ['bg-green-500/25 border-green-500/40', 'text-green-300', '✓ تایید شده'];
+                    } elseif ($statusVal === 0 || $statusVal === '0' || $statusVal === false) {
+                    $config = ['bg-red-500/25 border-red-500/40', 'text-red-300', '✕ رد شده'];
+                    } else {
+                    $config = ['bg-dark-800/50 border-dark-600', 'text-dark-400', '⏱ در انتظار'];
+                    }
                     @endphp
                     <div class="p-4 rounded-xl border-2 text-center {{ $config[0] }} transition-all duration-300">
                         <div class="text-lg font-bold {{ $config[1] }} mb-1">
@@ -491,7 +491,14 @@
                 </form>
             </div>
             @endif
-
+            <a href="{{ route('workrequests.pdf', $workrequest) }}"
+                class="btn-secondary inline-flex items-center gap-2" target="_blank">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                دانلود PDF
+            </a>
             <!-- Comments Section -->
             <x-comments-section
                 :reportable="$workrequest"

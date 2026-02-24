@@ -7,6 +7,7 @@ use App\Models\Approval;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Mpdf\Mpdf;
 
 class WorkRequestController extends Controller
 {
@@ -352,5 +353,32 @@ class WorkRequestController extends Controller
         $workrequest->update($validated);
 
         return back()->with('success', 'اطلاعات مالی با موفقیت ثبت شد.');
+    }
+    public function downloadPdf(WorkRequest $workrequest)
+    {
+        $workrequest->load(['user', 'approvals.user']);
+
+        $mpdf = new Mpdf([
+            'mode' => 'utf-8',
+            'format' => 'A4',
+            'directionality' => 'rtl',
+            'fontDir' => [resource_path('fonts')],
+            'fontdata' => [
+                'vazir' => [
+                    'R' => 'Vazir-Regular.ttf',
+                    'B' => 'Vazir-Bold.ttf',
+                    'useOTL' => 0xFF,
+                    'useKashida' => 75,
+                ]
+            ],
+            'default_font' => 'vazir',
+        ]);
+
+        $html = view('workrequests.pdf', compact('workrequest'))->render();
+        $mpdf->WriteHTML($html);
+
+        return response()->streamDownload(function () use ($mpdf) {
+            echo $mpdf->Output('', 'S');
+        }, 'workrequest-' . $workrequest->request_number . '.pdf');
     }
 }
