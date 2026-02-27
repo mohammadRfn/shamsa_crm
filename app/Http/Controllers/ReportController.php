@@ -377,6 +377,7 @@ class ReportController extends Controller
             'mode' => 'utf-8',
             'format' => 'A4',
             'directionality' => 'rtl',
+            'tempDir' => storage_path('app/mpdf'),
             'fontDir' => [resource_path('fonts')],
             'fontdata' => [
                 'vazir' => [
