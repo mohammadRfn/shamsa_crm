@@ -9,12 +9,20 @@
     <title>{{ config('app.name', 'سیستم مدیریت گزارشات') }}</title>
 
     <!-- فونت فارسی وزیرمتن -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    
+    <style>
+        body {
+            font-family: vazir, sans-serif;
+            /* font-size: 12px; */
+            direction: rtl;
+            /* margin: 15px; */
+        }
+    </style>
+    <!-- <link rel="preconnect" href="https://fonts.googleapis.com"> -->
+    <!-- <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"> -->
+
     <!-- Persian DatePicker CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
-    
+    <!-- <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css"> -->
+
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
@@ -73,35 +81,36 @@
     </div>
 
     <!-- jQuery - اول از همه -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    
+    <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
     <!-- Persian Date - دوم -->
-    <script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
-    
+    <!-- <script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script> -->
+
     <!-- Persian DatePicker - سوم -->
-    <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
+    <!-- <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script> -->
 
     <!-- راه‌اندازی DatePicker - چهارم -->
     <script>
-    $(document).ready(function(){
-        $('.jalali-datepicker').persianDatepicker({
-            format: 'YYYY/MM/DD',
-            autoClose: true,
-            initialValue: false,
-            observer: true,
-            calendar: {
-                persian: {
-                    locale: 'fa'
+        $(document).ready(function() {
+            $('.jalali-datepicker').persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: false,
+                observer: true,
+                calendar: {
+                    persian: {
+                        locale: 'fa'
+                    }
+                },
+                navigator: {
+                    enabled: true
+                },
+                toolbox: {
+                    enabled: true
                 }
-            },
-            navigator: {
-                enabled: true
-            },
-            toolbox: {
-                enabled: true
-            }
+            });
         });
-    });
     </script>
 </body>
+
 </html>
