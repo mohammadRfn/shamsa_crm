@@ -9,14 +9,10 @@
     <title>{{ config('app.name', 'سیستم مدیریت') }}</title>
 
     <!-- فونت فارسی -->
-    <!-- <link rel="preconnect" href="https://fonts.googleapis.com"> -->
-    <!-- <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet"> -->
     <style>
         body {
-            font-family: vazir, sans-serif;
-            /* font-size: 12px; */
+            font-family: 'Vazirmatn', sans-serif;
             direction: rtl;
-            /* margin: 15px; */
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])

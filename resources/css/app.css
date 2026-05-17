@@ -2,6 +2,61 @@
 @import "flatpickr/dist/flatpickr.min.css";
 @import 'persian-datepicker/dist/css/persian-datepicker.min.css';
 
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Thin.woff2') format('woff2');
+    font-weight: 100;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Bold.eot') format('eot');
+    font-weight: 600;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Bold.woff') format('woff');
+    font-weight: 800;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Vazirmatn';
+    src: url('@fonts/Vazirmatn/Vazir-Black.ttf') format('ttf');
+    font-weight: 900;
+    font-display: swap;
+}
 @theme {
     /* رنگ‌های سفارشی - تم لاکچری با کنتراست بهتر */
     --color-primary-50: oklch(0.98 0.03 350);

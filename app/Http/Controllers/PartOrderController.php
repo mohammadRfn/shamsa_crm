@@ -259,7 +259,7 @@ class PartOrderController extends Controller
             'format' => 'A4',
             'directionality' => 'rtl',
             'tempDir' => storage_path('app/mpdf'),
-            'fontDir' => [resource_path('fonts')],
+            'fontDir' => [resource_path('fonts/Vazirmatn')],
             'fontdata' => [
                 'vazir' => [
                     'R' => 'Vazir-Regular.ttf',

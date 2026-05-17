@@ -8,4 +8,9 @@ export default defineConfig({
             refresh: true,
         }),
     ],
+    resolve: {
+        alias: {
+            '@fonts': path.resolve(__dirname, 'resources/fonts'),
+        },
+    },
 });
