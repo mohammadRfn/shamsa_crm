@@ -274,8 +274,14 @@ class PartOrderController extends Controller
         $html = view('partorders.pdf', compact('partorder'))->render();
         $mpdf->WriteHTML($html);
 
-        return response()->streamDownload(function () use ($mpdf) {
-            echo $mpdf->Output('', 'S');
-        }, 'partorder-' . $partorder->order_number . '.pdf');
+        $pdfContent = $mpdf->Output('', 'S');
+
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="partorder-' . $partorder->order_number . '.pdf"',
+            'Content-Length' => strlen($pdfContent),
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+        ]);
     }
 }

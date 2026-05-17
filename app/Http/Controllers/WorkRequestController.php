@@ -378,8 +378,14 @@ class WorkRequestController extends Controller
         $html = view('workrequests.pdf', compact('workrequest'))->render();
         $mpdf->WriteHTML($html);
 
-        return response()->streamDownload(function () use ($mpdf) {
-            echo $mpdf->Output('', 'S');
-        }, 'workrequest-' . $workrequest->request_number . '.pdf');
+        $pdfContent = $mpdf->Output('', 'S');
+
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="workrequest-' . $workrequest->request_number . '.pdf"',
+            'Content-Length' => strlen($pdfContent),
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+        ]);
     }
 }

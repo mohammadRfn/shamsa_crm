@@ -393,8 +393,14 @@ class ReportController extends Controller
         $html = view('reports.pdf', compact('report', 'parts'))->render();
         $mpdf->WriteHTML($html);
 
-        return response()->streamDownload(function () use ($mpdf) {
-            echo $mpdf->Output('', 'S');
-        }, 'report-' . $report->request_number . '.pdf');
+        $pdfContent = $mpdf->Output('', 'S');
+
+        return response($pdfContent, 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => 'attachment; filename="report-' . $report->request_number . '.pdf"',
+            'Content-Length' => strlen($pdfContent),
+            'Cache-Control' => 'no-cache, no-store, must-revalidate',
+            'Pragma' => 'no-cache',
+        ]);
     }
 }
