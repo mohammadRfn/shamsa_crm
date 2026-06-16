@@ -156,97 +156,97 @@
                     <div class="space-y-3">
                         @if($user->isTechnician())
                         <a href="{{ route('reports.create') }}"
-                            class="flex items-center gap-3 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all group border-2 border-gray-700 hover:border-primary-400">
+                            class="flex items-center gap-3 p-4 bg-dark-50 hover:bg-primary-50 rounded-xl transition-all group border border-dark-200 hover:border-primary-300">
                             <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-gray-300">ثبت گزارش جدید</p>
-                                <p class="text-xs text-gray-400">ایجاد گزارش فنی جدید</p>
+                                <p class="font-semibold text-dark-500">ثبت گزارش جدید</p>
+                                <p class="text-xs text-dark-400">ایجاد گزارش فنی جدید</p>
                             </div>
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-dark-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
 
                         <a href="{{ route('partorders.create') }}"
-                            class="flex items-center gap-3 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all group border-2 border-gray-700 hover:border-primary-400">
+                            class="flex items-center gap-3 p-4 bg-dark-50 hover:bg-primary-50 rounded-xl transition-all group border border-dark-200 hover:border-primary-300">
                             <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-gray-300">سفارش قطعه</p>
-                                <p class="text-xs text-gray-400">ثبت سفارش قطعات یدکی</p>
+                                <p class="font-semibold text-dark-500">سفارش قطعه</p>
+                                <p class="text-xs text-dark-400">ثبت سفارش قطعات یدکی</p>
                             </div>
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-dark-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
 
                         <a href="{{ route('workrequests.create') }}"
-                            class="flex items-center gap-3 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all group border-2 border-gray-700 hover:border-primary-400">
+                            class="flex items-center gap-3 p-4 bg-dark-50 hover:bg-primary-50 rounded-xl transition-all group border border-dark-200 hover:border-primary-300">
                             <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-gray-300">گردش کار</p>
-                                <p class="text-xs text-gray-400">ثبت درخواست تعمیر/سرویس</p>
+                                <p class="font-semibold text-dark-500">گردش کار</p>
+                                <p class="text-xs text-dark-400">ثبت درخواست تعمیر/سرویس</p>
                             </div>
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-dark-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
                         @else
                         <a href="{{ route('reports.index') }}"
-                            class="flex items-center gap-3 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all group border-2 border-gray-700 hover:border-primary-400">
+                            class="flex items-center gap-3 p-4 bg-dark-50 hover:bg-primary-50 rounded-xl transition-all group border border-dark-200 hover:border-primary-300">
                             <div class="w-10 h-10 bg-blue-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-gray-300">مشاهده گزارش‌ کارها</p>
-                                <p class="text-xs text-gray-400">بررسی و تایید گزارش‌ها</p>
+                                <p class="font-semibold text-dark-500">مشاهده گزارش‌ کارها</p>
+                                <p class="text-xs text-dark-400">بررسی و تایید گزارش‌ها</p>
                             </div>
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-dark-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
 
                         <a href="{{ route('partorders.index') }}"
-                            class="flex items-center gap-3 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all group border-2 border-gray-700 hover:border-primary-400">
+                            class="flex items-center gap-3 p-4 bg-dark-50 hover:bg-primary-50 rounded-xl transition-all group border border-dark-200 hover:border-primary-300">
                             <div class="w-10 h-10 bg-purple-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-gray-300">سفارشات قطعات</p>
-                                <p class="text-xs text-gray-400">بررسی و تایید سفارشات</p>
+                                <p class="font-semibold text-dark-500">سفارشات قطعات</p>
+                                <p class="text-xs text-dark-400">بررسی و تایید سفارشات</p>
                             </div>
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-dark-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
 
                         <a href="{{ route('workrequests.index') }}"
-                            class="flex items-center gap-3 p-4 bg-gray-800 hover:bg-gray-700 rounded-xl transition-all group border-2 border-gray-700 hover:border-primary-400">
+                            class="flex items-center gap-3 p-4 bg-dark-50 hover:bg-primary-50 rounded-xl transition-all group border border-dark-200 hover:border-primary-300">
                             <div class="w-10 h-10 bg-orange-500/20 rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform">
                                 <svg class="w-5 h-5 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                                 </svg>
                             </div>
                             <div class="flex-1">
-                                <p class="font-semibold text-gray-300">گردش کار</p>
-                                <p class="text-xs text-gray-400">بررسی و تایید درخواست‌ها</p>
+                                <p class="font-semibold text-dark-500">گردش کار</p>
+                                <p class="text-xs text-dark-400">بررسی و تایید درخواست‌ها</p>
                             </div>
-                            <svg class="w-5 h-5 text-gray-500 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg class="w-5 h-5 text-dark-300 group-hover:text-primary-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                             </svg>
                         </a>
