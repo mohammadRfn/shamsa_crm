@@ -133,7 +133,7 @@
                         $sv = $approval['status'];
                         if ($sv === 1 || $sv === '1' || $sv === true) { $ac='bg-green-500/20 text-green-400 border-green-500/30'; $ai='✓'; }
                         elseif ($sv === 0 || $sv === '0' || $sv === false) { $ac='bg-red-500/20 text-red-400 border-red-500/30'; $ai='✕'; }
-                        else { $ac='bg-cream-100 text-dark-500 border-dark-300'; $ai='⏱'; }
+                        else { $ac = 'bg-stone-100 text-stone-500 border-stone-300'; $ai = '⏱'; }
                         @endphp
                         <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $ac }}">{{ $ai }} {{ $approval['label'] }}</span>
                         @endforeach
@@ -232,7 +232,7 @@
                         $sv = $approval['status'];
                         if ($sv === 1 || $sv === '1' || $sv === true) { $ac='bg-green-500/20 text-green-400 border-green-500/30'; $ai='✓'; }
                         elseif ($sv === 0 || $sv === '0' || $sv === false) { $ac='bg-red-500/20 text-red-400 border-red-500/30'; $ai='✕'; }
-                        else { $ac='bg-cream-100 text-dark-500 border-dark-300'; $ai='⏱'; }
+                        else { $ac = 'bg-stone-100 text-stone-500 border-stone-300'; $ai = '⏱'; }
                         @endphp
                         <span class="px-2.5 py-1 rounded-full text-xs font-bold border {{ $ac }}">{{ $ai }} {{ $approval['label'] }}</span>
                         @endforeach
