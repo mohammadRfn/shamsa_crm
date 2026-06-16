@@ -59,7 +59,6 @@
                                             value="{{ old('request_date', $workrequest->request_date_jalali) }}"
                                             class="jalali-datepicker w-full bg-dark-900/50 border-0 text-cream-100 rounded-lg p-2 focus:ring-2 focus:ring-primary-500/50"
                                             placeholder="۱۴۰۳/۱۱/۲۸">
-
                                         @error('request_date')
                                         <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                                         @enderror
@@ -79,7 +78,7 @@
                     </div>
                 </div>
 
-                <!-- مشخصات تجهیز -->
+                <!-- مشخصات دستگاه -->
                 <div class="card-luxury p-6 space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                         <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -117,9 +116,14 @@
 
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-cream-200 mb-2">واحد درخواست کننده *</label>
-                            <input type="text" name="request_unit" required
-                                value="{{ old('request_unit', $workrequest->request_unit) }}"
+                            <input type="text" name="request_unit" required value="{{ old('request_unit', $workrequest->request_unit) }}"
+                                list="units_list"
                                 class="input-luxury w-full" placeholder="شرکت اکسین ساحل خوزستان - آقای زارع زاده">
+                            <datalist id="units_list">
+                                @foreach($previousContacts as $pc)
+                                <option value="{{ $pc->request_unit }}">
+                                    @endforeach
+                            </datalist>
                             @error('request_unit')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -141,9 +145,14 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">شماره تماس *</label>
-                            <input type="text" name="contact_phone" required
-                                value="{{ old('contact_phone', $workrequest->contact_phone) }}"
+                            <input type="text" name="contact_phone" required value="{{ old('contact_phone', $workrequest->contact_phone) }}"
+                                list="phones_list"
                                 class="input-luxury w-full" placeholder="09177696112">
+                            <datalist id="phones_list">
+                                @foreach($previousContacts as $pc)
+                                <option value="{{ $pc->contact_phone }}">
+                                    @endforeach
+                            </datalist>
                             @error('contact_phone')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -151,9 +160,14 @@
 
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">مسئول پیگیری درخواست *</label>
-                            <input type="text" name="contact_person" required
-                                value="{{ old('contact_person', $workrequest->contact_person) }}"
+                            <input type="text" name="contact_person" required value="{{ old('contact_person', $workrequest->contact_person) }}"
+                                list="persons_list"
                                 class="input-luxury w-full" placeholder="خانم کجباف">
+                            <datalist id="persons_list">
+                                @foreach($previousContacts as $pc)
+                                <option value="{{ $pc->contact_person }}">
+                                    @endforeach
+                            </datalist>
                             @error('contact_person')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -161,7 +175,7 @@
                     </div>
                 </div>
 
-                <!-- شرح‌ها -->
+                <!-- شرح کار -->
                 <div class="card-luxury p-6 space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                         <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -194,6 +208,122 @@
                     </div>
                 </div>
 
+                <!-- اطلاعات مالی -->
+                <div class="card-luxury p-6 space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b-2 divider">
+                        <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-cream-100">اطلاعات مالی</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">هزینه برآورد شده اولیه (ریال)</label>
+                            <input type="number" name="estimated_cost"
+                                value="{{ old('estimated_cost', $workrequest->estimated_cost) }}"
+                                min="0" class="input-luxury w-full" placeholder="0">
+                            @error('estimated_cost')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">نتیجه اعلام قیمت اولیه</label>
+                            <input type="text" name="initial_price_result"
+                                value="{{ old('initial_price_result', $workrequest->initial_price_result) }}"
+                                class="input-luxury w-full" placeholder="قبول / رد / در انتظار">
+                            @error('initial_price_result')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">هزینه نهایی (ریال)</label>
+                            <input type="number" name="final_cost"
+                                value="{{ old('final_cost', $workrequest->final_cost) }}"
+                                min="0" class="input-luxury w-full" placeholder="0">
+                            @error('final_cost')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">وضعیت پرداخت</label>
+                            <select name="payment_status" class="input-luxury w-full">
+                                <option value="">انتخاب کنید</option>
+                                <option value="credit" {{ old('payment_status', $workrequest->payment_status) == 'credit' ? 'selected' : '' }}>اعتباری</option>
+                                <option value="cash" {{ old('payment_status', $workrequest->payment_status) == 'cash' ? 'selected' : '' }}>نقدی</option>
+                                <option value="documents" {{ old('payment_status', $workrequest->payment_status) == 'documents' ? 'selected' : '' }}>اسنادی</option>
+                            </select>
+                            @error('payment_status')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">شماره فاکتور</label>
+                            <input type="text" name="invoice_number"
+                                value="{{ old('invoice_number', $workrequest->invoice_number) }}"
+                                class="input-luxury w-full">
+                            @error('invoice_number')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">نام بانک</label>
+                            <input type="text" name="bank_name"
+                                value="{{ old('bank_name', $workrequest->bank_name) }}"
+                                class="input-luxury w-full">
+                            @error('bank_name')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">تاریخ پرداخت بانک</label>
+                            <input type="text" name="bank_payment_date"
+                                value="{{ old('bank_payment_date', $workrequest->bank_payment_date ? toJalali($workrequest->bank_payment_date) : '') }}"
+                                class="jalali-datepicker input-luxury w-full" placeholder="۱۴۰۳/۱۱/۲۸">
+                            @error('bank_payment_date')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">مبلغ پرداخت بانک (ریال)</label>
+                            <input type="number" name="bank_payment_amount"
+                                value="{{ old('bank_payment_amount', $workrequest->bank_payment_amount) }}"
+                                min="0" class="input-luxury w-full" placeholder="0">
+                            @error('bank_payment_amount')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">سند حسابداری</label>
+                            <input type="text" name="accounting_document"
+                                value="{{ old('accounting_document', $workrequest->accounting_document) }}"
+                                class="input-luxury w-full">
+                            @error('accounting_document')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">سند دریافت</label>
+                            <input type="text" name="receipt_document"
+                                value="{{ old('receipt_document', $workrequest->receipt_document) }}"
+                                class="input-luxury w-full">
+                            @error('receipt_document')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
+                </div>
+
                 <!-- دکمه‌ها -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-end">
                     <a href="{{ route('workrequests.show', $workrequest) }}" class="btn-secondary text-center">
@@ -206,19 +336,43 @@
                         ذخیره تغییرات
                     </button>
                 </div>
-            </form>
 
+            </form>
+            <x-attachments.panel :model="$workrequest" mode="edit" />
+            @include('workrequests.partials._stages', ['workrequest' => $workrequest])
         </div>
     </div>
     <script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
-<script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
-<script>
-    $(document).ready(function() {
-        $('input[name="request_date"]').persianDatepicker({
-            format: 'YYYY/MM/DD',
-            autoClose: true,
-            initialValue: true  // ← این مهمه، مقدار فعلی input رو میخونه
+    <script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('input[name="request_date"]').persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: true
+            });
+
+            // اضافه کن:
+            $('input[name="bank_payment_date"]').persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: true
+            });
         });
-    });
-</script>
+    </script>
+    {{-- قبل از script، داخل body --}}
+    <meta name="previous-contacts" content="{{ htmlspecialchars(json_encode($previousContacts), ENT_QUOTES, 'UTF-8') }}">
+    <script>
+        const previousContacts = JSON.parse(
+            document.querySelector('meta[name="previous-contacts"]').getAttribute('content')
+        );
+
+        document.getElementById('request_unit_input').addEventListener('change', function() {
+            const selected = previousContacts.find(c => c.request_unit === this.value);
+            if (selected) {
+                document.querySelector('[name="contact_person"]').value = selected.contact_person ?? '';
+                document.querySelector('[name="contact_phone"]').value = selected.contact_phone ?? '';
+            }
+        });
+    </script>
 </x-app-layout>

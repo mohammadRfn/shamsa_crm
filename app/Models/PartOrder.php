@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasReadTracking;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -9,9 +10,10 @@ use Illuminate\Database\Eloquent\Model;
 class PartOrder extends Model
 {
     use HasFactory;
-
+    use HasReadTracking;
     protected $fillable = [
         'user_id',
+        'task_id',
         'equipment_name',
         'order_date',
         'order_number',
@@ -66,6 +68,10 @@ class PartOrder extends Model
     public function lastActionBy()
     {
         return $this->belongsTo(User::class, 'last_action_by');
+    }
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->latest();
     }
 
     // Scopes

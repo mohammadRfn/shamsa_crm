@@ -45,7 +45,7 @@
                 </div>
             </div>
 
-            <!-- جدول اصلی فرم - دقیقاً مشابه Edit -->
+            <!-- جدول اصلی فرم -->
             <div class="card-luxury p-4 md:p-6 overflow-x-auto">
                 <div class="min-w-[800px]">
                     <table class="w-full text-sm border-collapse">
@@ -85,7 +85,7 @@
                 </div>
             </div>
 
-            <!-- مشخصات تجهیز - input-style -->
+            <!-- مشخصات دستگاه -->
             <div class="card-luxury p-6 space-y-6">
                 <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                     <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -98,7 +98,7 @@
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                        <label class="block text-sm font-medium text-cream-200 mb-2">درخواست‌دهنده</label>
+                        <label class="block text-sm font-medium text-cream-200 mb-2">ثبت‌کننده</label>
                         <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100">
                             {{ $workrequest->user->name ?? '---' }}
                         </div>
@@ -135,7 +135,7 @@
                 </div>
             </div>
 
-            <!-- اطلاعات تماس - input-style -->
+            <!-- اطلاعات تماس -->
             <div class="card-luxury p-6 space-y-6">
                 <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                     <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -163,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- شرح کار - textarea-style -->
+            <!-- شرح کار -->
             <div class="card-luxury p-6 space-y-6">
                 <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                     <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -175,13 +175,6 @@
                 </div>
 
                 <div class="space-y-6">
-                    <!-- <div>
-                        <label class="block text-sm font-medium text-cream-200 mb-2">شرح کار درخواستی</label>
-                        <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100 min-h-[100px] flex items-start whitespace-pre-wrap">
-                            {{ $workrequest->work_description ?: '---' }}
-                        </div>
-                    </div> -->
-
                     @if($workrequest->issue_description)
                     <div>
                         <label class="block text-sm font-medium text-cream-200 mb-2">شرح ایراد اعلامی</label>
@@ -202,7 +195,7 @@
                 </div>
             </div>
 
-            <!-- اطلاعات مالی -->
+            <!-- اطلاعات مالی (نمایش) -->
             @if($workrequest->estimated_cost || $workrequest->final_cost || $workrequest->payment_status)
             <div class="card-luxury p-6 space-y-6">
                 <div class="flex items-center gap-3 pb-4 border-b-2 divider">
@@ -272,272 +265,302 @@
                         </div>
                     </div>
                     @endif
-                </div>
-
-                @if($workrequest->accounting_document || $workrequest->receipt_document)
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t-2 divider">
-                    @if($workrequest->accounting_document)
+                    @if($workrequest->bank_payment_date)
                     <div>
-                        <label class="block text-sm font-medium text-cream-200 mb-2">سند حسابداری</label>
+                        <label class="block text-sm font-medium text-cream-200 mb-2">تاریخ پرداخت بانک</label>
                         <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100">
-                            {{ $workrequest->accounting_document }}
+                            {{ $workrequest->bank_payment_date ? toJalali($workrequest->bank_payment_date) : '---' }}
                         </div>
                     </div>
                     @endif
 
-                    @if($workrequest->receipt_document)
+                    @if($workrequest->bank_payment_amount)
                     <div>
-                        <label class="block text-sm font-medium text-cream-200 mb-2">سند دریافت</label>
-                        <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100">
-                            {{ $workrequest->receipt_document }}
+                        <label class="block text-sm font-medium text-cream-200 mb-2">مبلغ پرداخت بانک</label>
+                        <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100 font-bold text-lg">
+                            {{ number_format($workrequest->bank_payment_amount) }} ریال
                         </div>
                     </div>
                     @endif
-                </div>
-                @endif
-            </div>
-            @endif
 
-            <!-- وضعیت تاییدها -->
-            <div class="card-luxury p-6 space-y-6">
-                <div class="flex items-center gap-3 pb-4 border-b-2 divider">
-                    <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h2 class="text-xl font-bold text-cream-100">وضعیت تاییدها</h2>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    @php
-                    $approvals = [
-                    ['label' => 'پذیرش', 'status' => $workrequest->request_approval, 'role' => 'reception'],
-                    ['label' => 'تامین', 'status' => $workrequest->supply_approval, 'role' => 'supply'],
-                    ['label' => 'مدیر عامل', 'status' => $workrequest->ceo_approval, 'role' => 'ceo'],
-                    ];
-                    @endphp
-
-                    @foreach($approvals as $approval)
-                    @php
-                    $statusVal = $approval['status'];
-                    if ($statusVal === 1 || $statusVal === '1' || $statusVal === true) {
-                    $config = ['bg-green-500/25 border-green-500/40', 'text-green-300', '✓ تایید شده'];
-                    } elseif ($statusVal === 0 || $statusVal === '0' || $statusVal === false) {
-                    $config = ['bg-red-500/25 border-red-500/40', 'text-red-300', '✕ رد شده'];
-                    } else {
-                    $config = ['bg-dark-800/50 border-dark-600', 'text-dark-400', '⏱ در انتظار'];
-                    }
-                    @endphp
-                    <div class="p-4 rounded-xl border-2 text-center {{ $config[0] }} transition-all duration-300">
-                        <div class="text-lg font-bold {{ $config[1] }} mb-1">
-                            {{ $approval['label'] }}
-                        </div>
-                        <div class="text-sm {{ $config[1] }}">
-                            {{ $config[2] }}
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-
-                <!-- History of Approvals -->
-                @if($workrequest->approvals->count() > 0)
-                <div class="mt-6 space-y-3">
-                    <h3 class="text-sm font-semibold text-cream-200">تاریخچه تاییدها:</h3>
-                    @foreach($workrequest->approvals as $approval)
-                    <div class="section-inner flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-cream-50 font-bold text-xs shadow-md">
-                                {{ mb_substr($approval->user->name, 0, 1) }}
-                            </div>
-                            <div>
-                                <p class="text-cream-100 font-medium">{{ $approval->user->name }}</p>
-                                <p class="text-xs text-dark-400">{{ $approval->created_at->diffForHumans() }}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="badge {{ $approval->isApproved() ? 'badge-success' : 'badge-danger' }}">
-                                {{ $approval->isApproved() ? 'تایید' : 'رد' }}
-                            </span>
-                            @if($approval->comment)
-                            <p class="text-xs text-dark-400 mt-1 max-w-xs">{{ $approval->comment }}</p>
-                            @endif
-                        </div>
-                    </div>
-                    @endforeach
-                </div>
-                @endif
-            </div>
-
-            <!-- دکمه‌های تایید/رد -->
-            @if(auth()->user()->isApprover())
-            <div class="card-luxury p-6">
-                <h3 class="text-lg font-bold text-cream-100 mb-4">اقدام شما:</h3>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <form action="{{ route('workrequests.approve', $workrequest) }}" method="POST" class="flex-1">
-                        @csrf
-                        <textarea name="comment" rows="2" placeholder="نظر شما (اختیاری)"
-                            class="input-luxury w-full mb-3 resize-none"></textarea>
-                        <button type="submit" class="btn-primary w-full inline-flex items-center justify-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            تایید درخواست
-                        </button>
-                    </form>
-
-                    <form action="{{ route('workrequests.reject', $workrequest) }}" method="POST" class="flex-1">
-                        @csrf
-                        <textarea name="comment" rows="2" placeholder="دلیل رد *" required
-                            class="input-luxury w-full mb-3 resize-none"></textarea>
-                        <button type="submit" class="w-full px-6 py-3 rounded-xl font-semibold bg-red-500/25 text-red-300 border-2 border-red-500/40 hover:bg-red-500/35 transition-all inline-flex items-center justify-center gap-2 shadow-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                            رد درخواست
-                        </button>
-                    </form>
-                </div>
-            </div>
-            @endif
-
-            @if(auth()->user()->isCEO())
-            <div class="card-luxury p-6">
-                <div class="flex items-center gap-3 pb-4 border-b-2 divider mb-6">
-                    <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
-                        <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                    </div>
-                    <h3 class="text-xl font-bold text-cream-100">تکمیل اطلاعات مالی</h3>
-                </div>
-
-                <form action="{{ route('workrequests.financial', $workrequest) }}" method="POST" class="space-y-6">
-                    @csrf
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {{-- ردیف اول: برآورد و نتیجه قیمت اولیه --}}
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">هزینه برآورد شده اولیه (ریال)</label>
-                            <input type="number" name="estimated_cost"
-                                value="{{ old('estimated_cost', $workrequest->estimated_cost) }}"
-                                min="0" class="input-luxury w-full" placeholder="0">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">نتیجه اعلام قیمت اولیه</label>
-                            <input type="text" name="initial_price_result"
-                                value="{{ old('initial_price_result', $workrequest->initial_price_result) }}"
-                                class="input-luxury w-full" placeholder="قبول / رد / در انتظار">
-                        </div>
-
-                        {{-- ردیف دوم: هزینه نهایی و وضعیت پرداخت --}}
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">هزینه نهایی (ریال)</label>
-                            <input type="number" name="final_cost"
-                                value="{{ old('final_cost', $workrequest->final_cost) }}"
-                                min="0" class="input-luxury w-full" placeholder="0">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">وضعیت پرداخت</label>
-                            <select name="payment_status" class="input-luxury w-full">
-                                <option value="">انتخاب کنید</option>
-                                <option value="credit" {{ old('payment_status', $workrequest->payment_status) == 'credit' ? 'selected' : '' }}>اعتباری</option>
-                                <option value="cash" {{ old('payment_status', $workrequest->payment_status) == 'cash' ? 'selected' : '' }}>نقدی</option>
-                                <option value="documents" {{ old('payment_status', $workrequest->payment_status) == 'documents' ? 'selected' : '' }}>اسنادی</option>
-                            </select>
-                        </div>
-
-                        {{-- ردیف سوم: شماره فاکتور و نام بانک --}}
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">شماره فاکتور</label>
-                            <input type="text" name="invoice_number"
-                                value="{{ old('invoice_number', $workrequest->invoice_number) }}"
-                                class="input-luxury w-full">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">نام بانک</label>
-                            <input type="text" name="bank_name"
-                                value="{{ old('bank_name', $workrequest->bank_name) }}"
-                                class="input-luxury w-full">
-                        </div>
-
-                        {{-- ردیف چهارم: اسناد --}}
+                    @if($workrequest->accounting_document || $workrequest->receipt_document)
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t-2 divider">
+                        @if($workrequest->accounting_document)
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">سند حسابداری</label>
-                            <input type="text" name="accounting_document"
-                                value="{{ old('accounting_document', $workrequest->accounting_document) }}"
-                                class="input-luxury w-full">
+                            <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100">
+                                {{ $workrequest->accounting_document }}
+                            </div>
                         </div>
+                        @endif
 
+                        @if($workrequest->receipt_document)
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">سند دریافت</label>
-                            <input type="text" name="receipt_document"
-                                value="{{ old('receipt_document', $workrequest->receipt_document) }}"
-                                class="input-luxury w-full">
+                            <div class="input-luxury w-full bg-dark-900/50 px-3 py-2 rounded-lg text-cream-100">
+                                {{ $workrequest->receipt_document }}
+                            </div>
                         </div>
+                        @endif
                     </div>
-
-                    <div class="flex justify-end pt-4 border-t-2 divider">
-                        <button type="submit" class="btn-primary inline-flex items-center gap-2">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                            </svg>
-                            ذخیره اطلاعات مالی
-                        </button>
-                    </div>
-                </form>
-            </div>
-            @endif
-            <a href="{{ route('workrequests.pdf', $workrequest) }}"
-                class="btn-secondary inline-flex items-center gap-2" target="_blank">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-                دانلود PDF
-            </a>
-            <!-- Comments Section -->
-            <x-comments-section
-                :reportable="$workrequest"
-                reportableType="App\Models\WorkRequest" />
-
-            <!-- دکمه‌های ویرایش/حذف -->
-            @if(auth()->id() == $workrequest->user_id && in_array($workrequest->status, ['new', 'pending']))
-            <div class="flex gap-4 justify-end">
-                <a href="{{ route('workrequests.edit', $workrequest) }}" class="btn-secondary inline-flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                    ویرایش درخواست
-                </a>
-
-                <form action="{{ route('workrequests.destroy', $workrequest) }}" method="POST" onsubmit="return confirm('آیا از حذف این درخواست اطمینان دارید؟')" class="inline">
-                    @csrf @method('DELETE')
-                    <button type="submit" class="px-6 py-3 rounded-xl font-semibold bg-red-500/25 text-red-300 border-2 border-red-500/40 hover:bg-red-500/35 transition-all inline-flex items-center gap-2 shadow-lg">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                        حذف درخواست
-                    </button>
-                </form>
-            </div>
-            @endif
-
-            <!-- اطلاعات اضافی -->
-            @if($workrequest->last_action_at)
-            <div class="card-luxury p-4">
-                <div class="flex items-center gap-3 text-sm text-dark-400">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                    <span>آخرین تغییر توسط <span class="text-cream-200 font-medium">{{ $workrequest->lastActionBy->name ?? 'سیستم' }}</span> در تاریخ {{ $workrequest->last_action_at->format('Y-m-d H:i') }}</span>
+                    @endif
                 </div>
-            </div>
-            @endif
+                @endif
 
+                <!-- وضعیت تاییدها — فقط پذیرش و مدیر عامل -->
+                <div class="card-luxury p-6 space-y-6">
+                    <div class="flex items-center gap-3 pb-4 border-b-2 divider">
+                        <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-cream-100">وضعیت تاییدها</h2>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        @php
+                        $approvals = [
+                        ['label' => 'پذیرش', 'status' => $workrequest->request_approval, 'role' => 'reception'],
+                        ['label' => 'مدیر عامل', 'status' => $workrequest->ceo_approval, 'role' => 'ceo'],
+                        ];
+                        @endphp
+
+                        @foreach($approvals as $approval)
+                        @php
+                        $statusVal = $approval['status'];
+                        if ($statusVal === 1 || $statusVal === '1' || $statusVal === true) {
+                        $config = ['bg-green-500/25 border-green-500/40', 'text-green-300', '✓ تایید شده'];
+                        } elseif ($statusVal === 0 || $statusVal === '0' || $statusVal === false) {
+                        $config = ['bg-red-500/25 border-red-500/40', 'text-red-300', '✕ رد شده'];
+                        } else {
+                        $config = ['bg-dark-800/50 border-dark-600', 'text-dark-400', '⏱ در انتظار'];
+                        }
+                        @endphp
+                        <div class="p-4 rounded-xl border-2 text-center {{ $config[0] }} transition-all duration-300">
+                            <div class="text-lg font-bold {{ $config[1] }} mb-1">
+                                {{ $approval['label'] }}
+                            </div>
+                            <div class="text-sm {{ $config[1] }}">
+                                {{ $config[2] }}
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+
+                    <!-- تاریخچه تاییدها -->
+                    @if($workrequest->approvals->count() > 0)
+                    <div class="mt-6 space-y-3">
+                        <h3 class="text-sm font-semibold text-cream-200">تاریخچه تاییدها:</h3>
+                        @foreach($workrequest->approvals as $approval)
+                        <div class="section-inner flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-lg flex items-center justify-center text-cream-50 font-bold text-xs shadow-md">
+                                    {{ mb_substr($approval->user->name, 0, 1) }}
+                                </div>
+                                <div>
+                                    <p class="text-cream-100 font-medium">{{ $approval->user->name }}</p>
+                                    <p class="text-xs text-dark-400">{{ $approval->created_at->diffForHumans() }}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <span class="badge {{ $approval->isApproved() ? 'badge-success' : 'badge-danger' }}">
+                                    {{ $approval->isApproved() ? 'تایید' : 'رد' }}
+                                </span>
+                                @if($approval->comment)
+                                <p class="text-xs text-dark-400 mt-1 max-w-xs">{{ $approval->comment }}</p>
+                                @endif
+                            </div>
+                        </div>
+                        @endforeach
+                    </div>
+                    @endif
+                </div>
+
+                <!-- دکمه‌های تایید/رد — فقط رسپشن و CEO -->
+                @if(auth()->user()->isReception() || auth()->user()->isCEO())
+                <div class="card-luxury p-6">
+                    <h3 class="text-lg font-bold text-cream-100 mb-4">اقدام شما:</h3>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <form action="{{ route('workrequests.approve', $workrequest) }}" method="POST" class="flex-1">
+                            @csrf
+                            <textarea name="comment" rows="2" placeholder="نظر شما (اختیاری)"
+                                class="input-luxury w-full mb-3 resize-none"></textarea>
+                            <button type="submit" class="btn-primary w-full inline-flex items-center justify-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                تایید درخواست
+                            </button>
+                        </form>
+
+                        <form action="{{ route('workrequests.reject', $workrequest) }}" method="POST" class="flex-1">
+                            @csrf
+                            <textarea name="comment" rows="2" placeholder="دلیل رد *" required
+                                class="input-luxury w-full mb-3 resize-none"></textarea>
+                            <button type="submit" class="w-full px-6 py-3 rounded-xl font-semibold bg-red-500/25 text-red-300 border-2 border-red-500/40 hover:bg-red-500/35 transition-all inline-flex items-center justify-center gap-2 shadow-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                                رد درخواست
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                @endif
+
+                <!-- فرم اطلاعات مالی — رسپشن و CEO -->
+                @if(auth()->user()->isCEO() || auth()->user()->isReception())
+                <div class="card-luxury p-6">
+                    <div class="flex items-center gap-3 pb-4 border-b-2 divider mb-6">
+                        <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                        </div>
+                        <h3 class="text-xl font-bold text-cream-100">تکمیل اطلاعات مالی</h3>
+                    </div>
+
+                    <form action="{{ route('workrequests.financial', $workrequest) }}" method="POST" class="space-y-6">
+                        @csrf
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">هزینه برآورد شده اولیه (ریال)</label>
+                                <input type="number" name="estimated_cost"
+                                    value="{{ old('estimated_cost', $workrequest->estimated_cost) }}"
+                                    min="0" class="input-luxury w-full" placeholder="0">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">نتیجه اعلام قیمت اولیه</label>
+                                <input type="text" name="initial_price_result"
+                                    value="{{ old('initial_price_result', $workrequest->initial_price_result) }}"
+                                    class="input-luxury w-full" placeholder="قبول / رد / در انتظار">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">هزینه نهایی (ریال)</label>
+                                <input type="number" name="final_cost"
+                                    value="{{ old('final_cost', $workrequest->final_cost) }}"
+                                    min="0" class="input-luxury w-full" placeholder="0">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">وضعیت پرداخت</label>
+                                <select name="payment_status" class="input-luxury w-full">
+                                    <option value="">انتخاب کنید</option>
+                                    <option value="credit" {{ old('payment_status', $workrequest->payment_status) == 'credit' ? 'selected' : '' }}>اعتباری</option>
+                                    <option value="cash" {{ old('payment_status', $workrequest->payment_status) == 'cash' ? 'selected' : '' }}>نقدی</option>
+                                    <option value="documents" {{ old('payment_status', $workrequest->payment_status) == 'documents' ? 'selected' : '' }}>اسنادی</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">شماره فاکتور</label>
+                                <input type="text" name="invoice_number"
+                                    value="{{ old('invoice_number', $workrequest->invoice_number) }}"
+                                    class="input-luxury w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">نام بانک</label>
+                                <input type="text" name="bank_name"
+                                    value="{{ old('bank_name', $workrequest->bank_name) }}"
+                                    class="input-luxury w-full">
+                            </div>
+                            {{-- بعد از فیلد bank_name --}}
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">تاریخ پرداخت بانک</label>
+                                <input type="text" name="bank_payment_date"
+                                    value="{{ old('bank_payment_date', $workrequest->bank_payment_date ? toJalali($workrequest->bank_payment_date) : '') }}"
+                                    class="jalali-datepicker input-luxury w-full" placeholder="۱۴۰۳/۱۱/۲۸">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">مبلغ پرداخت بانک (ریال)</label>
+                                <input type="number" name="bank_payment_amount"
+                                    value="{{ old('bank_payment_amount', $workrequest->bank_payment_amount) }}"
+                                    min="0" class="input-luxury w-full" placeholder="0">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">سند حسابداری</label>
+                                <input type="text" name="accounting_document"
+                                    value="{{ old('accounting_document', $workrequest->accounting_document) }}"
+                                    class="input-luxury w-full">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-cream-200 mb-2">سند دریافت</label>
+                                <input type="text" name="receipt_document"
+                                    value="{{ old('receipt_document', $workrequest->receipt_document) }}"
+                                    class="input-luxury w-full">
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end pt-4 border-t-2 divider">
+                            <button type="submit" class="btn-primary inline-flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                ذخیره اطلاعات مالی
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                @endif
+
+                <!-- دانلود PDF -->
+                <a href="{{ route('workrequests.pdf', $workrequest) }}"
+                    class="btn-secondary inline-flex items-center gap-2" target="_blank">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    دانلود PDF
+                </a>
+                <x-attachments.panel
+                    :model="$workrequest"
+                    mode="show" />
+                @include('workrequests.partials._stages', ['workrequest' => $workrequest])
+                <!-- Comments Section -->
+                <x-comments-section
+                    :reportable="$workrequest"
+                    reportableType="App\Models\WorkRequest" />
+                <!-- دکمه‌های ویرایش/حذف — فقط رسپشن و وضعیت pending/new -->
+                @if((auth()->user()->isReception() || auth()->user()->isCEO()) && in_array($workrequest->status, ['new', 'pending']))
+                <div class="flex gap-4 justify-end">
+                    <a href="{{ route('workrequests.edit', $workrequest) }}" class="btn-secondary inline-flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        ویرایش درخواست
+                    </a>
+
+                    <form action="{{ route('workrequests.destroy', $workrequest) }}" method="POST" onsubmit="return confirm('آیا از حذف این درخواست اطمینان دارید؟')" class="inline">
+                        @csrf @method('DELETE')
+                        <button type="submit" class="px-6 py-3 rounded-xl font-semibold bg-red-500/25 text-red-300 border-2 border-red-500/40 hover:bg-red-500/35 transition-all inline-flex items-center gap-2 shadow-lg">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            حذف درخواست
+                        </button>
+                    </form>
+                </div>
+                @endif
+
+                <!-- اطلاعات اضافی -->
+                @if($workrequest->last_action_at)
+                <div class="card-luxury p-4">
+                    <div class="flex items-center gap-3 text-sm text-dark-400">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span>آخرین تغییر توسط <span class="text-cream-200 font-medium">{{ $workrequest->lastActionBy->name ?? 'سیستم' }}</span> در تاریخ {{ $workrequest->last_action_at->format('Y-m-d H:i') }}</span>
+                    </div>
+                </div>
+                @endif
+
+            </div>
         </div>
-    </div>
 </x-app-layout>

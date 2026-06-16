@@ -184,8 +184,9 @@
                         ذخیره تغییرات
                     </button>
                 </div>
-            </form>
 
+            </form>
+            <x-attachments.panel :model="$report" mode="edit" />
         </div>
     </div>
 

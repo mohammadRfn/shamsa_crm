@@ -17,8 +17,10 @@
                 </div>
             </div>
 
-            <form action="{{ route('partorders.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('partorders.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+
                 @csrf
+                    <input type="hidden" name="task_id" value="{{ $taskId ?? '' }}">
 
                 <!-- اطلاعات ثابت -->
                 <div class="card-luxury p-6 space-y-6">
@@ -133,6 +135,25 @@
                         ثبت سفارش
                     </button>
                 </div>
+                <!-- فایل‌های ضمیمه اختیاری -->
+                <div class="card-luxury p-6 space-y-4">
+                    <div class="flex items-center gap-3 pb-4 border-b border-dark-700">
+                        <h2 class="text-xl font-bold text-cream-100">فایل‌های ضمیمه (اختیاری)</h2>
+                    </div>
+                    <div id="file_inputs" class="space-y-2">
+                        <input type="file" name="attachments[]"
+                            accept=".jpg,.jpeg,.png,.webp,.pdf"
+                            class="input-luxury w-full">
+                    </div>
+                    <button type="button" onclick="addFileInput()"
+                        class="btn-secondary text-sm inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        افزودن فایل دیگر
+                    </button>
+                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
+                </div>
             </form>
 
         </div>
@@ -191,6 +212,18 @@
             document.querySelectorAll('.row-num').forEach((el, i) => {
                 el.textContent = i + 1;
             });
+        }
+    </script>
+    <script>
+        function addFileInput() {
+            const div = document.getElementById('file_inputs');
+            if (div.children.length >= 5) return;
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.name = 'attachments[]';
+            input.accept = '.jpg,.jpeg,.png,.webp,.pdf';
+            input.className = 'input-luxury w-full';
+            div.appendChild(input);
         }
     </script>
 </x-app-layout>

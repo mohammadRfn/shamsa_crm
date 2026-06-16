@@ -202,6 +202,9 @@
                 </svg>
                 دانلود PDF
             </a>
+            <x-attachments.panel
+                :model="$partorder"
+                mode="show" />
             <x-comments-section
                 :reportable="$partorder"
                 reportableType="App\Models\PartOrder" />

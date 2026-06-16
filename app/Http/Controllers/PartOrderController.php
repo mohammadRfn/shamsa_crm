@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Mpdf\Mpdf;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx as XlsxWriter;
 
 class PartOrderController extends Controller
 {
@@ -17,6 +19,8 @@ class PartOrderController extends Controller
 
         $query = PartOrder::query()->with(['user', 'lastActionBy']);
         $query->forRole($user->role);
+        $query->withReadStatus($user->id); 
+
 
         if ($request->search) {
             $query->where(function ($q) use ($request) {
@@ -31,17 +35,29 @@ class PartOrderController extends Controller
 
         $partOrders = $query->orderBy('created_at', 'desc')->paginate(10);
 
-        return view('partorders.index', compact('partOrders'));
+        $viewMode = $request->input('view', session('partorders_view', 'grid'));
+        if (in_array($viewMode, ['grid', 'list'])) {
+            session(['partorders_view' => $viewMode]);
+        } else {
+            $viewMode = 'grid';
+        }
+
+        return view('partorders.index', compact('partOrders', 'viewMode'));
     }
 
-    public function create()
+    public function create(Request $request)
     {
         if (!Auth::user()->isTechnician()) {
             return redirect()->route('partorders.index')
                 ->with('error', 'فقط تکنسین‌ها می‌توانند سفارش ثبت کنند.');
         }
 
-        return view('partorders.create');
+        $taskId = $request->task_id;
+
+        return view('partorders.create', [
+            'partorder' => new \App\Models\PartOrder(),
+            'taskId' => $taskId,
+        ]);
     }
 
     public function store(Request $request)
@@ -71,8 +87,9 @@ class PartOrderController extends Controller
             'description.*' => 'required|string',
         ]);
 
-        PartOrder::create([
+        $partorder = PartOrder::create([
             'user_id' => auth()->id(),
+            'task_id' => $request->task_id ?? null,
             'equipment_name' => $validated['equipment_name'],
             'order_date' => $validated['order_date'],
             'order_number' => $validated['order_number'],
@@ -84,7 +101,26 @@ class PartOrderController extends Controller
             'status' => 'pending',
         ]);
 
-        return redirect()->route('partorders.index')
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $mime = $file->getMimeType();
+                $path = $file->storeAs(
+                    "attachments/part-orders/{$partorder->id}",
+                    \Str::uuid() . '.' . $file->getClientOriginalExtension(),
+                    'public'
+                );
+                $partorder->attachments()->create([
+                    'uploaded_by' => auth()->id(),
+                    'file_name'   => $file->getClientOriginalName(),
+                    'file_path'   => $path,
+                    'file_type'   => str_starts_with($mime, 'image/') ? 'image' : 'pdf',
+                    'mime_type'   => $mime,
+                    'file_size'   => $file->getSize(),
+                ]);
+            }
+        }
+
+        return redirect()->route('partorders.show', $partorder)
             ->with('success', 'سفارش قطعه با موفقیت ثبت شد.');
     }
 
@@ -97,6 +133,7 @@ class PartOrderController extends Controller
         }
 
         $partorder->load(['user', 'approvals.user']);
+        $partorder->markAsReadBy(); 
         return view('partorders.show', compact('partorder'));
     }
 
@@ -144,6 +181,7 @@ class PartOrderController extends Controller
             'description' => 'required|array|min:1',
             'description.*' => 'required|string',
         ]);
+        $partorder->touch();
 
         $partorder->update($validated);
 
@@ -206,6 +244,7 @@ class PartOrderController extends Controller
             } elseif ($partorder->status == 'new') {
                 $partorder->update(['status' => 'pending']);
             }
+            $partorder->touch();
         });
 
         return back()->with('success', 'تایید شما ثبت شد.');
@@ -246,6 +285,7 @@ class PartOrderController extends Controller
             } elseif ($partorder->status == 'new') {
                 $partorder->update(['status' => 'pending']);
             }
+            $partorder->touch();
         });
 
         return back()->with('error', 'رد شما ثبت شد.');
@@ -282,6 +322,193 @@ class PartOrderController extends Controller
             'Content-Length' => strlen($pdfContent),
             'Cache-Control' => 'no-cache, no-store, must-revalidate',
             'Pragma' => 'no-cache',
+        ]);
+    }
+    /**
+     * اکسپورت سفارشات انتخاب‌شده به فایل اکسل
+     */
+    public function exportExcel(Request $request)
+    {
+        $user = Auth::user();
+
+        $request->validate([
+            'ids'   => 'required|array|min:1|max:200',
+            'ids.*' => 'integer|exists:part_orders,id',
+        ]);
+
+        $partOrders = PartOrder::query()
+            ->with(['user'])
+            ->forRole($user->role)
+            ->whereIn('id', $request->ids)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        if ($partOrders->isEmpty()) {
+            return back()->with('error', 'سفارشی برای اکسپورت یافت نشد.');
+        }
+
+        // ── ستون‌ها بر اساس blade ──────────────────────────────────────
+        $columns = [
+            'A' => ['ردیف',                    5,  'text'],
+            'B' => ['شماره سفارش',             16, 'text'],
+            'C' => ['تاریخ سفارش',             14, 'text'],
+            'D' => ['نام تجهیز',               20, 'text'],
+            'E' => ['تکنسین',                  16, 'text'],
+            'F' => ['نام قطعه',                25, 'wrap'],
+            'G' => ['مشخصات فنی',              30, 'wrap'],
+            'H' => ['بسته‌بندی',               20, 'wrap'],
+            'I' => ['تعداد',                   10, 'text'],
+            'J' => ['توضیحات',                 30, 'wrap'],
+            'K' => ['وضعیت',                   14, 'colored'],
+            'L' => ['تایید پذیرش',             14, 'colored'],
+            'M' => ['تایید تامین',             14, 'colored'],
+            'N' => ['تایید مدیر عامل',         16, 'colored'],
+        ];
+
+        $lastCol = array_key_last($columns);
+
+        // ── رنگ‌ها ────────────────────────────────────────────────────
+        $ROSE      = 'E8476A';
+        $STONE_700 = '44403C';
+        $STONE_100 = 'F5F5F4';
+        $STONE_500 = '78716C';
+        $WHITE     = 'FFFFFF';
+
+        $statusMap = [
+            'approved' => ['fill' => 'D1FAE5', 'font' => '065F46', 'label' => '✓ تایید شده'],
+            'failed'   => ['fill' => 'FEE2E2', 'font' => '991B1B', 'label' => '✕ رد شده'],
+            'pending'  => ['fill' => 'FEF9C3', 'font' => '854D0E', 'label' => '⏱ در انتظار'],
+            'sent'     => ['fill' => 'DBEAFE', 'font' => '1E3A8A', 'label' => '📦 ارسال شده'],
+            'new'      => ['fill' => 'DBEAFE', 'font' => '1E3A8A', 'label' => '★ جدید'],
+        ];
+        $approvalMap = [
+            '1'    => ['fill' => 'D1FAE5', 'font' => '065F46', 'label' => '✓ تایید شده'],
+            '0'    => ['fill' => 'FEE2E2', 'font' => '991B1B', 'label' => '✕ رد شده'],
+            'null' => ['fill' => 'FEF9C3', 'font' => '854D0E', 'label' => '⏱ در انتظار'],
+        ];
+
+        $wb = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $ws = $wb->getActiveSheet();
+        $ws->setTitle('سفارش قطعه');
+        $ws->setRightToLeft(true);
+
+        $colorCell = function (
+            \PhpOffice\PhpSpreadsheet\Cell\Cell $cell,
+            string $bg,
+            string $fg
+        ) {
+            $cell->getStyle()->applyFromArray([
+                'fill' => ['fillType' => 'solid', 'startColor' => ['rgb' => $bg]],
+                'font' => ['color' => ['rgb' => $fg], 'bold' => true],
+            ]);
+        };
+
+        // ── ردیف ۱: بنر ────────────────────────────────────────────────
+        $ws->mergeCells("A1:{$lastCol}1");
+        $ws->setCellValue('A1', 'گزارش سفارشات قطعه');
+        $ws->getStyle('A1')->applyFromArray([
+            'font'      => ['bold' => true, 'size' => 16, 'color' => ['rgb' => $WHITE], 'name' => 'Arial'],
+            'fill'      => ['fillType' => 'solid', 'startColor' => ['rgb' => $ROSE]],
+            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
+        ]);
+        $ws->getRowDimension(1)->setRowHeight(38);
+
+        // ── ردیف ۲: تاریخ خروجی ────────────────────────────────────────
+        $ws->mergeCells("A2:{$lastCol}2");
+        $ws->setCellValue('A2', 'تاریخ خروجی: ' . now()->format('Y-m-d H:i') . '  |  تعداد رکورد: ' . $partOrders->count());
+        $ws->getStyle('A2')->applyFromArray([
+            'font'      => ['size' => 10, 'color' => ['rgb' => $STONE_500], 'name' => 'Arial'],
+            'fill'      => ['fillType' => 'solid', 'startColor' => ['rgb' => $STONE_100]],
+            'alignment' => ['horizontal' => 'center', 'vertical' => 'center'],
+        ]);
+        $ws->getRowDimension(2)->setRowHeight(20);
+
+        // ── ردیف ۳: هدر ────────────────────────────────────────────────
+        foreach ($columns as $col => [$label, $width]) {
+            $ws->setCellValue("{$col}3", $label);
+            $ws->getColumnDimension($col)->setWidth($width);
+            $ws->getStyle("{$col}3")->applyFromArray([
+                'font'      => ['bold' => true, 'size' => 9, 'color' => ['rgb' => $WHITE], 'name' => 'Arial'],
+                'fill'      => ['fillType' => 'solid', 'startColor' => ['rgb' => $STONE_700]],
+                'alignment' => ['horizontal' => 'center', 'vertical' => 'center', 'wrapText' => true],
+                'borders'   => ['bottom' => ['borderStyle' => 'medium', 'color' => ['rgb' => $ROSE]]],
+            ]);
+        }
+        $ws->getRowDimension(3)->setRowHeight(34);
+
+        // ── ردیف‌های داده ───────────────────────────────────────────────
+        $thinBorder  = ['allBorders' => ['borderStyle' => 'thin', 'color' => ['rgb' => 'E5E7EB']]];
+        $baseFont    = ['name' => 'Arial', 'size' => 9, 'color' => ['rgb' => $STONE_700]];
+        $centerAlign = ['horizontal' => 'center', 'vertical' => 'center', 'wrapText' => true];
+        $rightAlign  = ['horizontal' => 'right',  'vertical' => 'center', 'wrapText' => true, 'indent' => 1];
+        $approvalKey = fn($v) => is_null($v) ? 'null' : ($v ? '1' : '0');
+
+        foreach ($partOrders as $idx => $po) {
+            $row   = $idx + 4;
+            $rowBg = ($idx % 2 === 0) ? 'FFFFFF' : 'FAFAF9';
+
+            $statusInfo = $statusMap[$po->status ?? 'new'] ?? ['fill' => 'F5F5F4', 'font' => $STONE_700, 'label' => '---'];
+            $recInfo    = $approvalMap[$approvalKey($po->reception_approval)];
+            $supInfo    = $approvalMap[$approvalKey($po->supply_approval)];
+            $ceoInfo    = $approvalMap[$approvalKey($po->ceo_approval)];
+
+            // آرایه‌های JSON
+            $partNames  = implode('، ', $po->part_name      ?? []);
+            $specs      = implode("\n", $po->specifications  ?? []);
+            $packages   = implode('، ', $po->package         ?? []);
+            $quantities = implode('، ', array_map('strval', $po->quantity ?? []));
+            $descs      = implode("\n", $po->description     ?? []);
+
+            $values = [
+                'A' => $idx + 1,
+                'B' => $po->order_number,
+                'C' => $po->order_date_jalali ?? '---',
+                'D' => $po->equipment_name,
+                'E' => $po->user->name ?? '---',
+                'F' => $partNames  ?: '---',
+                'G' => $specs      ?: '---',
+                'H' => $packages   ?: '---',
+                'I' => $quantities ?: '---',
+                'J' => $descs      ?: '---',
+                'K' => $statusInfo['label'],
+                'L' => $recInfo['label'],
+                'M' => $supInfo['label'],
+                'N' => $ceoInfo['label'],
+            ];
+
+            foreach ($values as $col => $val) {
+                $cell = $ws->getCell("{$col}{$row}");
+                $cell->setValue($val);
+                $colType = $columns[$col][2];
+                $align   = ($colType === 'wrap') ? $rightAlign : $centerAlign;
+                $cell->getStyle()->applyFromArray([
+                    'font'      => $baseFont,
+                    'alignment' => $align,
+                    'borders'   => $thinBorder,
+                    'fill'      => ['fillType' => 'solid', 'startColor' => ['rgb' => $rowBg]],
+                ]);
+            }
+
+            $colorCell($ws->getCell("K{$row}"), $statusInfo['fill'], $statusInfo['font']);
+            $colorCell($ws->getCell("L{$row}"), $recInfo['fill'],    $recInfo['font']);
+            $colorCell($ws->getCell("M{$row}"), $supInfo['fill'],    $supInfo['font']);
+            $colorCell($ws->getCell("N{$row}"), $ceoInfo['fill'],    $ceoInfo['font']);
+
+            $ws->getRowDimension($row)->setRowHeight(28);
+        }
+
+        $ws->freezePane('A4');
+
+        $fileName = 'part-orders-' . now()->format('Ymd-His') . '.xlsx';
+        $writer   = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($wb);
+
+        return response()->stream(function () use ($writer) {
+            $writer->save('php://output');
+        }, 200, [
+            'Content-Type'        => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => "attachment; filename=\"{$fileName}\"",
+            'Cache-Control'       => 'no-cache, no-store, must-revalidate',
+            'Pragma'              => 'no-cache',
         ]);
     }
 }

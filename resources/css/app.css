@@ -8,224 +8,339 @@
     font-weight: 100;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Light.woff2') format('woff2');
     font-weight: 300;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Regular.woff2') format('woff2');
     font-weight: 400;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Medium.woff2') format('woff2');
     font-weight: 500;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Bold.eot') format('eot');
     font-weight: 600;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Bold.woff2') format('woff2');
     font-weight: 700;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Bold.woff') format('woff');
     font-weight: 800;
     font-display: swap;
 }
-
 @font-face {
     font-family: 'Vazirmatn';
     src: url('@fonts/Vazirmatn/Vazir-Black.ttf') format('ttf');
     font-weight: 900;
     font-display: swap;
 }
+
 @theme {
-    /* رنگ‌های سفارشی - تم لاکچری با کنتراست بهتر */
-    --color-primary-50: oklch(0.98 0.03 350);
-    --color-primary-100: oklch(0.95 0.05 350);
-    --color-primary-200: oklch(0.90 0.10 350);
-    --color-primary-300: oklch(0.82 0.15 350);
-    --color-primary-400: oklch(0.70 0.20 350);
-    --color-primary-500: oklch(0.60 0.25 350); /* رز قرمز اصلی - روشن‌تر */
-    --color-primary-600: oklch(0.50 0.23 350);
-    --color-primary-700: oklch(0.40 0.20 350);
-    --color-primary-800: oklch(0.30 0.16 350);
-    --color-primary-900: oklch(0.20 0.12 350);
-    
-    /* سرمه‌ای با سطوح مشخص‌تر */
-    --color-dark-50: oklch(0.96 0.01 240);
-    --color-dark-100: oklch(0.92 0.02 240);
-    --color-dark-200: oklch(0.85 0.03 240);
-    --color-dark-300: oklch(0.75 0.04 240);
-    --color-dark-400: oklch(0.55 0.05 240);
-    --color-dark-500: oklch(0.35 0.06 240);
-    --color-dark-600: oklch(0.25 0.05 240);
-    --color-dark-700: oklch(0.24 0.04 240); /* کارت‌ها و سکشن‌ها */
-    --color-dark-800: oklch(0.20 0.03 240); /* اینپوت‌ها */
-    --color-dark-900: oklch(0.10 0.02 240); /* بک‌گراند اصلی */
-    --color-dark-950: oklch(0.06 0.01 240);
-    
-    /* کرمی روشن‌تر */
-    --color-cream-50: oklch(0.99 0.02 80);
-    --color-cream-100: oklch(0.97 0.03 80);
-    --color-cream-200: oklch(0.95 0.04 80); /* متن‌های اصلی */
-    --color-cream-300: oklch(0.90 0.05 80);
-    --color-cream-400: oklch(0.85 0.06 80);
-    
-    /* فونت فارسی */
+    /* ── رز گرم ── */
+    --color-primary-50:  #FFF1F4;
+    --color-primary-100: #FFE0E6;
+    --color-primary-200: #FECDD6;
+    --color-primary-300: #F9A8B8;
+    --color-primary-400: #F27090;
+    --color-primary-500: #E8476A;
+    --color-primary-600: #D03058;
+    --color-primary-700: #A8224A;
+    --color-primary-800: #881A3D;
+    --color-primary-900: #621030;
+
+    /* ── stone (سازگاری با کلاس‌های dark/cream موجود) ── */
+    --color-dark-50:  #FAFAF9;
+    --color-dark-100: #F5F4F2;
+    --color-dark-200: #E8E6E3;
+    --color-dark-300: #3D3A36;
+    --color-dark-400: #2E2B28;
+    --color-dark-500: #1C1A18;
+    --color-dark-600: #1C1A18;
+    --color-dark-700: #1C1A18;
+    --color-dark-800: #E8E6E3;
+    --color-dark-900: #1C1A18;
+    --color-dark-950: #0E0D0C;
+
+    --color-cream-50:  #FAFAF9;
+    --color-cream-100: #1C1A18;
+    --color-cream-200: #2E2B28;
+    --color-cream-300: #3D3A36;
+    --color-cream-400: #514D48;
+
     --font-sans: 'Vazirmatn', system-ui, -apple-system, sans-serif;
 }
 
-/* استایل‌های سفارشی */
+/* ════════════════════════════════
+   پایه
+════════════════════════════════ */
+body {
+    background-color: #F5F4F2;
+    color: #1C1A18;
+    font-family: 'Vazirmatn', system-ui, -apple-system, sans-serif;
+}
+
+/* ════════════════════════════════
+   Scrollbar
+════════════════════════════════ */
 * {
     scrollbar-width: thin;
-    scrollbar-color: oklch(0.60 0.25 350) oklch(0.10 0.02 240);
+    scrollbar-color: #D4D0CB #F5F4F2;
 }
+*::-webkit-scrollbar         { width: 7px; height: 7px; }
+*::-webkit-scrollbar-track   { background: #F5F4F2; }
+*::-webkit-scrollbar-thumb   { background: #D4D0CB; border-radius: 4px; }
+*::-webkit-scrollbar-thumb:hover { background: #E8476A; }
 
-*::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-}
-
-*::-webkit-scrollbar-track {
-    background: oklch(0.10 0.02 240);
-}
-
-*::-webkit-scrollbar-thumb {
-    background: oklch(0.60 0.25 350);
-    border-radius: 4px;
-}
-
-*::-webkit-scrollbar-thumb:hover {
-    background: oklch(0.50 0.23 350);
-}
-
-/* انیمیشن‌های سفارشی */
+/* ════════════════════════════════
+   Shimmer
+════════════════════════════════ */
 @keyframes shimmer {
-    0% { background-position: -200% 0; }
-    100% { background-position: 200% 0; }
+    0%   { background-position: -200% 0; }
+    100% { background-position:  200% 0; }
 }
-
 .animate-shimmer {
-    background: linear-gradient(
-        90deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.1) 50%,
-        transparent 100%
-    );
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.65) 50%, transparent 100%);
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
 }
 
-/* گلس مورفیزم */
+/* ════════════════════════════════
+   Glass
+════════════════════════════════ */
 .glass {
-    background: rgba(255, 255, 255, 0.07);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255, 255, 255, 0.70);
 }
 
-/* Input استایل - تیره‌تر از کارت */
+/* ════════════════════════════════
+   Input
+════════════════════════════════ */
 .input-luxury {
-    @apply bg-dark-900/80 border-2 border-dark-600 text-cream-100 rounded-xl px-4 py-3 
-           focus:outline-none focus:ring-2 focus:ring-primary-500/60 focus:border-primary-500
-           placeholder:text-dark-400 transition-all duration-300
-           hover:border-dark-500;
+    @apply rounded-xl px-4 py-3 text-sm font-medium transition-all duration-200 focus:outline-none;
+    background-color: #ffffff;
+    border:           1.5px solid #E8E6E3;
+    color:            #1C1A18;
+    box-shadow:       0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.input-luxury::placeholder { color: #8A8580; }
+.input-luxury:hover         { border-color: #F9A8B8; }
+.input-luxury:focus {
+    border-color: #E8476A;
+    box-shadow:   0 0 0 3px rgba(232, 71, 106, 0.12), 0 1px 3px rgba(0,0,0,0.06);
 }
 
-/* دکمه‌های لاکچری */
+/* ════════════════════════════════
+   Buttons
+════════════════════════════════ */
 .btn-primary {
-    @apply bg-gradient-to-r from-primary-600 to-primary-500 text-cream-50 px-6 py-3 rounded-xl
-           font-semibold shadow-lg shadow-primary-900/50 hover:shadow-primary-800/60
-           hover:scale-[1.02] active:scale-[0.98] transition-all duration-300
-           border border-primary-400/30;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-[0.97];
+    background: linear-gradient(135deg, #E8476A 0%, #D03058 100%);
+    color:       #ffffff;
+    border:      1px solid rgba(168, 34, 74, 0.35);
+    box-shadow:  0 2px 10px rgba(232, 71, 106, 0.30), 0 1px 2px rgba(232, 71, 106, 0.20);
+}
+.btn-primary:hover {
+    background: linear-gradient(135deg, #D03058 0%, #A8224A 100%);
+    box-shadow:  0 5px 18px rgba(232, 71, 106, 0.38), 0 2px 4px rgba(232, 71, 106, 0.22);
+    transform: translateY(-1px);
 }
 
 .btn-secondary {
-    @apply bg-dark-700/80 text-cream-100 px-6 py-3 rounded-xl font-semibold
-           border-2 border-dark-600 hover:bg-dark-600/80 hover:border-dark-500
-           transition-all duration-300 hover:shadow-lg;
+    @apply px-6 py-3 rounded-xl font-semibold transition-all duration-200 active:scale-[0.97];
+    background-color: #ffffff;
+    color:            #3D3A36;
+    border:     1.5px solid #E8E6E3;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+.btn-secondary:hover {
+    background-color: #FAFAF9;
+    border-color:     #F9A8B8;
+    color:            #D03058;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.09);
 }
 
 .btn-ghost {
-    @apply text-cream-200 px-4 py-2 rounded-lg hover:bg-dark-700/70
-           transition-all duration-300;
+    @apply px-4 py-2 rounded-lg font-medium transition-all duration-200;
+    color: #6B6660;
+}
+.btn-ghost:hover {
+    background-color: #F5F4F2;
+    color:            #1C1A18;
 }
 
-/* کارت لاکچری - روشن‌تر از بک‌گراند */
+/* ════════════════════════════════
+   Card
+════════════════════════════════ */
 .card-luxury {
-    @apply bg-gradient-to-br from-dark-700 to-dark-800 rounded-2xl border-2 border-dark-600
-           shadow-2xl shadow-black/30 backdrop-blur-sm
-           hover:border-dark-500 transition-all duration-300;
+    @apply rounded-2xl transition-all duration-300;
+    background: #ffffff;
+    border:     1.5px solid #E8E6E3;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07), 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+.card-luxury:hover {
+    border-color: #F9A8B8;
+    box-shadow:   0 8px 28px rgba(232, 71, 106, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
-/* Badge */
+/* ════════════════════════════════
+   Badges
+════════════════════════════════ */
 .badge {
-    @apply px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1
-           border-2;
+    @apply px-3 py-1 rounded-full text-xs font-bold inline-flex items-center gap-1 border-2;
 }
-
 .badge-success {
-    @apply bg-green-500/25 text-green-300 border-green-500/40;
+    background-color: #F0FDF4;
+    color:            #166534;
+    border-color:     #86EFAC;
 }
-
 .badge-danger {
-    @apply bg-red-500/25 text-red-300 border-red-500/40;
+    background-color: #FFF1F2;
+    color:            #9F1239;
+    border-color:     #FECDD3;
 }
-
 .badge-warning {
-    @apply bg-yellow-500/25 text-yellow-300 border-yellow-500/40;
+    background-color: #FEFCE8;
+    color:            #854D0E;
+    border-color:     #FDE047;
 }
-
 .badge-info {
-    @apply bg-blue-500/25 text-blue-300 border-blue-500/40;
+    background-color: #EFF6FF;
+    color:            #1E40AF;
+    border-color:     #BFDBFE;
 }
 
-/* هدر و فوتر - روشن‌تر */
+/* ════════════════════════════════
+   Header / Footer
+════════════════════════════════ */
 .header-luxury {
-    @apply bg-dark-800/90 backdrop-blur-lg border-b-2 border-dark-600;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(16px);
+    border-bottom: 1.5px solid #E8E6E3;
+    box-shadow: 0 1px 8px rgba(0, 0, 0, 0.07);
 }
-
 .footer-luxury {
-    @apply bg-dark-800/60 border-t-2 border-dark-600;
+    background-color: #FAFAF9;
+    border-top: 1.5px solid #E8E6E3;
 }
 
-/* سکشن‌های داخل کارت - با بک‌گراند مجزا */
+/* ════════════════════════════════
+   Section inner
+════════════════════════════════ */
 .section-inner {
-    @apply bg-dark-800/50 rounded-xl p-4 border border-dark-600;
+    @apply rounded-xl p-4;
+    background-color: #F5F4F2;
+    border: 1px solid #E8E6E3;
 }
 
-/* Divider روشن */
-.divider {
-    @apply border-dark-600;
-}
+/* ════════════════════════════════
+   Divider
+════════════════════════════════ */
+.divider { border-color: #E8E6E3; }
 
-/* Navigation hover state */
+/* ════════════════════════════════
+   Nav
+════════════════════════════════ */
 .nav-link {
-    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-300;
+    @apply px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200;
 }
-
 .nav-link-active {
-    @apply bg-primary-500/25 text-primary-300 border-2 border-primary-500/40 shadow-lg shadow-primary-900/30;
+    background-color: #FFF1F4;
+    color:            #D03058;
+    border: 1.5px solid #F9A8B8;
+    box-shadow: 0 2px 8px rgba(232, 71, 106, 0.15);
+}
+.nav-link-inactive {
+    color:  #6B6660;
+    border: 1.5px solid transparent;
+}
+.nav-link-inactive:hover {
+    background-color: #F5F4F2;
+    color:            #1C1A18;
+    border-color:     #E8E6E3;
+}
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Unread Badge — تم stone / rose
+   این CSS رو به فایل app.css یا stylesheet اصلیت اضافه کن
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+
+/* ── Badge wrapper ─────────────────────────────── */
+.unread-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 2px 8px 2px 6px;
+    border-radius: 9999px;
+    background: linear-gradient(135deg, #78580a22 0%, #c9973322 100%);
+    border: 1px solid #c9973366;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #e8b84b;
+    letter-spacing: 0.02em;
+    line-height: 1.4;
+    white-space: nowrap;
+    vertical-align: middle;
+    box-shadow: 0 0 8px #c9973322, inset 0 1px 0 #e8b84b18;
+    animation: badge-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.nav-link-inactive {
-    @apply text-cream-300 hover:text-cream-100 hover:bg-dark-700/70 border-2 border-transparent;
+/* ── نقطه پالس ─────────────────────────────────── */
+.unread-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #f5d06e 0%, #c99733 100%);
+    box-shadow: 0 0 4px #e8b84b88;
+    animation: pulse-gold 2s ease-in-out infinite;
+    flex-shrink: 0;
+}
+
+/* ── انیمیشن‌ها ─────────────────────────────────── */
+@keyframes pulse-gold {
+    0%, 100% {
+        opacity: 1;
+        box-shadow: 0 0 4px #e8b84b88;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        box-shadow: 0 0 8px #e8b84bcc;
+        transform: scale(0.7);
+    }
+}
+
+@keyframes badge-pop {
+    0%   { transform: scale(0.7) translateY(2px); opacity: 0; }
+    70%  { transform: scale(1.08) translateY(0);  opacity: 1; }
+    100% { transform: scale(1)    translateY(0);              }
+}
+
+/* ── نوار طلایی کنار کارت (grid) ───────────────── */
+.card-unread {
+    border-right: 3px solid #c99733 !important;
+    box-shadow: 2px 0 16px #c9973318 !important;
+}
+
+/* ── ردیف جدول (list) ───────────────────────────── */
+.row-unread > *:first-child,
+.list-card.card-unread {
+    border-right: 3px solid #c99733 !important;
 }

@@ -224,6 +224,14 @@
             <td>{{ $workrequest->receipt_document }}</td>
             <td class="lbl">نام بانک :</td>
             <td>{{ $workrequest->bank_name }}</td>
+            @if($workrequest->bank_payment_date || $workrequest->bank_payment_amount)
+        <tr>
+            <td class="lbl">تاریخ پرداخت بانک :</td>
+            <td>{{ $workrequest->bank_payment_date ? toJalali($workrequest->bank_payment_date) : '' }}</td>
+            <td class="lbl">مبلغ پرداخت بانک :</td>
+            <td>{{ $workrequest->bank_payment_amount ? number_format($workrequest->bank_payment_amount) . ' ریال' : '' }}</td>
+        </tr>
+        @endif
         </tr>
     </table>
 
@@ -239,7 +247,7 @@
                         <td style="border:0;width:4px;"></td>
                         <td style="border:0;padding:1px 6px 1px 2px;font-size:10px;">آقای آخوندی</td>
                     </tr>
-               
+
                     <tr>
                         <td colspan="4" style="border:0;padding:1px 2px;font-size:10px;">کنترل حساب</td>
                     </tr>

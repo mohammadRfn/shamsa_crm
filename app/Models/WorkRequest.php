@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Traits\HasReadTracking;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Casts\Attribute;
@@ -9,6 +10,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 class WorkRequest extends Model
 {
     use HasFactory;
+    use HasReadTracking;
 
     protected $fillable = [
         'user_id',
@@ -41,6 +43,8 @@ class WorkRequest extends Model
         'rejected_by_count',
         'last_action_at',
         'last_action_by',
+        'bank_payment_date',
+        'bank_payment_amount',
     ];
 
     protected $casts = [
@@ -53,6 +57,8 @@ class WorkRequest extends Model
         'approved_by_count' => 'integer',
         'rejected_by_count' => 'integer',
         'last_action_at' => 'datetime',
+        'bank_payment_date' => 'date',
+        'bank_payment_amount' => 'decimal:2',
     ];
 
     // Relations
@@ -76,7 +82,10 @@ class WorkRequest extends Model
     {
         return $this->belongsTo(User::class, 'last_action_by');
     }
-
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->latest();
+    }
     // Scopes
     public function scopeForRole($query, string $role)
     {
@@ -85,14 +94,8 @@ class WorkRequest extends Model
 
             'reception' => $query->where(function ($q) {
                 $q->whereIn('status', ['new', 'pending'])
-                    ->orWhereNotNull('reception_approval');
+                    ->orWhereNotNull('request_approval'); // ✅ درست
             }),
-
-            'supply' => $query->where(function ($q) {
-                $q->whereIn('status', ['new', 'pending'])
-                    ->orWhereNotNull('supply_approval');
-            }),
-
             'ceo' => $query,
             default => $query->where('id', 0),
         };
@@ -116,27 +119,31 @@ class WorkRequest extends Model
     {
         return $query->where('status', 'rejected');
     }
+    public function tasks()
+    {
+        return $this->hasMany(Task::class);
+    }
 
     // Helper Methods
     // درست - با boolean cast سازگار
     public function isFullyApproved(): bool
     {
         return $this->request_approval === true
-            && $this->supply_approval === true
+
             && $this->ceo_approval === true;
     }
 
     public function isFullyRejected(): bool
     {
         return $this->request_approval === false
-            && $this->supply_approval === false
+
             && $this->ceo_approval === false;
     }
 
     public function hasAnyRejection(): bool
     {
         return $this->request_approval === false
-            || $this->supply_approval === false
+
             || $this->ceo_approval === false;
     }
 
@@ -144,7 +151,7 @@ class WorkRequest extends Model
     {
         return match ($user->role) {
             'reception' => $this->request_approval === null,
-            'supply' => $this->supply_approval === null,
+
             'ceo' => $this->ceo_approval === null,
             default => false,
         };
@@ -152,28 +159,39 @@ class WorkRequest extends Model
     protected static function booted()
     {
         static::saving(function ($workRequest) {
-            // اگر همه true باشن → approved
-            if (
-                $workRequest->request_approval === true
-                && $workRequest->supply_approval === true
-                && $workRequest->ceo_approval === true
-            ) {
+            if (!$workRequest->isDirty(['request_approval', 'ceo_approval'])) {
+                return;
+            }
+
+            if ($workRequest->request_approval === true && $workRequest->ceo_approval === true) {
                 $workRequest->status = 'approved';
-            }
-            // اگر همه false باشن → rejected  
-            elseif (
-                $workRequest->request_approval === false
-                && $workRequest->supply_approval === false
-                && $workRequest->ceo_approval === false
-            ) {
+            } elseif ($workRequest->request_approval === false && $workRequest->ceo_approval === false) {
                 $workRequest->status = 'rejected';
-            }
-            // اگر هر کدوم null یا تغییر کرده → pending
-            else {
+            } else {
                 $workRequest->status = 'pending';
             }
         });
+
+        static::created(function ($workRequest) {
+            $stages = ['reception', 'workshop', 'estimation', 'approval', 'delivery', 'financial'];
+            foreach ($stages as $stage) {
+                \App\Models\WorkRequestStage::create([
+                    'work_request_id' => $workRequest->id,
+                    'stage'           => $stage,
+                    'status'          => $stage === 'reception' ? 'done' : 'pending',
+                    'actioned_at'     => $stage === 'reception' ? now() : null,
+                    'actioned_by'     => $stage === 'reception' ? auth()->id() : null,
+                ]);
+            }
+        });
     }
+    public function stages()
+    {
+        return $this->hasMany(WorkRequestStage::class)->orderByRaw(
+            "FIELD(stage, 'reception','workshop','estimation','approval','delivery','financial')"
+        );
+    }
+
 
     public function isPaid(): bool
     {

@@ -21,9 +21,12 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::latest()->paginate(15);
+        $users = User::withCount(['reports', 'partOrders', 'workRequests', 'comments'])
+            ->latest()
+            ->paginate(15);
         return view('users.index', compact('users'));
     }
+
 
     /**
      * فرم ایجاد کاربر جدید
@@ -61,7 +64,23 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return view('users.show', compact('user'));
+        $user->loadCount(['reports', 'partOrders', 'workRequests', 'comments']);
+
+        $activity = collect(range(5, 0))->map(function ($monthsAgo) use ($user) {
+            $date = now()->subMonths($monthsAgo);
+            return [
+                'month' => $date->translatedFormat('M'),
+                'month_en' => $date->format('M'),
+                'reports'      => $user->reports()->whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
+                'part_orders'  => $user->partOrders()->whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
+                'work_requests' => $user->workRequests()->whereYear('created_at', $date->year)->whereMonth('created_at', $date->month)->count(),
+            ];
+        });
+
+        $recentReports     = $user->reports()->latest()->limit(5)->get();
+        $recentPartOrders  = $user->partOrders()->latest()->limit(5)->get();
+
+        return view('users.show', compact('user', 'activity', 'recentReports', 'recentPartOrders'));
     }
 
     /**

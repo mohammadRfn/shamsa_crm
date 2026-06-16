@@ -121,7 +121,9 @@
                         ذخیره تغییرات
                     </button>
                 </div>
+                
             </form>
+            <x-attachments.panel :model="$partorder" mode="edit" />
 
         </div>
     </div>

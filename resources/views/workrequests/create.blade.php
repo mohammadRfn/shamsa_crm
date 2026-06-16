@@ -16,8 +16,7 @@
                     <p class="text-dark-400 mt-1">ثبت درخواست کاری</p>
                 </div>
             </div>
-
-            <form action="{{ route('workrequests.store') }}" method="POST" class="space-y-6">
+            <form action="{{ route('workrequests.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
 
                 <!-- جدول اصلی فرم -->
@@ -57,12 +56,10 @@
                                             value="{{ old('request_date', jalaliToday()) }}"
                                             class="jalali-datepicker w-full bg-dark-900/50 border-0 text-cream-100 rounded-lg p-2 focus:ring-2 focus:ring-primary-500/50"
                                             placeholder="۱۴۰۳/۱۱/۲۸">
-
                                         @error('request_date')
                                         <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                                         @enderror
                                     </td>
-
                                     <td class="border-2 border-dark-600 p-3">
                                         <input type="text" name="request_number" required value="{{ old('request_number') }}"
                                             class="w-full bg-dark-900/50 border-0 text-cream-100 rounded-lg p-2 focus:ring-2 focus:ring-primary-500/50 text-center font-bold text-lg"
@@ -77,7 +74,7 @@
                     </div>
                 </div>
 
-                <!-- مشخصات تجهیز -->
+                <!-- مشخصات دستگاه -->
                 <div class="card-luxury p-6 space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                         <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -115,7 +112,14 @@
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-cream-200 mb-2">واحد درخواست کننده *</label>
                             <input type="text" name="request_unit" required value="{{ old('request_unit') }}"
+                                id="request_unit_input"
+                                list="units_list"
                                 class="input-luxury w-full" placeholder="شرکت اکسین ساحل خوزستان - آقای زارع زاده">
+                            <datalist id="units_list">
+                                @foreach($previousContacts as $pc)
+                                <option value="{{ $pc->request_unit }}">
+                                    @endforeach
+                            </datalist>
                             @error('request_unit')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -138,25 +142,36 @@
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">شماره تماس *</label>
                             <input type="text" name="contact_phone" required value="{{ old('contact_phone') }}"
+                                list="phones_list"
                                 class="input-luxury w-full" placeholder="09177696112">
+                            <datalist id="phones_list">
+                                @foreach($previousContacts as $pc)
+                                <option value="{{ $pc->contact_phone }}">
+                                    @endforeach
+                            </datalist>
                             @error('contact_phone')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-cream-200 mb-2">مسئول پیگیری درخواست</label>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">مسئول پیگیری درخواست *</label>
                             <input type="text" name="contact_person" required value="{{ old('contact_person') }}"
+                                list="persons_list"
                                 class="input-luxury w-full" placeholder="خانم کجباف">
+                            <datalist id="persons_list">
+                                @foreach($previousContacts as $pc)
+                                <option value="{{ $pc->contact_person }}">
+                                    @endforeach
+                            </datalist>
                             @error('contact_person')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-
-
                     </div>
                 </div>
-                <!-- شرح‌ها -->
+
+                <!-- شرح کار -->
                 <div class="card-luxury p-6 space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                         <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -176,22 +191,20 @@
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                        <div class="md:col-span-3 pt-6 border-t-2 border-dark-700/50">
+
+                        <div class="pt-6 border-t-2 border-dark-700/50">
                             <label class="block text-sm font-medium text-cream-200 mb-4">شرح گردش کار</label>
-                            <textarea
-                                name="workflow_description" {{-- ✅ درست --}}
-                                rows="6"
+                            <textarea name="workflow_description" rows="6"
                                 class="input-luxury w-full resize-none h-40"
                                 placeholder="شرح کامل مراحل انجام کار...">{{ old('workflow_description') }}</textarea>
-                            @error('work_description')
-                            <p class="text-red-400 text-sm mt-2 bg-red-500/10 p-3 rounded-lg border border-red-500/30">
-                                {{ $message }}
-                            </p>
+                            @error('workflow_description')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
                     </div>
                 </div>
-                <!-- هزینه‌ها
+
+                <!-- اطلاعات مالی -->
                 <div class="card-luxury p-6 space-y-6">
                     <div class="flex items-center gap-3 pb-4 border-b-2 divider">
                         <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
@@ -202,11 +215,11 @@
                         <h2 class="text-xl font-bold text-cream-100">اطلاعات مالی</h2>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">هزینه برآورد شده اولیه (ریال)</label>
-                            <input type="number" name="estimated_cost" value="{{ old('estimated_cost') }}" min="0"
-                                class="input-luxury w-full" placeholder="0">
+                            <input type="number" name="estimated_cost" value="{{ old('estimated_cost') }}"
+                                min="0" class="input-luxury w-full" placeholder="0">
                             @error('estimated_cost')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -215,55 +228,168 @@
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">نتیجه اعلام قیمت اولیه</label>
                             <input type="text" name="initial_price_result" value="{{ old('initial_price_result') }}"
-                                class="input-luxury w-full" placeholder="قبول / رد">
+                                class="input-luxury w-full" placeholder="قبول / رد / در انتظار">
                             @error('initial_price_result')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
                         </div>
-                    </div> -->
 
-                <!-- توضیح: فیلدهای مالی زیر فقط توسط CEO قابل ویرایش است -->
-                <div class="section-inner">
-                    <p class="text-sm text-dark-400 mb-4">
-                        <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        اطلاعات تسویه حساب پس از تایید نهایی توسط مدیر عامل تکمیل می‌شود
-                    </p>
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">هزینه نهایی (ریال)</label>
+                            <input type="number" name="final_cost" value="{{ old('final_cost') }}"
+                                min="0" class="input-luxury w-full" placeholder="0">
+                            @error('final_cost')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">وضعیت پرداخت</label>
+                            <select name="payment_status" class="input-luxury w-full">
+                                <option value="">انتخاب کنید</option>
+                                <option value="credit" {{ old('payment_status') == 'credit' ? 'selected' : '' }}>اعتباری</option>
+                                <option value="cash" {{ old('payment_status') == 'cash' ? 'selected' : '' }}>نقدی</option>
+                                <option value="documents" {{ old('payment_status') == 'documents' ? 'selected' : '' }}>اسنادی</option>
+                            </select>
+                            @error('payment_status')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">شماره فاکتور</label>
+                            <input type="text" name="invoice_number" value="{{ old('invoice_number') }}"
+                                class="input-luxury w-full">
+                            @error('invoice_number')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">نام بانک</label>
+                            <input type="text" name="bank_name" value="{{ old('bank_name') }}"
+                                class="input-luxury w-full">
+                            @error('bank_name')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">تاریخ پرداخت بانک</label>
+                            <input type="text" name="bank_payment_date"
+                                value="{{ old('bank_payment_date', ($workrequest->bank_payment_date ?? null) ? toJalali($workrequest->bank_payment_date) : '') }}"
+                                class="jalali-datepicker input-luxury w-full" placeholder="۱۴۰۳/۱۱/۲۸">
+                            @error('bank_payment_date')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">مبلغ پرداخت بانک (ریال)</label>
+                            <input type="number" name="bank_payment_amount" value="{{ old('bank_payment_amount') }}"
+                                min="0" class="input-luxury w-full" placeholder="0">
+                            @error('bank_payment_amount')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">سند حسابداری</label>
+                            <input type="text" name="accounting_document" value="{{ old('accounting_document') }}"
+                                class="input-luxury w-full">
+                            @error('accounting_document')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium text-cream-200 mb-2">سند دریافت</label>
+                            <input type="text" name="receipt_document" value="{{ old('receipt_document') }}"
+                                class="input-luxury w-full">
+                            @error('receipt_document')
+                            <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                    </div>
                 </div>
+
+                <!-- دکمه‌ها -->
+                <div class="flex flex-col sm:flex-row gap-4 justify-end">
+                    <a href="{{ route('workrequests.index') }}" class="btn-secondary text-center">
+                        انصراف
+                    </a>
+                    <button type="submit" class="btn-primary inline-flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        ثبت درخواست
+                    </button>
+                </div>
+                <!-- فایل‌های ضمیمه اختیاری -->
+                <div class="card-luxury p-6 space-y-4">
+                    <div class="flex items-center gap-3 pb-4 border-b border-dark-700">
+                        <h2 class="text-xl font-bold text-cream-100">فایل‌های ضمیمه (اختیاری)</h2>
+                    </div>
+                    <div id="file_inputs" class="space-y-2">
+                        <input type="file" name="attachments[]"
+                            accept=".jpg,.jpeg,.png,.webp,.pdf"
+                            class="input-luxury w-full">
+                    </div>
+                    <button type="button" onclick="addFileInput()"
+                        class="btn-secondary text-sm inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        افزودن فایل دیگر
+                    </button>
+                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
+                </div>
+            </form>
+
         </div>
-
-
-
-        <!-- دکمه‌ها -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-end">
-            <a href="{{ route('workrequests.index') }}" class="btn-secondary text-center">
-                انصراف
-            </a>
-            <button type="submit" class="btn-primary inline-flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-                ثبت درخواست
-            </button>
-        </div>
-        </form>
-
-    </div>
     </div>
     <script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
     <script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
     <script>
         $(document).ready(function() {
-            console.log('DatePicker initializing...');
-
             $('input[name="request_date"]').persianDatepicker({
                 format: 'YYYY/MM/DD',
                 autoClose: true,
-                initialValue: false
+                initialValue: true
             });
 
-            console.log('DatePicker initialized!');
+            // اضافه کن:
+            $('input[name="bank_payment_date"]').persianDatepicker({
+                format: 'YYYY/MM/DD',
+                autoClose: true,
+                initialValue: true
+            });
+        });
+    </script>
+    <script>
+        function addFileInput() {
+            const div = document.getElementById('file_inputs');
+            if (div.children.length >= 5) return;
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.name = 'attachments[]';
+            input.accept = '.jpg,.jpeg,.png,.webp,.pdf';
+            input.className = 'input-luxury w-full';
+            div.appendChild(input);
+        }
+    </script>
+    {{-- قبل از script، داخل body --}}
+    <meta name="previous-contacts" content="{{ htmlspecialchars(json_encode($previousContacts), ENT_QUOTES, 'UTF-8') }}">
+    <script>
+        const previousContacts = JSON.parse(
+            document.querySelector('meta[name="previous-contacts"]').getAttribute('content')
+        );
+
+        document.getElementById('request_unit_input').addEventListener('change', function() {
+            const selected = previousContacts.find(c => c.request_unit === this.value);
+            if (selected) {
+                document.querySelector('[name="contact_person"]').value = selected.contact_person ?? '';
+                document.querySelector('[name="contact_phone"]').value = selected.contact_phone ?? '';
+            }
         });
     </script>
 </x-app-layout>
