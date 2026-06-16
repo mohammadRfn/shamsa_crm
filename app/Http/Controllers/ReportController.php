@@ -95,7 +95,7 @@ class ReportController extends Controller
         $validated = $request->validate([
             'part_name' => 'required|string|max:255',
             'request_date' => 'required|date',
-            'request_number' => 'required|string|max:255',
+            'request_number' => 'required|string|max:255|unique:reports,request_number',
             'serial_number' => 'required|string|max:50',
             'device_model' => 'required|string|max:50',
             'issue_description' => 'required|string',

@@ -74,7 +74,7 @@ class PartOrderController extends Controller
         $validated = $request->validate([
             'equipment_name' => 'required|string|max:255',
             'order_date' => 'required|date',
-            'order_number' => 'required|string|max:255',
+            'order_number' => 'required|string|max:255|unique:part_orders,order_number',
             'part_name' => 'required|array|min:1',
             'part_name.*' => 'required|string|max:255',
             'specifications' => 'required|array|min:1',

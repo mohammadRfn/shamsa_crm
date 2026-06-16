@@ -113,7 +113,7 @@ class WorkRequestController extends Controller
             ]);
         }
         $validated = $request->validate([
-            'request_number' => 'required|string|max:255',
+            'request_number' => 'required|string|max:255|unique:work_requests,request_number',
             'request_date' => 'required|date',
             'serial_number' => 'required|string|max:255',
             'device_model' => 'required|string|max:255',
