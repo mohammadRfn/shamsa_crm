@@ -121,8 +121,11 @@
                 @endforeach
             </div>
 
-            <div class="flex justify-center">{{ $tasks->links() }}</div>
-
+            @if($tasks->hasPages())
+            <div class="flex justify-center pt-4 border-t-2 divider">
+                {{ $tasks->links() }}
+            </div>
+            @endif
             @else
             <div class="card-luxury p-12 text-center">
                 <div class="w-24 h-24 mx-auto mb-6 bg-dark-800 rounded-full flex items-center justify-center">
