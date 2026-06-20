@@ -10,6 +10,7 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\WorkRequestController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SupplyProposalController;
 
 /*
 |--------------------------------------------------------------------------
@@ -128,5 +129,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::middleware(['auth', 'ceo'])->prefix('admin')->name('database.')->group(function () {
         Route::get('database/export', [DatabaseBackupController::class, 'export'])->name('export');
         Route::post('database/import', [DatabaseBackupController::class, 'import'])->name('import');
+    });
+    Route::middleware('checkrole:supply,ceo')->group(function () {
+        Route::resource('supply-proposals', SupplyProposalController::class)
+            ->parameters(['supply-proposals' => 'proposal']);
+        Route::post('supply-proposals/{proposal}/change-status', [SupplyProposalController::class, 'changeStatus'])
+            ->name('supply-proposals.changeStatus');
+        Route::get('part-orders/{partOrder}/parts', [SupplyProposalController::class, 'getPartNames'])
+            ->name('part-orders.parts');
     });
 });

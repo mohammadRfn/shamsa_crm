@@ -55,6 +55,10 @@ class User extends Authenticatable
     {
         return $this->hasMany(Approval::class);
     }
+    public function supplyProposals()
+    {
+        return $this->hasMany(\App\Models\SupplyProposal::class, 'created_by');
+    }
 
     // Role Helper Methods
     public function isTechnician(): bool

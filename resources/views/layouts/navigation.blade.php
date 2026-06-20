@@ -32,8 +32,8 @@
                     </a>
                     @endif
 
-                        {{-- سفارش قطعه: همه --}}
-                        <a href="{{ route('partorders.index') }}"
+                    {{-- سفارش قطعه: همه --}}
+                    <a href="{{ route('partorders.index') }}"
                         class="nav-link {{ request()->routeIs('partorders.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
                         سفارش قطعه
                     </a>
@@ -43,6 +43,13 @@
                     <a href="{{ route('workrequests.index') }}"
                         class="nav-link {{ request()->routeIs('workrequests.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
                         گردش کار
+                    </a>
+                    @endif
+                    {{-- پیشنهادهای تامین: فقط supply و ceo --}}
+                    @if(auth()->user()->isSupply() || auth()->user()->isCEO())
+                    <a href="{{ route('supply-proposals.index') }}"
+                        class="nav-link {{ request()->routeIs('supply-proposals.*') ? 'nav-link-active' : 'nav-link-inactive' }}">
+                        پیشنهادهای تامین
                     </a>
                     @endif
 
@@ -171,7 +178,11 @@
                 گردش کار
             </a>
             @endif
-
+            @if(auth()->user()->isSupply() || auth()->user()->isCEO())
+            <a href="{{ route('supply-proposals.index') }}" class="block px-4 py-3 rounded-lg text-base font-medium {{ request()->routeIs('supply-proposals.*') ? 'bg-primary-500/25 text-primary-300 border-2 border-primary-500/40' : 'text-cream-300 hover:bg-dark-700/70 border-2 border-transparent' }}">
+                پیشنهادهای تامین
+            </a>
+            @endif
             @if(auth()->user()->isReception() || auth()->user()->isCEO())
             <a href="{{ route('tasks.index') }}" class="block px-4 py-3 rounded-lg text-base font-medium {{ request()->routeIs('tasks.*') ? 'bg-primary-500/25 text-primary-300 border-2 border-primary-500/40' : 'text-cream-300 hover:bg-dark-700/70 border-2 border-transparent' }}">
                 تسک‌ها

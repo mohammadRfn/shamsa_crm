@@ -73,7 +73,10 @@ class PartOrder extends Model
     {
         return $this->morphMany(Attachment::class, 'attachable')->latest();
     }
-
+    public function supplyProposals()
+    {
+        return $this->hasMany(\App\Models\SupplyProposal::class);
+    }
     // Scopes
     public function scopeForRole($query, string $role)
     {
