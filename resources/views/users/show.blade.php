@@ -180,7 +180,7 @@
     </div>
 
     {{-- Chart.js --}}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+    <script src="{{ asset('assets/js/chart.umd.min.js') }}"></script>
     <script>
         (function() {
             const activity = @json($activity);

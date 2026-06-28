@@ -16,7 +16,7 @@
         }
     </style>
     <!-- Persian DatePicker CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/persian-datepicker@1.2.0/dist/css/persian-datepicker.min.css">
+    <link rel="stylesheet" href="{{ asset('assets/css/persian-datepicker.min.css') }}">
 
     <!-- Styles -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -75,16 +75,10 @@
         </footer>
     </div>
 
-    <!-- jQuery - اول از همه -->
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{{ asset('assets/js/jquery.min.js') }}"></script>
+    <script src="{{ asset('assets/js/persian-date.min.js') }}"></script>
+    <script src="{{ asset('assets/js/persian-datepicker.min.js') }}"></script>
 
-    <!-- Persian Date - دوم -->
-    <script src="https://unpkg.com/persian-date@1.1.0/dist/persian-date.min.js"></script>
-
-    <!-- Persian DatePicker - سوم -->
-    <script src="https://unpkg.com/persian-datepicker@1.2.0/dist/js/persian-datepicker.min.js"></script>
-
-    <!-- راه‌اندازی DatePicker - چهارم -->
     <script>
         $(document).ready(function() {
             $('.jalali-datepicker').persianDatepicker({

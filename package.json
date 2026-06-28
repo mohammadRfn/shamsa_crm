@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "@persian-tools/persian-mobile-datepicker": "^0.0.13",
+        "chart.js": "^4.5.1",
         "flatpickr": "^4.6.13",
         "jquery": "^4.0.0",
         "persian-date": "^1.1.0",

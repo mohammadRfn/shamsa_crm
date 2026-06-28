@@ -23,8 +23,8 @@
                     <select name="status" class="input-luxury lg:w-44">
                         <option value="">همه وضعیت‌ها</option>
                         <option value="pending" {{ request('status') == 'pending'     ? 'selected' : '' }}>⏱ در انتظار</option>
-                        <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>🔧 در حال انجام</option>
-                        <option value="done" {{ request('status') == 'done'        ? 'selected' : '' }}>✓ انجام شده</option>
+                        <option value="in_progress" {{ request('status') == 'in_progress' ? 'selected' : '' }}>🔍 در حال عیب‌یابی</option>
+                        <option value="done" {{ request('status') == 'done'        ? 'selected' : '' }}>🔧 در حال تعمیر</option>
                     </select>
                     <button type="submit" class="btn-primary">فیلتر</button>
                     @if(request('status'))
@@ -40,8 +40,8 @@
                 @php
                 $statusConfig = match($task->status) {
                 'pending' => ['badge-warning', 'در انتظار', '⏱'],
-                'in_progress' => ['badge-info', 'در حال انجام', '🔧'],
-                'done' => ['badge-success', 'انجام شده', '✓'],
+                'in_progress' => ['badge-info', 'در حال عیب‌یابی', '🔍'],
+                'done' => ['badge-success', 'در حال تعمیر', '🔧'],
                 default => ['badge-info', '---', ''],
                 };
                 $isNew = $task->isNew();

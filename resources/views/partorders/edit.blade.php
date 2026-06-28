@@ -128,16 +128,7 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
-    <script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('.jalali-datepicker').persianDatepicker({
-                format: 'YYYY/MM/DD',
-                autoClose: true,
-                initialValue: true
-            });
-        });
 
         function addRow() {
             const tbody = document.getElementById('parts-body');

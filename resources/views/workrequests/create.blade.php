@@ -111,15 +111,15 @@
 
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-cream-200 mb-2">واحد درخواست کننده *</label>
-                            <input type="text" name="request_unit" required value="{{ old('request_unit') }}"
-                                id="request_unit_input"
-                                list="units_list"
-                                class="input-luxury w-full" placeholder="شرکت اکسین ساحل خوزستان - آقای زارع زاده">
-                            <datalist id="units_list">
-                                @foreach($previousContacts as $pc)
-                                <option value="{{ $pc->request_unit }}">
-                                    @endforeach
-                            </datalist>
+                            <div class="relative">
+                                <input type="text" name="request_unit" required value="{{ old('request_unit') }}"
+                                    id="request_unit_input"
+                                    class="input-luxury w-full" placeholder="شرکت اکسین ساحل خوزستان - آقای زارع زاده"
+                                    autocomplete="off">
+                                <div id="units_dropdown" class="hidden absolute z-50 w-full mt-1 rounded-xl border-2 border-stone-200 shadow-xl overflow-y-auto max-h-48" style="background:#fff">
+                                    <div id="units_dropdown_list" class="p-1"></div>
+                                </div>
+                            </div>
                             @error('request_unit')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -141,14 +141,15 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">شماره تماس *</label>
-                            <input type="text" name="contact_phone" required value="{{ old('contact_phone') }}"
-                                list="phones_list"
-                                class="input-luxury w-full" placeholder="09177696112">
-                            <datalist id="phones_list">
-                                @foreach($previousContacts as $pc)
-                                <option value="{{ $pc->contact_phone }}">
-                                    @endforeach
-                            </datalist>
+                            <div class="relative">
+                                <input type="text" name="contact_phone" required value="{{ old('contact_phone') }}"
+                                    id="contact_phone_input"
+                                    class="input-luxury w-full" placeholder="09177696112"
+                                    autocomplete="off">
+                                <div id="phones_dropdown" class="hidden absolute z-50 w-full mt-1 rounded-xl border-2 border-stone-200 shadow-xl overflow-y-auto max-h-48" style="background:#fff">
+                                    <div id="phones_dropdown_list" class="p-1"></div>
+                                </div>
+                            </div>
                             @error('contact_phone')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -156,14 +157,15 @@
 
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">مسئول پیگیری درخواست *</label>
-                            <input type="text" name="contact_person" required value="{{ old('contact_person') }}"
-                                list="persons_list"
-                                class="input-luxury w-full" placeholder="خانم کجباف">
-                            <datalist id="persons_list">
-                                @foreach($previousContacts as $pc)
-                                <option value="{{ $pc->contact_person }}">
-                                    @endforeach
-                            </datalist>
+                            <div class="relative">
+                                <input type="text" name="contact_person" required value="{{ old('contact_person') }}"
+                                    id="contact_person_input"
+                                    class="input-luxury w-full" placeholder="خانم کجباف"
+                                    autocomplete="off">
+                                <div id="persons_dropdown" class="hidden absolute z-50 w-full mt-1 rounded-xl border-2 border-stone-200 shadow-xl overflow-y-auto max-h-48" style="background:#fff">
+                                    <div id="persons_dropdown_list" class="p-1"></div>
+                                </div>
+                            </div>
                             @error('contact_person')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -362,24 +364,7 @@
 
         </div>
     </div>
-    <script src="https://unpkg.com/persian-date@latest/dist/persian-date.min.js"></script>
-    <script src="https://unpkg.com/persian-datepicker@latest/dist/js/persian-datepicker.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('input[name="request_date"]').persianDatepicker({
-                format: 'YYYY/MM/DD',
-                autoClose: true,
-                initialValue: true
-            });
-
-            // اضافه کن:
-            $('input[name="bank_payment_date"]').persianDatepicker({
-                format: 'YYYY/MM/DD',
-                autoClose: true,
-                initialValue: true
-            });
-        });
-    </script>
+   
     <script>
         function addFileInput() {
             const div = document.getElementById('file_inputs');
@@ -393,19 +378,75 @@
         }
     </script>
     {{-- قبل از script، داخل body --}}
-    <meta name="previous-contacts" content="{{ htmlspecialchars(json_encode($previousContacts), ENT_QUOTES, 'UTF-8') }}">
+    <meta name="previous-contacts" content='{{ json_encode($previousContacts) }}'>
     <script>
         const previousContacts = JSON.parse(
             document.querySelector('meta[name="previous-contacts"]').getAttribute('content')
         );
 
-        document.getElementById('request_unit_input').addEventListener('change', function() {
-            const selected = previousContacts.find(c => c.request_unit === this.value);
-            if (selected) {
-                document.querySelector('[name="contact_person"]').value = selected.contact_person ?? '';
-                document.querySelector('[name="contact_phone"]').value = selected.contact_phone ?? '';
+        function makeDropdown(inputEl, dropdownEl, listEl, getLabel, onSelect) {
+            function renderList(filter) {
+                const items = previousContacts
+                    .map(c => getLabel(c))
+                    .filter((v, i, a) => v && a.indexOf(v) === i) // unique
+                    .filter(v => !filter || v.includes(filter));
+
+                listEl.innerHTML = '';
+                items.forEach(val => {
+                    const div = document.createElement('div');
+                    div.className = 'px-4 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-stone-100';
+                    div.style.color = '#1C1A18';
+                    div.textContent = val;
+                    div.addEventListener('mousedown', (e) => {
+                        e.preventDefault();
+                        inputEl.value = val;
+                        onSelect(val);
+                        dropdownEl.classList.add('hidden');
+                    });
+                    listEl.appendChild(div);
+                });
+
+                if (items.length === 0) dropdownEl.classList.add('hidden');
+                else dropdownEl.classList.remove('hidden');
             }
-        });
+
+            inputEl.addEventListener('focus', () => renderList(''));
+            inputEl.addEventListener('input', () => renderList(inputEl.value));
+            inputEl.addEventListener('blur', () => setTimeout(() => dropdownEl.classList.add('hidden'), 200));
+        }
+
+        // واحد درخواست کننده
+        makeDropdown(
+            document.getElementById('request_unit_input'),
+            document.getElementById('units_dropdown'),
+            document.getElementById('units_dropdown_list'),
+            c => c.request_unit,
+            (val) => {
+                const selected = previousContacts.find(c => c.request_unit === val);
+                if (selected) {
+                    document.getElementById('contact_person_input').value = selected.contact_person ?? '';
+                    document.getElementById('contact_phone_input').value = selected.contact_phone ?? '';
+                }
+            }
+        );
+
+        // شماره تماس
+        makeDropdown(
+            document.getElementById('contact_phone_input'),
+            document.getElementById('phones_dropdown'),
+            document.getElementById('phones_dropdown_list'),
+            c => c.contact_phone,
+            () => {}
+        );
+
+        // مسئول پیگیری
+        makeDropdown(
+            document.getElementById('contact_person_input'),
+            document.getElementById('persons_dropdown'),
+            document.getElementById('persons_dropdown_list'),
+            c => c.contact_person,
+            () => {}
+        );
     </script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -449,5 +490,8 @@
             priceInput.value = val;
             priceDropdown.classList.add('hidden');
         }
+    </script>
+    <script>
+        console.log(document.querySelector('meta[name="previous-contacts"]'));
     </script>
 </x-app-layout>
