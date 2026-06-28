@@ -16,8 +16,8 @@
                 @php
                 $statusConfig = match($task->status) {
                 'pending' => ['badge-warning', 'در انتظار', '⏱'],
-                'in_progress' => ['badge-info', 'در حال انجام', '🔧'],
-                'done' => ['badge-success', 'انجام شده', '✓'],
+                'in_progress' => ['badge-info', 'در حال عیب‌یابی', '🔍'],
+                'done' => ['badge-success', 'در حال تعمیر', '🔧'],
                 default => ['badge-info', '---', ''],
                 };
                 @endphp
@@ -167,9 +167,9 @@
                         <form method="POST" action="{{ route('tasks.updateStatus', $task) }}" class="space-y-3">
                             @csrf @method('PATCH')
                             <select name="status" class="input-luxury w-full text-sm">
-                                <option value="pending" {{ $task->status == 'pending'     ? 'selected' : '' }}>⏱ در انتظار</option>
-                                <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>🔧 در حال انجام</option>
-                                <option value="done" {{ $task->status == 'done'        ? 'selected' : '' }}>✓ انجام شده</option>
+                                <option value="pending" {{ $task->status == 'pending' ? 'selected' : '' }}>⏱ در انتظار</option>
+                                <option value="in_progress" {{ $task->status == 'in_progress' ? 'selected' : '' }}>🔍 در حال عیب‌یابی</option>
+                                <option value="done" {{ $task->status == 'done' ? 'selected' : '' }}>🔧 در حال تعمیر</option>
                             </select>
                             <button type="submit" class="btn-primary w-full text-sm py-2">ثبت وضعیت</button>
                         </form>

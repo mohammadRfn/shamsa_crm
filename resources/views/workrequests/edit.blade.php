@@ -222,9 +222,9 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">هزینه برآورد شده اولیه (ریال)</label>
-                            <input type="number" name="estimated_cost"
-                                value="{{ old('estimated_cost', $workrequest->estimated_cost) }}"
-                                min="0" class="input-luxury w-full" placeholder="0">
+                            <input type="text" name="estimated_cost"
+                                value="{{ old('estimated_cost') ? number_format(old('estimated_cost')) : ($workrequest->estimated_cost ? number_format($workrequest->estimated_cost) : '') }}"
+                                class="money-input input-luxury w-full" placeholder="0">
                             @error('estimated_cost')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -232,9 +232,21 @@
 
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">نتیجه اعلام قیمت اولیه</label>
-                            <input type="text" name="initial_price_result"
-                                value="{{ old('initial_price_result', $workrequest->initial_price_result) }}"
-                                class="input-luxury w-full" placeholder="قبول / رد / در انتظار">
+                            <div class="relative">
+                                <input type="text" name="initial_price_result"
+                                    value="{{ old('initial_price_result', $workrequest->initial_price_result) }}"
+                                    id="initial_price_result"
+                                    class="input-luxury w-full" placeholder="قبول / رد / در انتظار"
+                                    autocomplete="off" readonly
+                                    onfocus="this.removeAttribute('readonly')">
+                                <div id="price_dropdown" class="hidden absolute z-50 w-full mt-1 rounded-xl border-2 border-stone-200 shadow-xl" style="background:#fff">
+                                    <div class="p-1">
+                                        <div onclick="selectPriceResult('قبول')" class="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-stone-100" style="color:#1C1A18">قبول</div>
+                                        <div onclick="selectPriceResult('رد')" class="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-stone-100" style="color:#1C1A18">رد</div>
+                                        <div onclick="selectPriceResult('در انتظار')" class="px-4 py-2 rounded-lg text-sm font-medium cursor-pointer hover:bg-stone-100" style="color:#1C1A18">در انتظار</div>
+                                    </div>
+                                </div>
+                            </div>
                             @error('initial_price_result')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -242,9 +254,9 @@
 
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">هزینه نهایی (ریال)</label>
-                            <input type="number" name="final_cost"
-                                value="{{ old('final_cost', $workrequest->final_cost) }}"
-                                min="0" class="input-luxury w-full" placeholder="0">
+                            <input type="text" name="final_cost"
+                                value="{{ old('final_cost') ? number_format(old('final_cost')) : ($workrequest->final_cost ? number_format($workrequest->final_cost) : '') }}"
+                                class="money-input input-luxury w-full" placeholder="0">
                             @error('final_cost')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -294,9 +306,9 @@
 
                         <div>
                             <label class="block text-sm font-medium text-cream-200 mb-2">مبلغ پرداخت بانک (ریال)</label>
-                            <input type="number" name="bank_payment_amount"
-                                value="{{ old('bank_payment_amount', $workrequest->bank_payment_amount) }}"
-                                min="0" class="input-luxury w-full" placeholder="0">
+                            <input type="text" name="bank_payment_amount"
+                                value="{{ old('bank_payment_amount') ? number_format(old('bank_payment_amount')) : ($workrequest->bank_payment_amount ? number_format($workrequest->bank_payment_amount) : '') }}"
+                                class="money-input input-luxury w-full" placeholder="0">
                             @error('bank_payment_amount')
                             <p class="text-red-400 text-xs mt-1">{{ $message }}</p>
                             @enderror
@@ -374,5 +386,49 @@
                 document.querySelector('[name="contact_phone"]').value = selected.contact_phone ?? '';
             }
         });
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function formatNumber(val) {
+                val = String(val).replace(/[^0-9]/g, '');
+                return val ? parseInt(val).toLocaleString('en-US') : '';
+            }
+
+            document.querySelectorAll('.money-input').forEach(function(input) {
+                input.addEventListener('input', function() {
+                    const raw = this.value.replace(/,/g, '');
+                    if (!raw) {
+                        this.value = '';
+                        return;
+                    }
+                    const cursor = this.selectionStart;
+                    const prevLen = this.value.length;
+                    this.value = formatNumber(raw);
+                    const diff = this.value.length - prevLen;
+                    this.setSelectionRange(cursor + diff, cursor + diff);
+                });
+            });
+
+            document.querySelectorAll('form').forEach(function(form) {
+                form.addEventListener('submit', function() {
+                    form.querySelectorAll('.money-input').forEach(function(input) {
+                        input.value = input.value.replace(/,/g, '');
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+        const priceInput = document.getElementById('initial_price_result');
+        const priceDropdown = document.getElementById('price_dropdown');
+
+        priceInput.addEventListener('focus', () => priceDropdown.classList.remove('hidden'));
+        priceInput.addEventListener('blur', () => setTimeout(() => priceDropdown.classList.add('hidden'), 200));
+    </script>
+    <script>
+        function selectPriceResult(val) {
+            document.getElementById('initial_price_result').value = val;
+            document.getElementById('price_dropdown').classList.add('hidden');
+        }
     </script>
 </x-app-layout>
