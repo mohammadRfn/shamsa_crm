@@ -137,6 +137,9 @@
                     </button>
                 </div>
             </form>
+            <div class="mt-8">
+                <x-attachments.panel :model="$proposal" mode="edit" />
+            </div>
         </div>
     </div>
 

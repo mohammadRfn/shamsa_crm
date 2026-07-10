@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DeletesAttachmentsOnDelete;
 use Illuminate\Database\Eloquent\Model;
 
 class SupplyProposal extends Model
 {
+    use DeletesAttachmentsOnDelete;
     protected $fillable = [
         'part_order_id',
         'part_name',
@@ -24,7 +26,7 @@ class SupplyProposal extends Model
         'unit_price'          => 'decimal:2',
         'estimated_delivery'  => 'date',
         'selected_at'         => 'datetime',
-        'created_by'          => 'integer',  // ← این رو اضافه کن
+        'created_by'          => 'integer',  
         'part_order_id'       => 'integer',
     ];
 
@@ -52,6 +54,10 @@ class SupplyProposal extends Model
     public function creator()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'attachable')->latest();
     }
 
     // ── Helpers ──────────────────────────────────────────────────────────

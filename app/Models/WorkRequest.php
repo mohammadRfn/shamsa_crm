@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DeletesAttachmentsOnDelete;
 use App\Traits\HasReadTracking;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -11,6 +12,7 @@ class WorkRequest extends Model
 {
     use HasFactory;
     use HasReadTracking;
+    use DeletesAttachmentsOnDelete;
 
     protected $fillable = [
         'user_id',

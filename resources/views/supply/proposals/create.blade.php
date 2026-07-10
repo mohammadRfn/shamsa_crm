@@ -31,7 +31,7 @@
             @endif
 
             <form method="POST"
-                action="{{ isset($proposal) ? route('supply-proposals.update', $proposal) : route('supply-proposals.store') }}">
+                action="{{ isset($proposal) ? route('supply-proposals.update', $proposal) : route('supply-proposals.store') }}" enctype="multipart/form-data">
                 @csrf
                 @if(isset($proposal)) @method('PUT') @endif
 
@@ -132,6 +132,41 @@
                     <span class="text-sm text-dark-400">پیش‌نمایش جمع کل:</span>
                     <span class="text-primary-400 font-bold text-lg" id="total-price">---</span>
                 </div>
+                <div class="card-luxury p-6 space-y-4 mb-6">
+                    <div class="flex items-center gap-3 pb-4 border-b-2 divider">
+                        <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-cream-100">فایل‌های ضمیمه (اختیاری)</h2>
+                    </div>
+
+                    <div id="file_inputs" class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <label for="attachment_0" title="افزودن فایل"
+                                class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors cursor-pointer flex-shrink-0">
+                                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                </svg>
+                            </label>
+                            <input type="file" id="attachment_0" name="attachments[]"
+                                accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                                class="hidden" onchange="document.getElementById('attachment_name_0').textContent = this.files[0] ? this.files[0].name : 'فایلی انتخاب نشده';">
+                            <span id="attachment_name_0" class="text-xs text-dark-400">فایلی انتخاب نشده</span>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="addFileInput()" class="btn-secondary text-sm inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        افزودن فایل دیگر
+                    </button>
+                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF، Word، Excel — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
+                </div>
 
                 {{-- دکمه‌ها --}}
                 <div class="flex gap-4 justify-end">
@@ -150,8 +185,8 @@
     <script>
         // ── dropdown داینامیک قطعات ──────────────────────────────────────
         const partOrderSelect = document.getElementById('part_order_id');
-        const partNameSelect  = document.getElementById('part_name');
-        const oldPartName     = "{{ old('part_name', $proposal->part_name ?? '') }}";
+        const partNameSelect = document.getElementById('part_name');
+        const oldPartName = "{{ old('part_name', $proposal->part_name ?? '') }}";
 
         function loadParts(selectedId) {
             const option = partOrderSelect.querySelector(`option[value="${selectedId}"]`);
@@ -159,7 +194,9 @@
             if (!option || !selectedId) return;
 
             let parts = [];
-            try { parts = JSON.parse(option.dataset.parts || '[]'); } catch(e) {}
+            try {
+                parts = JSON.parse(option.dataset.parts || '[]');
+            } catch (e) {}
 
             parts.forEach(part => {
                 const opt = document.createElement('option');
@@ -179,13 +216,13 @@
 
         // ── پیش‌نمایش قیمت کل ───────────────────────────────────────────
         const unitPriceInput = document.querySelector('[name="unit_price"]');
-        const quantityInput  = document.querySelector('[name="quantity"]');
-        const pricePreview   = document.getElementById('price-preview');
-        const totalPriceEl   = document.getElementById('total-price');
+        const quantityInput = document.querySelector('[name="quantity"]');
+        const pricePreview = document.getElementById('price-preview');
+        const totalPriceEl = document.getElementById('total-price');
 
         function updateTotal() {
             const price = parseFloat(unitPriceInput.value) || 0;
-            const qty   = parseInt(quantityInput.value) || 0;
+            const qty = parseInt(quantityInput.value) || 0;
             if (price > 0 && qty > 0) {
                 pricePreview.style.removeProperty('display');
                 totalPriceEl.textContent = (price * qty).toLocaleString('fa-IR') + ' تومان';
@@ -197,5 +234,31 @@
         unitPriceInput.addEventListener('input', updateTotal);
         quantityInput.addEventListener('input', updateTotal);
         updateTotal();
+    </script>
+    <script>
+        let attachmentCounter = 1;
+
+        function addFileInput() {
+            const div = document.getElementById('file_inputs');
+            if (div.children.length >= 5) return;
+            const idx = attachmentCounter;
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex items-center gap-3';
+            wrapper.innerHTML = `
+            <label for="attachment_${idx}" title="افزودن فایل"
+                class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors cursor-pointer flex-shrink-0">
+                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                </svg>
+            </label>
+            <input type="file" id="attachment_${idx}" name="attachments[]"
+                accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                class="hidden" onchange="document.getElementById('attachment_name_${idx}').textContent = this.files[0] ? this.files[0].name : 'فایلی انتخاب نشده';">
+            <span id="attachment_name_${idx}" class="text-xs text-dark-400">فایلی انتخاب نشده</span>
+        `;
+            div.appendChild(wrapper);
+            attachmentCounter++;
+        }
     </script>
 </x-app-layout>

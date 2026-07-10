@@ -59,6 +59,10 @@
                 </div>
 
                 <!-- جدول قطعات -->
+                @php
+                    // نگاشت آیتم واقعی هر ردیف بر اساس ترتیب (فرض: همان ترتیب ثبت part_name)
+                    $itemsList = $partorder->items->values();
+                @endphp
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse">
                         <thead>
@@ -69,10 +73,12 @@
                                 <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">پکیج</th>
                                 <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-24">تعداد</th>
                                 <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">توضیحات</th>
+                                <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-14">فایل</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($partorder->part_name ?? [] as $i => $pname)
+                            @php $rowItem = $itemsList[$i] ?? null; @endphp
                             <tr>
                                 <td class="border border-dark-600 px-2 py-2 text-center text-cream-400 text-sm">{{ $i + 1 }}</td>
                                 <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ $pname }}</td>
@@ -80,10 +86,36 @@
                                 <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ ($partorder->package ?? [])[$i] ?? '-' }}</td>
                                 <td class="border border-dark-600 px-3 py-2 text-center text-primary-400 font-bold text-sm">{{ ($partorder->quantity ?? [])[$i] ?? '-' }}</td>
                                 <td class="border border-dark-600 px-3 py-2 text-cream-100 text-sm">{{ ($partorder->description ?? [])[$i] ?? '-' }}</td>
+                                <td class="border border-dark-600 px-2 py-2 text-center">
+                                    @if($rowItem)
+                                        <button type="button"
+                                            onclick="toggleAttachRow({{ $rowItem->id }})"
+                                            class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors">
+                                            <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                            </svg>
+                                            @if($rowItem->attachments->count() > 0)
+                                                <span class="absolute -top-1 -left-1 w-4 h-4 bg-primary-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                                                    {{ $rowItem->attachments->count() }}
+                                                </span>
+                                            @endif
+                                        </button>
+                                    @else
+                                        <span class="text-xs text-dark-500">—</span>
+                                    @endif
+                                </td>
                             </tr>
+                            @if($rowItem)
+                            <tr id="attach-row-{{ $rowItem->id }}" class="attach-row hidden">
+                                <td colspan="7" class="border border-dark-600 p-3 bg-dark-800/40">
+                                    <x-attachments.panel :model="$rowItem" mode="show" />
+                                </td>
+                            </tr>
+                            @endif
                             @empty
                             <tr>
-                                <td colspan="6" class="border border-dark-600 px-3 py-4 text-center text-dark-400">قطعه‌ای ثبت نشده</td>
+                                <td colspan="7" class="border border-dark-600 px-3 py-4 text-center text-dark-400">قطعه‌ای ثبت نشده</td>
                             </tr>
                             @endforelse
                         </tbody>
@@ -202,9 +234,10 @@
                 </svg>
                 دانلود PDF
             </a>
-            <x-attachments.panel
+
+            <!-- <x-attachments.panel
                 :model="$partorder"
-                mode="show" />
+                mode="show" /> -->
             <x-comments-section
                 :reportable="$partorder"
                 reportableType="App\Models\PartOrder" />
@@ -244,4 +277,11 @@
 
         </div>
     </div>
+
+    <script>
+        function toggleAttachRow(id) {
+            const row = document.getElementById('attach-row-' + id);
+            if (row) row.classList.toggle('hidden');
+        }
+    </script>
 </x-app-layout>

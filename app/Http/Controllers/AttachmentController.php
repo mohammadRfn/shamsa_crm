@@ -12,6 +12,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use App\Models\PartOrderItem;
+use App\Models\SupplyProposal;
 
 class AttachmentController extends Controller
 {
@@ -68,13 +70,13 @@ class AttachmentController extends Controller
                 'required',
                 'file',
                 'max:' . self::MAX_SIZE_KB,
-                'mimes:jpg,jpeg,png,webp,pdf',
+                'mimes:jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx',
             ],
         ], [
             'files.required' => 'حداقل یک فایل انتخاب کنید.',
             'files.max'      => 'حداکثر ۵ فایل در هر بار مجاز است.',
             'files.*.max'    => 'حجم هر فایل نباید بیشتر از ۵۰ مگابایت باشد.',
-            'files.*.mimes'  => 'فرمت مجاز: JPG، PNG، WEBP، PDF',
+            'files.*.mimes'  => 'فرمت مجاز: JPG، PNG، WEBP، PDF، DOC، DOCX، XLS، XLSX',
         ]);
 
         $count = 0;
@@ -92,7 +94,7 @@ class AttachmentController extends Controller
                 'uploaded_by' => Auth::id(),
                 'file_name'   => $file->getClientOriginalName(),
                 'file_path'   => $path,
-                'file_type'   => str_starts_with($mime, 'image/') ? 'image' : 'pdf',
+                'file_type' => \App\Models\Attachment::resolveFileType($mime),
                 'mime_type'   => $mime,
                 'file_size'   => $file->getSize(),
             ]);
@@ -137,19 +139,28 @@ class AttachmentController extends Controller
                 'report', 'part_order' => $model->user_id !== $user->id
                     ? abort(403, 'فقط به موارد خودتان دسترسی دارید.')
                     : null,
+                'part_order_item' => $model->partOrder->user_id !== $user->id
+                    ? abort(403, 'فقط به موارد خودتان دسترسی دارید.')
+                    : null,
                 default => abort(403, 'دسترسی مجاز نیست.'),
             },
 
             'reception' => match ($type) {
-                'work_request' => null, // مجاز
+                'work_request' => null,
                 default        => abort(403, 'دسترسی مجاز نیست.'),
             },
 
-            'supply' => abort(403, 'دسترسی مجاز نیست.'),
+            'supply' => match ($type) {
+                'supply_proposal' => $model->created_by !== $user->id
+                    ? abort(403, 'فقط به پیشنهادهای خودتان دسترسی دارید.')
+                    : null,
+                default => abort(403, 'دسترسی مجاز نیست.'),
+            },
 
             'ceo' => match ($type) {
-                'work_request' => null, // مجاز
-                default        => abort(403, 'دسترسی مجاز نیست.'),
+                'work_request' => null,
+                // supply_proposal عمداً نیست: مدیر فقط مشاهده/دانلود دارد
+                default => abort(403, 'دسترسی مجاز نیست.'),
             },
 
             default => abort(403),
@@ -165,5 +176,30 @@ class AttachmentController extends Controller
         ) {
             abort(403, 'این فایل متعلق به این رکورد نیست.');
         }
+    }
+    public function storeForPartOrderItem(Request $request, PartOrderItem $partOrderItem)
+    {
+        $this->authorizeUpload('part_order_item', $partOrderItem);
+        return $this->handleUpload($request, $partOrderItem, 'part-order-items');
+    }
+
+    public function destroyForPartOrderItem(PartOrderItem $partOrderItem, Attachment $attachment)
+    {
+        $this->authorizeUpload('part_order_item', $partOrderItem);
+        $this->ensureBelongsTo($attachment, $partOrderItem);
+        return $this->handleDelete($attachment);
+    }
+
+    public function storeForSupplyProposal(Request $request, SupplyProposal $proposal)
+    {
+        $this->authorizeUpload('supply_proposal', $proposal);
+        return $this->handleUpload($request, $proposal, 'supply-proposals');
+    }
+
+    public function destroyForSupplyProposal(SupplyProposal $proposal, Attachment $attachment)
+    {
+        $this->authorizeUpload('supply_proposal', $proposal);
+        $this->ensureBelongsTo($attachment, $proposal);
+        return $this->handleDelete($attachment);
     }
 }

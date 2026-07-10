@@ -138,4 +138,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         Route::get('part-orders/{partOrder}/parts', [SupplyProposalController::class, 'getPartNames'])
             ->name('part-orders.parts');
     });
+    Route::post('part-order-items/{partOrderItem}/attachments', [AttachmentController::class, 'storeForPartOrderItem'])
+        ->name('part-order-items.attachments.store');
+    Route::delete('part-order-items/{partOrderItem}/attachments/{attachment}', [AttachmentController::class, 'destroyForPartOrderItem'])
+        ->name('part-order-items.attachments.destroy');
+
+    Route::post('supply-proposals/{proposal}/attachments', [AttachmentController::class, 'storeForSupplyProposal'])
+        ->name('supply-proposals.attachments.store');
+    Route::delete('supply-proposals/{proposal}/attachments/{attachment}', [AttachmentController::class, 'destroyForSupplyProposal'])
+        ->name('supply-proposals.attachments.destroy');
 });

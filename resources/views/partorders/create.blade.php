@@ -20,7 +20,7 @@
             <form action="{{ route('partorders.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
 
                 @csrf
-                    <input type="hidden" name="task_id" value="{{ $taskId ?? '' }}">
+                <input type="hidden" name="task_id" value="{{ $taskId ?? '' }}">
 
                 <!-- اطلاعات ثابت -->
                 <div class="card-luxury p-6 space-y-6">
@@ -85,6 +85,10 @@
                         </button>
                     </div>
 
+                    <p class="text-xs text-dark-400">
+                        روی آیکون گیره کنار هر ردیف بزنید تا فایل مربوط به همان قطعه را انتخاب کنید (اختیاری).
+                    </p>
+
                     <div class="overflow-x-auto">
                         <table class="w-full border-collapse">
                             <thead>
@@ -95,6 +99,7 @@
                                     <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">پکیج</th>
                                     <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-24">تعداد</th>
                                     <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-right">توضیحات</th>
+                                    <th class="border border-dark-600 px-3 py-2 text-xs text-cream-300 text-center w-14">فایل</th>
                                     <th class="border border-dark-600 px-2 py-2 w-10"></th>
                                 </tr>
                             </thead>
@@ -107,7 +112,21 @@
                                     <td class="border border-dark-600 px-1 py-1"><input type="number" name="quantity[]" min="1" required class="input-luxury w-full text-sm py-1"></td>
                                     <td class="border border-dark-600 px-1 py-1"><input type="text" name="description[]" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
                                     <td class="border border-dark-600 px-1 py-1 text-center">
-                                        <button type="button" class="remove-row text-red-400 hover:text-red-300 hidden">
+                                        <input type="hidden" name="row_key[]" value="0">
+                                        <label for="item_file_0" title="افزودن فایل"
+                                            class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors cursor-pointer">
+                                            <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                            </svg>
+                                            <span id="file_badge_0" class="hidden absolute -top-1 -left-1 w-4 h-4 bg-primary-500 text-white text-[10px] font-bold rounded-full items-center justify-center">0</span>
+                                        </label>
+                                        <input type="file" id="item_file_0" name="item_files[0][]" multiple
+                                            accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                                            class="hidden" onchange="handleFileSelect(this, 0, 'file_badge_0')">
+                                    </td>
+                                    <td class="border border-dark-600 px-1 py-1 text-center">
+                                        <button type="button" class="remove-row text-red-400 hover:text-red-300 hidden" onclick="removeRow(this)">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                                             </svg>
@@ -123,6 +142,45 @@
                     @enderror
                 </div>
 
+                <!-- فایل‌های ضمیمه عمومی (سطح کل سفارش)
+                <div class="card-luxury p-6 space-y-4">
+                    <div class="flex items-center gap-3 pb-4 border-b-2 divider">
+                        <div class="w-10 h-10 bg-primary-500/20 rounded-lg flex items-center justify-center">
+                            <svg class="w-5 h-5 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                            </svg>
+                        </div>
+                        <h2 class="text-xl font-bold text-cream-100">فایل‌های ضمیمه عمومی سفارش (اختیاری)</h2>
+                    </div>
+
+                    <div id="file_inputs" class="space-y-2">
+                        <div class="flex items-center gap-3">
+                            <label for="attachment_0" title="افزودن فایل"
+                                class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors cursor-pointer flex-shrink-0">
+                                <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                                </svg>
+                                <span id="attachment_badge_0" class="hidden absolute -top-1 -left-1 w-4 h-4 bg-primary-500 text-white text-[10px] font-bold rounded-full items-center justify-center">0</span>
+                            </label>
+                            <input type="file" id="attachment_0" name="attachments[]"
+                                accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                                class="hidden" onchange="updateFileBadge(this, 'attachment_badge_0')">
+                            <span id="attachment_name_0" class="text-xs text-dark-400">فایلی انتخاب نشده</span>
+                        </div>
+                    </div>
+
+                    <button type="button" onclick="addFileInput()"
+                        class="btn-secondary text-sm inline-flex items-center gap-2">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        افزودن فایل دیگر
+                    </button>
+                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF، Word، Excel — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
+                </div> -->
+
                 <!-- دکمه‌های عملیات -->
                 <div class="flex flex-col sm:flex-row gap-4 justify-end">
                     <a href="{{ route('partorders.index') }}" class="btn-secondary text-center">
@@ -135,35 +193,19 @@
                         ثبت سفارش
                     </button>
                 </div>
-                <!-- فایل‌های ضمیمه اختیاری -->
-                <div class="card-luxury p-6 space-y-4">
-                    <div class="flex items-center gap-3 pb-4 border-b border-dark-700">
-                        <h2 class="text-xl font-bold text-cream-100">فایل‌های ضمیمه (اختیاری)</h2>
-                    </div>
-                    <div id="file_inputs" class="space-y-2">
-                        <input type="file" name="attachments[]"
-                            accept=".jpg,.jpeg,.png,.webp,.pdf"
-                            class="input-luxury w-full">
-                    </div>
-                    <button type="button" onclick="addFileInput()"
-                        class="btn-secondary text-sm inline-flex items-center gap-2">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                        </svg>
-                        افزودن فایل دیگر
-                    </button>
-                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
-                </div>
             </form>
 
         </div>
     </div>
 
     <script>
+        let rowKeyCounter = 1;
+        let attachmentCounter = 1;
 
         function addRow() {
             const tbody = document.getElementById('parts-body');
             const rowCount = tbody.querySelectorAll('.part-row').length;
+            const rk = rowKeyCounter;
 
             const newRow = document.createElement('tr');
             newRow.className = 'part-row';
@@ -175,6 +217,20 @@
             <td class="border border-dark-600 px-1 py-1"><input type="number" name="quantity[]" min="1" required class="input-luxury w-full text-sm py-1"></td>
             <td class="border border-dark-600 px-1 py-1"><input type="text" name="description[]" required class="input-luxury w-full text-sm py-1 min-w-[120px]"></td>
             <td class="border border-dark-600 px-1 py-1 text-center">
+                <input type="hidden" name="row_key[]" value="${rk}">
+                <label for="item_file_${rk}" title="افزودن فایل"
+                    class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors cursor-pointer">
+                    <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                    </svg>
+                    <span id="file_badge_${rk}" class="hidden absolute -top-1 -left-1 w-4 h-4 bg-primary-500 text-white text-[10px] font-bold rounded-full items-center justify-center">0</span>
+                </label>
+                <input type="file" id="item_file_${rk}" name="item_files[${rk}][]" multiple
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                    class="hidden" onchange="handleFileSelect(this, ${rk}, 'file_badge_${rk}')">
+            </td>
+            <td class="border border-dark-600 px-1 py-1 text-center">
                 <button type="button" class="remove-row text-red-400 hover:text-red-300" onclick="removeRow(this)">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -183,15 +239,18 @@
             </td>
         `;
             tbody.appendChild(newRow);
+            rowKeyCounter++;
 
-            // دکمه حذف ردیف اول رو هم نمایش بده
             tbody.querySelector('.remove-row').classList.remove('hidden');
         }
 
         function removeRow(btn) {
             const tbody = document.getElementById('parts-body');
             if (tbody.querySelectorAll('.part-row').length > 1) {
-                btn.closest('.part-row').remove();
+                const row = btn.closest('.part-row');
+                const rowKeyInput = row.querySelector('input[name="row_key[]"]');
+                if (rowKeyInput) delete rowFiles[rowKeyInput.value];
+                row.remove();
                 updateRowNumbers();
                 if (tbody.querySelectorAll('.part-row').length === 1) {
                     tbody.querySelector('.remove-row').classList.add('hidden');
@@ -204,17 +263,60 @@
                 el.textContent = i + 1;
             });
         }
+
+        const rowFiles = {};
+
+        function handleFileSelect(input, rowKey, badgeId) {
+            const newFiles = Array.from(input.files);
+            if (newFiles.length === 0) return;
+
+            const existing = rowFiles[rowKey] || [];
+            const merged = [...existing, ...newFiles].filter((file, index, arr) =>
+                arr.findIndex(f => f.name === file.name && f.size === file.size && f.lastModified === file.lastModified) === index
+            );
+            rowFiles[rowKey] = merged;
+
+            const dt = new DataTransfer();
+            merged.forEach(file => dt.items.add(file));
+            input.files = dt.files;
+
+            const badge = document.getElementById(badgeId);
+            if (!badge) return;
+            if (merged.length > 0) {
+                badge.textContent = merged.length;
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+        }
     </script>
+
     <script>
         function addFileInput() {
             const div = document.getElementById('file_inputs');
             if (div.children.length >= 5) return;
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.name = 'attachments[]';
-            input.accept = '.jpg,.jpeg,.png,.webp,.pdf';
-            input.className = 'input-luxury w-full';
-            div.appendChild(input);
+            const idx = attachmentCounter;
+
+            const wrapper = document.createElement('div');
+            wrapper.className = 'flex items-center gap-3';
+            wrapper.innerHTML = `
+                <label for="attachment_${idx}" title="افزودن فایل"
+                    class="relative inline-flex items-center justify-center w-8 h-8 rounded-lg hover:bg-dark-700/70 transition-colors cursor-pointer flex-shrink-0">
+                    <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"/>
+                    </svg>
+                    <span id="attachment_badge_${idx}" class="hidden absolute -top-1 -left-1 w-4 h-4 bg-primary-500 text-white text-[10px] font-bold rounded-full items-center justify-center">0</span>
+                </label>
+                <input type="file" id="attachment_${idx}" name="attachments[]"
+                    accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
+                    class="hidden" onchange="if(this.files.length){document.getElementById('attachment_badge_${idx}').textContent='1';document.getElementById('attachment_badge_${idx}').classList.remove('hidden');document.getElementById('attachment_badge_${idx}').classList.add('flex');} document.getElementById('attachment_name_${idx}').textContent = this.files[0] ? this.files[0].name : 'فایلی انتخاب نشده';">
+                <span id="attachment_name_${idx}" class="text-xs text-dark-400">فایلی انتخاب نشده</span>
+            `;
+            div.appendChild(wrapper);
+            attachmentCounter++;
         }
     </script>
 </x-app-layout>

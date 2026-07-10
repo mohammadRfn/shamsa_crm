@@ -7,34 +7,38 @@
     $user = auth()->user();
 
     $modelType = match(true) {
-        $model instanceof \App\Models\Report      => 'report',
-        $model instanceof \App\Models\PartOrder   => 'part_order',
-        $model instanceof \App\Models\WorkRequest => 'work_request',
+        $model instanceof \App\Models\Report          => 'report',
+        $model instanceof \App\Models\PartOrder        => 'part_order',
+        $model instanceof \App\Models\WorkRequest      => 'work_request',
+        $model instanceof \App\Models\PartOrderItem    => 'part_order_item',   // ← جدید
+        $model instanceof \App\Models\SupplyProposal   => 'supply_proposal',  // ← جدید
     };
 
     $canUpload = match($modelType) {
         'report', 'part_order' => $user->isTechnician() && $model->user_id === $user->id,
         'work_request'         => $user->isReception() || $user->isCeo(),
+        'part_order_item'      => $user->isTechnician() && $model->partOrder->user_id === $user->id, // ← جدید
+        'supply_proposal'      => $user->isSupply() && $model->created_by === $user->id,             // ← جدید (مدیر آپلود نداره)
         default                => false,
     };
 
     $uploadRoute = $canUpload && $mode !== 'create' ? match($modelType) {
-        'report'       => route('reports.attachments.store',        $model),
-        'part_order'   => route('part-orders.attachments.store',    $model),
-        'work_request' => route('work-requests.attachments.store',  $model),
+        'report'          => route('reports.attachments.store',            $model),
+        'part_order'      => route('part-orders.attachments.store',        $model),
+        'work_request'    => route('work-requests.attachments.store',      $model),
+        'part_order_item' => route('part-order-items.attachments.store',   $model), // ← جدید
+        'supply_proposal' => route('supply-proposals.attachments.store',   $model), // ← جدید
     } : null;
 
-    // در create مدل هنوز ذخیره نشده — فقط placeholder
     $attachments = $mode !== 'create'
         ? $model->attachments()->with('uploader')->get()
         : collect();
 
-    $uid = 'ap_' . $model->id; // unique id برای JS
+    $uid = 'ap_' . $model->id;
 @endphp
 
 <div class="card-luxury overflow-hidden">
 
-    {{-- ── Header ── --}}
     <div class="flex items-center justify-between px-5 py-4 border-b border-stone-100">
         <div class="flex items-center gap-3">
             <div class="w-9 h-9 bg-primary-50 rounded-xl flex items-center justify-center">
@@ -53,13 +57,11 @@
         @endif
     </div>
 
-    {{-- ── Create placeholder ── --}}
     @if($mode === 'create')
         <x-attachments.placeholder />
 
     @else
 
-        {{-- ── Upload zone (edit mode + canUpload) ── --}}
         @if($canUpload && $mode === 'edit')
             <div class="p-4 pb-0">
                 <form action="{{ $uploadRoute }}"
@@ -68,7 +70,6 @@
                       id="form-{{ $uid }}">
                     @csrf
 
-                    {{-- Drop zone --}}
                     <label for="input-{{ $uid }}"
                         class="group flex flex-col items-center justify-center w-full border-2 border-dashed border-stone-200 rounded-2xl py-6 px-4 cursor-pointer transition-all duration-200 hover:border-primary-300 hover:bg-rose-50/40"
                         id="label-{{ $uid }}">
@@ -81,7 +82,8 @@
                         </div>
 
                         <p class="text-sm font-semibold text-stone-700 mb-1">فایل‌ها را اینجا رها کنید</p>
-                        <p class="text-xs text-stone-400 mb-4">JPG، PNG، WEBP، PDF — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
+                        {{-- ← جدید: متن راهنما --}}
+                        <p class="text-xs text-stone-400 mb-4">JPG، PNG، WEBP، PDF، Word، Excel — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
 
                         <span class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white pointer-events-none"
                             style="background:linear-gradient(135deg,#E8476A,#D03058);box-shadow:0 2px 10px rgba(232,71,106,.3)">
@@ -91,16 +93,16 @@
                             انتخاب فایل
                         </span>
 
+                        {{-- ← جدید: accept گسترش‌یافته --}}
                         <input type="file"
                                id="input-{{ $uid }}"
                                name="files[]"
                                multiple
-                               accept=".jpg,.jpeg,.png,.webp,.pdf"
+                               accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
                                class="hidden"
                                onchange="apPreview('{{ $uid }}')">
                     </label>
 
-                    {{-- File preview list --}}
                     <div id="preview-{{ $uid }}" class="hidden mt-3 space-y-2">
                         <div class="flex items-center justify-between px-1">
                             <span id="count-{{ $uid }}" class="text-xs text-stone-500"></span>
@@ -120,7 +122,6 @@
             </div>
         @endif
 
-        {{-- ── View-only notice (show mode / non-uploader) ── --}}
         @if($mode === 'show' || !$canUpload)
             <div class="mx-4 mt-4 flex items-center gap-2 bg-stone-50 border border-stone-200 rounded-xl px-4 py-3 text-xs text-stone-500">
                 <svg class="w-4 h-4 flex-shrink-0 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -133,7 +134,6 @@
             </div>
         @endif
 
-        {{-- ── Attachments grid ── --}}
         <div class="p-4">
             @if($attachments->count() > 0)
                 <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
@@ -160,7 +160,6 @@
     @endif
 </div>
 
-{{-- ── Lightbox ── --}}
 @if($mode !== 'create' && $attachments->where('file_type','image')->count() > 0)
 <div id="lb-{{ $uid }}"
      class="fixed inset-0 z-[99] hidden items-center justify-center p-4"

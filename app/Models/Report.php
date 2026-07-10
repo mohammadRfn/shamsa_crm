@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DeletesAttachmentsOnDelete;
 use App\Traits\HasReadTracking;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ class Report extends Model
 {
     use HasFactory;
     use HasReadTracking;
+    use DeletesAttachmentsOnDelete;
     protected $fillable = [
         'user_id',
         'task_id',

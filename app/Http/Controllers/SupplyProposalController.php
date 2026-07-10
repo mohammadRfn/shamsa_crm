@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Attachment;
 use App\Models\PartOrder;
 use App\Models\SupplyProposal;
 use Illuminate\Http\Request;
@@ -76,6 +77,8 @@ class SupplyProposalController extends Controller
             'quantity'            => 'required|integer|min:1',
             'estimated_delivery'  => 'nullable|string',
             'note'                => 'nullable|string',
+            'attachments'         => 'nullable|array|max:5',
+            'attachments.*'       => 'file|max:51200|mimes:jpg,jpeg,png,webp,pdf,doc,docx,xls,xlsx',
         ]);
 
         if (!empty($validated['estimated_delivery'])) {
@@ -93,6 +96,26 @@ class SupplyProposalController extends Controller
         $proposal->status             = 'pending';
         $proposal->created_by         = Auth::id();
         $proposal->save();
+
+        if ($request->hasFile('attachments')) {
+            foreach ($request->file('attachments') as $file) {
+                $mime = $file->getMimeType();
+                $path = $file->storeAs(
+                    "attachments/supply-proposals/{$proposal->id}",
+                    Str::uuid() . '.' . $file->getClientOriginalExtension(),
+                    'public'
+                );
+
+                $proposal->attachments()->create([
+                    'uploaded_by' => Auth::id(),
+                    'file_name'   => $file->getClientOriginalName(),
+                    'file_path'   => $path,
+                    'file_type'   => Attachment::resolveFileType($mime),
+                    'mime_type'   => $mime,
+                    'file_size'   => $file->getSize(),
+                ]);
+            }
+        }
 
         return redirect()->route('supply-proposals.index')
             ->with('success', 'پیشنهاد با موفقیت ثبت شد.');

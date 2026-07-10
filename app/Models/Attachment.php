@@ -48,7 +48,32 @@ class Attachment extends Model
             default                       => $this->file_size . ' B',
         };
     }
+    public static function resolveFileType(string $mime): string
+    {
+        return match (true) {
+            str_starts_with($mime, 'image/') => 'image',
+            $mime === 'application/pdf' => 'pdf',
+            in_array($mime, [
+                'application/msword',
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            ]) => 'word',
+            in_array($mime, [
+                'application/vnd.ms-excel',
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            ]) => 'excel',
+            default => 'file',
+        };
+    }
 
+    public function isWord(): bool
+    {
+        return $this->file_type === 'word';
+    }
+
+    public function isExcel(): bool
+    {
+        return $this->file_type === 'excel';
+    }
     public function isImage(): bool
     {
         return $this->file_type === 'image';

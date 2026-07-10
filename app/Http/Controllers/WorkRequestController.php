@@ -156,7 +156,7 @@ class WorkRequestController extends Controller
                     'uploaded_by' => auth()->id(),
                     'file_name'   => $file->getClientOriginalName(),
                     'file_path'   => $path,
-                    'file_type'   => str_starts_with($mime, 'image/') ? 'image' : 'pdf',
+                    'file_type'   => \App\Models\Attachment::resolveFileType($mime),
                     'mime_type'   => $mime,
                     'file_size'   => $file->getSize(),
                 ]);

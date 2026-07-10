@@ -19,7 +19,7 @@ class PartOrderController extends Controller
 
         $query = PartOrder::query()->with(['user', 'lastActionBy']);
         $query->forRole($user->role);
-        $query->withReadStatus($user->id); 
+        $query->withReadStatus($user->id);
 
 
         if ($request->search) {
@@ -100,23 +100,35 @@ class PartOrderController extends Controller
             'description' => $validated['description'],
             'status' => 'pending',
         ]);
+        $rowKeys = $request->input('row_key', []);
 
-        if ($request->hasFile('attachments')) {
-            foreach ($request->file('attachments') as $file) {
-                $mime = $file->getMimeType();
-                $path = $file->storeAs(
-                    "attachments/part-orders/{$partorder->id}",
-                    \Str::uuid() . '.' . $file->getClientOriginalExtension(),
-                    'public'
-                );
-                $partorder->attachments()->create([
-                    'uploaded_by' => auth()->id(),
-                    'file_name'   => $file->getClientOriginalName(),
-                    'file_path'   => $path,
-                    'file_type'   => str_starts_with($mime, 'image/') ? 'image' : 'pdf',
-                    'mime_type'   => $mime,
-                    'file_size'   => $file->getSize(),
-                ]);
+        foreach ($validated['part_name'] as $i => $name) {
+            $newItem = $partorder->items()->create([
+                'part_name'      => $name,
+                'specifications' => $validated['specifications'][$i] ?? null,
+                'package'        => $validated['package'][$i] ?? null,
+                'quantity'       => $validated['quantity'][$i] ?? 1,
+                'description'    => $validated['description'][$i] ?? null,
+            ]);
+
+            $rowKey = $rowKeys[$i] ?? null;
+            if ($rowKey !== null && $request->hasFile("item_files.$rowKey")) {
+                foreach ($request->file("item_files.$rowKey") as $file) {
+                    $mime = $file->getMimeType();
+                    $path = $file->storeAs(
+                        "attachments/part-order-items/{$newItem->id}",
+                        \Str::uuid() . '.' . $file->getClientOriginalExtension(),
+                        'public'
+                    );
+                    $newItem->attachments()->create([
+                        'uploaded_by' => auth()->id(),
+                        'file_name'   => $file->getClientOriginalName(),
+                        'file_path'   => $path,
+                        'file_type'   => \App\Models\Attachment::resolveFileType($mime),
+                        'mime_type'   => $mime,
+                        'file_size'   => $file->getSize(),
+                    ]);
+                }
             }
         }
 
@@ -132,8 +144,8 @@ class PartOrderController extends Controller
             abort(403, 'شما اجازه دسترسی ندارید.');
         }
 
-        $partorder->load(['user', 'approvals.user']);
-        $partorder->markAsReadBy(); 
+        $partorder->load(['user', 'approvals.user', 'items.attachments']);
+        $partorder->markAsReadBy();
         return view('partorders.show', compact('partorder'));
     }
 
@@ -150,7 +162,7 @@ class PartOrderController extends Controller
             return redirect()->route('partorders.index')
                 ->with('error', 'این سفارش قابل ویرایش نیست.');
         }
-
+        $partorder->load('items');
         return view('partorders.edit', compact('partorder'));
     }
 
@@ -166,7 +178,6 @@ class PartOrderController extends Controller
             $request->merge(['order_date' => toGregorian($request->order_date)]);
         }
 
-
         $validated = $request->validate([
             'equipment_name' => 'required|string|max:255',
             'order_date' => 'required|date',
@@ -180,15 +191,40 @@ class PartOrderController extends Controller
             'quantity.*' => 'required|integer|min:1',
             'description' => 'required|array|min:1',
             'description.*' => 'required|string',
+            'item_id'   => 'nullable|array',
+            'item_id.*' => 'nullable|integer|exists:part_order_items,id',
         ]);
-        $partorder->touch();
 
+        $partorder->touch();
         $partorder->update($validated);
+
+        $submittedIds = [];
+
+        foreach ($validated['part_name'] as $i => $name) {
+            $itemData = [
+                'part_name'      => $name,
+                'specifications' => $validated['specifications'][$i] ?? null,
+                'package'        => $validated['package'][$i] ?? null,
+                'quantity'       => $validated['quantity'][$i] ?? 1,
+                'description'    => $validated['description'][$i] ?? null,
+            ];
+
+            $itemId = $validated['item_id'][$i] ?? null;
+
+            if ($itemId && $partorder->items()->where('id', $itemId)->exists()) {
+                $partorder->items()->where('id', $itemId)->update($itemData);
+                $submittedIds[] = $itemId;
+            } else {
+                $newItem = $partorder->items()->create($itemData);
+                $submittedIds[] = $newItem->id;
+            }
+        }
+
+        $partorder->items()->whereNotIn('id', $submittedIds)->get()->each->delete();
 
         return redirect()->route('partorders.show', $partorder)
             ->with('success', 'سفارش با موفقیت بروزرسانی شد.');
     }
-
     public function destroy(PartOrder $partorder)
     {
         $user = Auth::user();

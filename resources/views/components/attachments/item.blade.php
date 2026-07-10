@@ -9,9 +9,20 @@
     $uid = 'ap_' . $model->id;
 
     $deleteRoute = match($modelType) {
-        'report'       => route('reports.attachments.destroy',        [$model, $attachment]),
-        'part_order'   => route('part-orders.attachments.destroy',    [$model, $attachment]),
-        'work_request' => route('work-requests.attachments.destroy',  [$model, $attachment]),
+        'report'           => route('reports.attachments.destroy',           [$model, $attachment]),
+        'part_order'       => route('part-orders.attachments.destroy',       [$model, $attachment]),
+        'work_request'     => route('work-requests.attachments.destroy',     [$model, $attachment]),
+        'part_order_item'  => route('part-order-items.attachments.destroy',  [$model, $attachment]),
+        'supply_proposal'  => route('supply-proposals.attachments.destroy',  [$model, $attachment]),
+    };
+
+    // ← جدید: تنظیمات نمایش بر اساس نوع فایل
+    $typeConfig = match($attachment->file_type) {
+        'image' => ['label' => 'عکس', 'badge' => 'bg-white/90 text-primary-600 border-primary-200'],
+        'pdf'   => ['label' => 'PDF', 'badge' => 'bg-white/90 text-blue-600 border-blue-200'],
+        'word'  => ['label' => 'Word', 'badge' => 'bg-white/90 text-indigo-600 border-indigo-200'],
+        'excel' => ['label' => 'Excel', 'badge' => 'bg-white/90 text-green-600 border-green-200'],
+        default => ['label' => 'فایل', 'badge' => 'bg-white/90 text-stone-600 border-stone-200'],
     };
 @endphp
 
@@ -26,9 +37,17 @@
                  class="w-full h-24 object-cover">
         </button>
     @else
+        {{-- ← جدید: آیکن‌های جدا برای pdf/word/excel/سایر --}}
+        @php
+            [$iconBg, $iconColor] = match($attachment->file_type) {
+                'word'  => ['bg-indigo-50 hover:bg-indigo-100', 'text-indigo-300'],
+                'excel' => ['bg-green-50 hover:bg-green-100', 'text-green-300'],
+                default => ['bg-blue-50 hover:bg-blue-100', 'text-blue-300'],
+            };
+        @endphp
         <a href="{{ $attachment->url }}" target="_blank"
-            class="flex items-center justify-center w-full h-24 bg-blue-50 hover:bg-blue-100 transition-colors">
-            <svg class="w-10 h-10 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            class="flex items-center justify-center w-full h-24 {{ $iconBg }} transition-colors">
+            <svg class="w-10 h-10 {{ $iconColor }}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                     d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 3v6h6"/>
@@ -36,11 +55,8 @@
         </a>
     @endif
 
-    <span class="absolute top-2 right-2 text-xs font-bold px-2 py-0.5 rounded-lg border
-        {{ $attachment->isImage()
-            ? 'bg-white/90 text-primary-600 border-primary-200'
-            : 'bg-white/90 text-blue-600 border-blue-200' }}">
-        {{ $attachment->isImage() ? 'عکس' : 'PDF' }}
+    <span class="absolute top-2 right-2 text-xs font-bold px-2 py-0.5 rounded-lg border {{ $typeConfig['badge'] }}">
+        {{ $typeConfig['label'] }}
     </span>
 
     @if($canDelete)

@@ -348,7 +348,7 @@
                     </div>
                     <div id="file_inputs" class="space-y-2">
                         <input type="file" name="attachments[]"
-                            accept=".jpg,.jpeg,.png,.webp,.pdf"
+                            accept=".jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx"
                             class="input-luxury w-full">
                     </div>
                     <button type="button" onclick="addFileInput()"
@@ -358,13 +358,13 @@
                         </svg>
                         افزودن فایل دیگر
                     </button>
-                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
+                    <p class="text-xs text-dark-400">JPG، PNG، WEBP، PDF، Word، Excel — حداکثر ۵۰ مگابایت — تا ۵ فایل</p>
                 </div>
             </form>
 
         </div>
     </div>
-   
+
     <script>
         function addFileInput() {
             const div = document.getElementById('file_inputs');
@@ -372,7 +372,7 @@
             const input = document.createElement('input');
             input.type = 'file';
             input.name = 'attachments[]';
-            input.accept = '.jpg,.jpeg,.png,.webp,.pdf';
+            input.accept = '.jpg,.jpeg,.png,.webp,.pdf,.doc,.docx,.xls,.xlsx';
             input.className = 'input-luxury w-full';
             div.appendChild(input);
         }

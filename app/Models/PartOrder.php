@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\DeletesAttachmentsOnDelete;
 use App\Traits\HasReadTracking;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -11,6 +12,7 @@ class PartOrder extends Model
 {
     use HasFactory;
     use HasReadTracking;
+    use DeletesAttachmentsOnDelete;
     protected $fillable = [
         'user_id',
         'task_id',
@@ -76,6 +78,10 @@ class PartOrder extends Model
     public function supplyProposals()
     {
         return $this->hasMany(\App\Models\SupplyProposal::class);
+    }
+    public function items()
+    {
+        return $this->hasMany(PartOrderItem::class);
     }
     // Scopes
     public function scopeForRole($query, string $role)
@@ -144,6 +150,9 @@ class PartOrder extends Model
     }
     protected static function booted()
     {
+        static::deleting(function ($partOrder) {
+            $partOrder->items->each->delete();
+        });
         static::saving(function ($partOrder) {
             // اگر همه true باشن → approved
             if (
