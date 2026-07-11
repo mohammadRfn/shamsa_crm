@@ -215,11 +215,12 @@
                     {{-- ② Main content --}}
                     <div class="list-main-content">
                         <div class="list-title-group">
-                            <div class="list-title group-hover:text-primary-400">{{ $report->part_name }}</div>
+                            <div class="list-title group-hover:text-primary-400">
+                            <span>{{ $report->request_number }}</span>
+                                <x-unread-badge :model="$report" /></div>
                             {{-- ✅ badge کنار شماره درخواست --}}
                             <div class="list-subtitle flex items-center gap-1.5">
-                                <span>{{ $report->request_number }}</span>
-                                <x-unread-badge :model="$report" />
+                                {{ $report->part_name }}
                             </div>
                         </div>
 

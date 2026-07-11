@@ -101,7 +101,8 @@
                             default => ['bg-dark-700 text-dark-400 border-dark-600', '📋'],
                             };
                             @endphp
-                            <span class="badge {{ $statusConfig[0] }}">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span>
+                            {{-- وضعیت فعلاً در ایندکس نمایش داده نمی‌شود --}}
+                            {{-- <span class="badge {{ $statusConfig[0] }}">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span> --}}
                             <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $typeConfig[0] }}">{{ $typeConfig[1] }}</span>
                         </div>
                     </div>
@@ -129,11 +130,11 @@
                             <span class="text-cream-200 font-medium">{{ $request->serial_number }}</span>
                         </div>
                         <div class="flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-dark-400">واحد:</span>
-                            <span class="text-cream-200 font-medium truncate">{{ Str::limit($request->request_unit, 12) }}</span>
+                            <span class="text-dark-400">مدل دستگاه:</span>
+                            <span class="text-cream-200 font-medium truncate">{{ Str::limit($request->device_model, 12) }}</span>
                         </div>
                     </div>
 
@@ -223,7 +224,8 @@
                         <div class="list-title-group">
                             <div class="list-title group-hover:text-primary-400">{{ $request->equipment_name }}</div>
                             <div class="list-subtitle flex items-center gap-1.5">
-                                <span>{{ $request->request_number }}</span>
+                                {{-- فونت شماره درخواست بزرگ‌تر شد، موقعیتش همینجا ثابت مونده --}}
+                                <span class="font-bold" style="font-size:0.95rem; color:#292524;">{{ $request->request_number }}</span>
                                 <span class="px-2 py-0.5 rounded-full text-xs border {{ $typeConfig[0] }}">{{ $typeConfig[1] }}</span>
                                 <x-unread-badge :model="$request" />
                             </div>
@@ -242,10 +244,11 @@
                                 <span class="list-meta-val">{{ $request->request_date_jalali }}</span>
                             </div>
                             <div class="list-meta-item hidden lg:flex">
+                                {{-- آیکون لوکیشن با آیکون مانیتور/دستگاه جایگزین شد و دیتا شد مدل دستگاه --}}
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0zM15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                 </svg>
-                                <span class="list-meta-val">{{ Str::limit($request->request_unit, 12) }}</span>
+                                <span class="list-meta-val">{{ Str::limit($request->device_model, 12) }}</span>
                             </div>
                             <div class="list-meta-item hidden xl:flex">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -272,7 +275,8 @@
                     </div>
 
                     <div class="list-actions">
-                        <span class="badge {{ $statusConfig[0] }} text-xs">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span>
+                        {{-- وضعیت فعلاً در ایندکس نمایش داده نمی‌شود --}}
+                        {{-- <span class="badge {{ $statusConfig[0] }} text-xs">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span> --}}
                         <a href="{{ route('workrequests.show', $request) }}" class="p-2 rounded-lg bg-dark-800 text-dark-300 hover:text-primary-400 hover:bg-dark-700 transition-all border border-dark-700" title="مشاهده">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

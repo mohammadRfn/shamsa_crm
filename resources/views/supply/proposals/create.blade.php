@@ -48,9 +48,9 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div class="space-y-2">
-                            <label class="text-sm font-semibold text-cream-200">سفارش قطعه <span class="text-primary-400">*</span></label>
+                            <label class="text-sm font-semibold text-cream-200">نام تجهیز <span class="text-primary-400">*</span></label>
                             <select name="part_order_id" id="part_order_id" class="input-luxury w-full" required>
-                                <option value="">انتخاب سفارش...</option>
+                                <option value="">انتخاب...</option>
                                 @foreach($partOrders as $po)
                                 <option value="{{ $po->id }}"
                                     data-parts="{{ json_encode($po->part_name ?? []) }}"

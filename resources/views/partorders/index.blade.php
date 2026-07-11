@@ -188,9 +188,10 @@
 
                     <div class="list-main-content">
                         <div class="list-title-group">
-                            <div class="list-title group-hover:text-primary-400">{{ implode('، ', $order->part_name ?? []) }}</div>
+                            {{-- جابجا شده: شماره سفارش با فونت بزرگ بالا، اسم قطعات با فونت کوچک پایین --}}
+                            <div class="list-title group-hover:text-primary-400">{{ $order->order_number }}</div>
                             <div class="list-subtitle flex items-center gap-1.5">
-                                <span>{{ $order->order_number }}</span>
+                                <span>{{ implode('، ', $order->part_name ?? []) }}</span>
                                 <x-unread-badge :model="$order" />
                             </div>
                         </div>
@@ -213,12 +214,7 @@
                                 </svg>
                                 <span class="list-meta-val">{{ Str::limit($order->equipment_name, 15) }}</span>
                             </div>
-                            <div class="list-meta-item hidden lg:flex">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                                </svg>
-                                <span class="list-meta-val">{{ implode('، ', array_map('strval', $order->quantity ?? [])) }}</span>
-                            </div>
+                            {{-- بلاک نمایش تعداد (کوانتیتی) حذف شد --}}
                         </div>
                     </div>
 
@@ -240,6 +236,16 @@
 
                     <div class="list-actions">
                         <span class="badge {{ $statusConfig[0] }} text-xs">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span>
+
+                        {{-- دکمه باز/بسته کردن ردیف قطعات --}}
+                        <button type="button" onclick="togglePartOrderItemsRow('{{ $order->id }}', this)"
+                            class="p-2 rounded-lg bg-dark-800 text-dark-300 hover:text-primary-400 hover:bg-dark-700 transition-all border border-dark-700"
+                            title="نمایش قطعات">
+                            <svg class="w-4 h-4 po-toggle-chevron transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                            </svg>
+                        </button>
+
                         <a href="{{ route('partorders.show', $order) }}" class="p-2 rounded-lg bg-dark-800 text-dark-300 hover:text-primary-400 hover:bg-dark-700 transition-all border border-dark-700" title="مشاهده">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -261,6 +267,38 @@
                             </button>
                         </form>
                         @endif
+                    </div>
+                </div>
+
+                {{-- ردیف باز/بسته‌شونده: لیست قطعات همین سفارش، چسبیده به کارت --}}
+                <div id="po-items-row-{{ $order->id }}" class="po-items-row hidden -mt-2 mb-2">
+                    <div class="card-luxury border border-dark-700/70 rounded-t-none p-4">
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm border-collapse">
+                                <thead>
+                                    <tr class="text-dark-400 text-xs">
+                                        <th class="text-right py-1.5 px-2">نام قطعه</th>
+                                        <th class="text-right py-1.5 px-2">پکیج</th>
+                                        <th class="text-center py-1.5 px-2 w-20">تعداد</th>
+                                        <th class="text-right py-1.5 px-2">توضیحات</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @forelse($order->part_name ?? [] as $i => $pname)
+                                    <tr class="border-t border-dark-700/50">
+                                        <td class="py-1.5 px-2 text-cream-100">{{ $pname }}</td>
+                                        <td class="py-1.5 px-2 text-cream-200">{{ ($order->package ?? [])[$i] ?? '-' }}</td>
+                                        <td class="py-1.5 px-2 text-center text-primary-400 font-bold">{{ ($order->quantity ?? [])[$i] ?? '-' }}</td>
+                                        <td class="py-1.5 px-2 text-dark-300">{{ ($order->description ?? [])[$i] ?? '-' }}</td>
+                                    </tr>
+                                    @empty
+                                    <tr>
+                                        <td colspan="4" class="text-center text-dark-400 py-2">قطعه‌ای ثبت نشده</td>
+                                    </tr>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 @endforeach
@@ -298,5 +336,18 @@
         ['label' => 'حذف انتخاب‌شده‌ها', 'route' => 'partorders.index', 'class' => 'danger', 'icon' => 'trash', 'method' => 'DELETE'],
     ]" />
     @endif
+
+    <script>
+        // فقط مخصوص صفحه PartOrder - باز/بسته کردن ردیف قطعات زیر هر سفارش در حالت لیست
+        function togglePartOrderItemsRow(id, btnEl) {
+            const row = document.getElementById('po-items-row-' + id);
+            if (!row) return;
+            row.classList.toggle('hidden');
+            if (btnEl) {
+                const chevron = btnEl.querySelector('.po-toggle-chevron');
+                if (chevron) chevron.classList.toggle('rotate-180');
+            }
+        }
+    </script>
 
 </x-app-layout>
