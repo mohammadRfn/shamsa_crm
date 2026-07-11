@@ -148,20 +148,17 @@ class SupplyProposalController extends Controller
     public function edit(SupplyProposal $proposal)
     {
         $user = Auth::user();
-        if ($user->isCEO()) {
-            // CEO فقط مشاهده میکنه، ویرایش نداره
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'مدیر اجازه ویرایش ندارد.');
-        }
 
-        if ((int) $proposal->created_by !== (int) $user->id) {
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'شما اجازه ویرایش ندارید.');
-        }
+        if (!$user->isCEO()) {
+            if ((int) $proposal->created_by !== (int) $user->id) {
+                return redirect()->route('supply-proposals.index')
+                    ->with('error', 'شما اجازه ویرایش ندارید.');
+            }
 
-        if ($proposal->status !== 'pending') {
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'فقط پیشنهادهای در انتظار قابل ویرایش هستند.');
+            if ($proposal->status !== 'pending') {
+                return redirect()->route('supply-proposals.index')
+                    ->with('error', 'فقط پیشنهادهای در انتظار قابل ویرایش هستند.');
+            }
         }
 
         $partOrders = PartOrder::orderBy('created_at', 'desc')->get();
@@ -174,20 +171,16 @@ class SupplyProposalController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isCEO()) {
-            // CEO فقط مشاهده میکنه، ویرایش نداره
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'مدیر اجازه ویرایش ندارد.');
-        }
+        if (!$user->isCEO()) {
+            if ((int) $proposal->created_by !== (int) $user->id) {
+                return redirect()->route('supply-proposals.index')
+                    ->with('error', 'شما اجازه ویرایش ندارید.');
+            }
 
-        if ((int) $proposal->created_by !== (int) $user->id) {
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'شما اجازه ویرایش ندارید.');
-        }
-
-        if ($proposal->status !== 'pending') {
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'فقط پیشنهادهای در انتظار قابل ویرایش هستند.');
+            if ($proposal->status !== 'pending') {
+                return redirect()->route('supply-proposals.index')
+                    ->with('error', 'فقط پیشنهادهای در انتظار قابل ویرایش هستند.');
+            }
         }
 
         $validated = $request->validate([
@@ -217,12 +210,7 @@ class SupplyProposalController extends Controller
     {
         $user = Auth::user();
 
-        if ($user->isCEO()) {
-            return redirect()->route('supply-proposals.index')
-                ->with('error', 'مدیر اجازه حذف ندارد.');
-        }
-
-        if ((int) $proposal->created_by !== (int) $user->id) {
+        if (!$user->isCEO() && (int) $proposal->created_by !== (int) $user->id) {
             return redirect()->route('supply-proposals.index')
                 ->with('error', 'شما اجازه حذف ندارید.');
         }

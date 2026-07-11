@@ -262,7 +262,7 @@
             </div>
 
             {{-- دکمه‌های ویرایش/حذف --}}
-            @if(auth()->user()->isSupply() && $proposal->created_by === auth()->id() && $proposal->status === 'pending')
+            @if((auth()->user()->isSupply() && $proposal->created_by === auth()->id() && $proposal->status === 'pending') || auth()->user()->isCEO())
             <div class="flex gap-3 justify-end">
                 <a href="{{ route('supply-proposals.edit', $proposal) }}" class="btn-secondary text-sm inline-flex items-center gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

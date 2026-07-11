@@ -58,11 +58,11 @@
                 @foreach($proposals as $proposal)
                 @php
                 $statusConfig = match($proposal->status) {
-                    'approved'  => ['badge-success', 'تایید مدیریت', '✓'],
-                    'rejected'  => ['badge-danger',  'رد شده',        '✕'],
-                    'ordered'   => ['badge-info',    'سفارش داده شد', '📦'],
-                    'delivered' => ['badge-success', 'تحویل شد',      '✔✔'],
-                    default     => ['badge-warning', 'در انتظار بررسی','⏱'],
+                'approved' => ['badge-success', 'تایید مدیریت', '✓'],
+                'rejected' => ['badge-danger', 'رد شده', '✕'],
+                'ordered' => ['badge-info', 'سفارش داده شد', '📦'],
+                'delivered' => ['badge-success', 'تحویل شد', '✔✔'],
+                default => ['badge-warning', 'در انتظار بررسی','⏱'],
                 };
                 @endphp
                 <div class="card-luxury p-3 sm:p-4 hover:shadow-lg hover:shadow-primary-900/10 transition-all duration-200 group">
@@ -127,7 +127,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                 </svg>
                             </a>
-                            @if(auth()->user()->isSupply() && $proposal->created_by === auth()->id() && $proposal->status === 'pending')
+                            @if((auth()->user()->isSupply() && $proposal->created_by === auth()->id() && $proposal->status === 'pending') || auth()->user()->isCEO())
                             <a href="{{ route('supply-proposals.edit', $proposal) }}"
                                 class="p-1.5 rounded-lg bg-yellow-500/10 text-yellow-400 hover:bg-yellow-500/25 transition-all border border-yellow-500/25" title="ویرایش">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
