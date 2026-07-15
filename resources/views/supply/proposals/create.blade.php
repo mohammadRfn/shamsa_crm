@@ -98,7 +98,7 @@
                             <input type="number" name="unit_price"
                                 value="{{ old('unit_price', $proposal->unit_price ?? '') }}"
                                 placeholder="0"
-                                min="0" step="1000"
+                                min="0" step="1"
                                 class="input-luxury w-full" required>
                         </div>
 

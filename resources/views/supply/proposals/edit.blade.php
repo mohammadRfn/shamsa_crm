@@ -92,7 +92,7 @@
                             <label class="text-sm font-semibold text-cream-200">قیمت واحد (تومان) <span class="text-primary-400">*</span></label>
                             <input type="number" name="unit_price"
                                 value="{{ old('unit_price', $proposal->unit_price) }}"
-                                min="0" step="1000"
+                                min="0" step="1"
                                 class="input-luxury w-full" required>
                         </div>
 
