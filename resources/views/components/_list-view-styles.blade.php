@@ -161,29 +161,30 @@
         display: flex;
     }
 
-    /* Override اختصاصی برای WorkRequest که بج‌های اضافه (نوع/مرحله) داره */
-    .wr-list-card .list-title-group {
-        width: 20rem;
-        flex-shrink: 0;
-    }
+    @media (min-width: 769px) {
+        .wr-list-card .list-title-group {
+            width: 20rem;
+            flex-shrink: 0;
+        }
 
-    .wr-list-card .list-subtitle {
-        flex-wrap: nowrap;
-        white-space: nowrap;
-    }
+        .wr-list-card .list-subtitle {
+            flex-wrap: nowrap;
+            white-space: nowrap;
+        }
 
-    .wr-list-card .list-main-content {
-        flex-wrap: nowrap;
-    }
+        .wr-list-card .list-main-content {
+            flex-wrap: nowrap;
+        }
 
-    .wr-list-card .list-meta-group {
-        flex: 0 1 auto;
-        gap: 0.75rem;
-        overflow: hidden;
-    }
+        .wr-list-card .list-meta-group {
+            flex: 0 1 auto;
+            gap: 0.75rem;
+            overflow: hidden;
+        }
 
-    .wr-list-card .list-meta-item {
-        font-size: 0.8rem;
+        .wr-list-card .list-meta-item {
+            font-size: 0.72rem;
+        }
     }
 
     /* ══════════════════════════════════════════════
