@@ -96,7 +96,7 @@
                             <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span class="text-cream-200 font-medium truncate">{{ $request->user->name }}</span>
+                            <span class="text-cream-200 font-medium">{{ $request->user->name }}</span>
                         </div>
                         <div class="flex items-center gap-1 text-dark-400 min-w-0" title="تاریخ">
                             <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
@@ -108,13 +108,13 @@
                             <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <span class="text-cream-200 font-medium truncate">{{ $request->serial_number }}</span>
+                            <span class="text-cream-200 font-medium">{{ $request->serial_number }}</span>
                         </div>
                         <div class="flex items-center gap-1 text-dark-400 min-w-0" title="مدل دستگاه">
                             <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-cream-200 font-medium truncate">{{ Str::limit($request->device_model, 12) }}</span>
+                            <span class="text-cream-200 font-medium">{{ $request->device_model }}</span>
                         </div>
                     </div>
 
