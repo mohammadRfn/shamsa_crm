@@ -19,6 +19,14 @@
             default => ['bg-dark-700 text-dark-400 border-dark-600', '📋']
             };
             $types = ['repair' => '🔧 تعمیرات', 'service' => '⚙️ سرویس و نصب', 'install' => '🔌 ساخت', 'sale' => '💰 فروش'];
+            $stageLabels = \App\Models\WorkRequestStage::$stageLabels;
+            $stagesKeyed = $workrequest->stages ? $workrequest->stages->keyBy('stage') : collect();
+            $lastDoneStageKey = null;
+            foreach ($stageLabels as $key => $label) {
+            if (($stagesKeyed[$key]->status ?? null) === 'done') {
+            $lastDoneStageKey = $key;
+            }
+            }
             @endphp
             <div class="card-luxury p-2.5 flex items-center justify-between gap-3 flex-wrap">
                 <div class="flex items-center gap-3 min-w-0">
@@ -34,6 +42,11 @@
                 <div class="flex items-center gap-2 shrink-0">
                     <!-- <span class="badge {{ $statusConfig[0] }} !text-xs">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span> -->
                     <span class="px-2.5 py-1 rounded-full text-xs font-bold border {{ $typeConfig[0] }}">{{ $typeConfig[1] }}</span>
+                    @if($lastDoneStageKey)
+                    <span class="px-2.5 py-1 rounded-full text-xs font-bold border bg-green-500/20 text-black border-green-500/30" title="آخرین مرحله تایید شده">
+                        ✅ {{ $stageLabels[$lastDoneStageKey] }}
+                    </span>
+                    @endif
                     <a href="{{ route('workrequests.pdf', $workrequest) }}" target="_blank"
                         class="btn-secondary !py-1.5 !px-3 text-xs inline-flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

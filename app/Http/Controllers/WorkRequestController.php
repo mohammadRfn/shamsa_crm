@@ -471,7 +471,7 @@ class WorkRequestController extends Controller
             return back()->with('error', 'دسترسی ندارید.');
         }
 
-        $validStages = ['reception', 'workshop', 'estimation', 'approval', 'delivery', 'financial'];
+        $validStages = ['reception', 'under_review', 'performing_initial_troubleshooting', 'informing_customer_of_initial_cost', 'waiting_for_customer_approval', 'waiting_for_parts', 'performing_final_repair', 'quality_control', 'ready_for_delivery', 'delivery', 'unrepairable', 'customer_rejection'];
         if (!in_array($stage, $validStages)) {
             return back()->with('error', 'مرحله نامعتبر است.');
         }

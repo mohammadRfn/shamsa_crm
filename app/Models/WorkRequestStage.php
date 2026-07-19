@@ -15,12 +15,18 @@ class WorkRequestStage extends Model
     ];
 
     public static array $stageLabels = [
-        'reception'  => 'پذیرش',
-        'workshop'   => 'کارگاه',
-        'estimation' => 'برآورد هزینه',
-        'approval'   => 'رد یا تایید',
-        'delivery'   => 'تحویل کالا',
-        'financial'  => 'مالی',
+        'reception'  => 'ثبت پذیرش',
+        'under_review' => 'در نوبت بررسی',
+        'performing_initial_troubleshooting' => 'درحال عیب یابی اولیه',
+        'informing_customer_of_initial_cost' => 'اعلام هزینه اولیه به مشتری',
+        'waiting_for_customer_approval' => 'منتظر تایید مشتری',
+        'waiting_for_parts' => 'منتظر تامین قطعه',
+        'performing_final_repair' => 'درحال تعمیرات نهایی',
+        'quality_control' => 'تست و کنترل کیفیت',
+        'ready_for_delivery' => 'اماده تحویل',
+        'delivery'   => 'تحویل به مشتری',
+        'unrepairable' => 'غیر قابل تعمیر',
+        'customer_rejection' => 'عدم تایید قیمت توسط مشتری',
     ];
 
     public static array $statusLabels = [

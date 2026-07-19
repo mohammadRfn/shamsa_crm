@@ -71,6 +71,14 @@
                 'sale' => ['bg-yellow-500/20 text-yellow-400 border-yellow-500/30','💰 فروش'],
                 default => ['bg-dark-700 text-dark-400 border-dark-600', '📋'],
                 };
+                $stageLabels = \App\Models\WorkRequestStage::$stageLabels;
+                $stagesKeyed = $request->stages ? $request->stages->keyBy('stage') : collect();
+                $lastDoneStageKey = null;
+                foreach ($stageLabels as $key => $label) {
+                if (($stagesKeyed[$key]->status ?? null) === 'done') {
+                $lastDoneStageKey = $key;
+                }
+                }
                 @endphp
                 <div class="card-luxury p-3.5 hover:shadow-lg hover:shadow-primary-900/15 hover:-translate-y-0.5 transition-all duration-200 group {{ $request->isUnreadBy() ? 'card-unread' : '' }}"
                     data-bulk-item
@@ -88,6 +96,11 @@
                             </h3>
                         </div>
                         <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border shrink-0 {{ $typeConfig[0] }}">{{ $typeConfig[1] }}</span>
+                        @if($lastDoneStageKey)
+                        <span class="px-2.5 py-1 rounded-full text-xs font-bold border bg-green-500/20 text-black border-green-500/30" title="آخرین مرحله تایید شده">
+                            ✅ {{ $stageLabels[$lastDoneStageKey] }}
+                        </span>
+                        @endif
                     </div>
 
                     <!-- Info grid: ثبت‌کننده / تاریخ / سریال / مدل دستگاه -->
@@ -194,8 +207,16 @@
                 'sale' => ['bg-yellow-500/20 text-yellow-400 border-yellow-500/30','💰 فروش'],
                 default => ['bg-dark-700 text-dark-400 border-dark-600', '📋'],
                 };
+                $stageLabels = \App\Models\WorkRequestStage::$stageLabels;
+                $stagesKeyed = $request->stages ? $request->stages->keyBy('stage') : collect();
+                $lastDoneStageKey = null;
+                foreach ($stageLabels as $key => $label) {
+                if (($stagesKeyed[$key]->status ?? null) === 'done') {
+                $lastDoneStageKey = $key;
+                }
+                }
                 @endphp
-                <div class="card-luxury list-card group hover:shadow-xl hover:shadow-primary-900/15 transition-all duration-200 {{ $request->isUnreadBy() ? 'card-unread' : '' }}"
+                <div class="card-luxury list-card wr-list-card group hover:shadow-xl hover:shadow-primary-900/15 transition-all duration-200 {{ $request->isUnreadBy() ? 'card-unread' : '' }}"
                     data-bulk-item data-id="{{ $request->id }}">
 
                     <div class="bulk-checkbox-col">
@@ -208,10 +229,15 @@
                             <div class="list-subtitle flex items-center gap-1.5">
                                 <span class="font-bold" style="font-size:0.95rem; color:#292524;">{{ $request->request_number }}</span>
                                 <span class="px-2 py-0.5 rounded-full text-xs border {{ $typeConfig[0] }}">{{ $typeConfig[1] }}</span>
+                                @if($lastDoneStageKey)
+                                <span class="px-2 py-0.5 rounded-full text-xs font-bold border bg-green-500/20 text-black border-green-500/30" title="آخرین مرحله تایید شده">
+                                    ✅ {{ $stageLabels[$lastDoneStageKey] }}
+                                </span>
+                                @endif
                                 <x-unread-badge :model="$request" />
                             </div>
                         </div>
-                        <div class="list-meta-group">
+                        <div class="list-meta-group shrink-0 flex-nowrap gap-3 ms-4" style="max-width: 45%;">
                             <div class="list-meta-item">
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -239,7 +265,7 @@
                         </div>
                     </div>
 
-                    <div class="list-approvals">
+                    <!-- <div class="list-approvals">
                         @foreach([
                         ['label' => 'پذیرش', 'status' => $request->request_approval],
                         ['label' => 'مدیر', 'status' => $request->ceo_approval],
@@ -252,7 +278,7 @@
                         @endphp
                         <span class="px-2.5 py-1 rounded-full text-xs font-bold border {{ $ac }}">{{ $ai }} {{ $approval['label'] }}</span>
                         @endforeach
-                    </div>
+                    </div> -->
 
                     <div class="list-actions">
                         <a href="{{ route('workrequests.show', $request) }}" class="p-2 rounded-lg bg-dark-800 text-dark-300 hover:text-primary-400 hover:bg-dark-700 transition-all border border-dark-700" title="مشاهده">
