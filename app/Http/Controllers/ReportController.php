@@ -46,7 +46,7 @@ class ReportController extends Controller
             $query->where('status', $request->status);
         }
 
-        $reports = $query->orderBy('created_at', 'desc')->paginate(10);
+        $reports = $query->orderBy('created_at', 'desc')->paginate(8);
         $viewMode = $request->input('view', session('reports_view', 'grid'));
         if (in_array($viewMode, ['grid', 'list'])) {
             session(['reports_view' => $viewMode]);

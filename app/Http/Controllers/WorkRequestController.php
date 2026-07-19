@@ -58,7 +58,7 @@ class WorkRequestController extends Controller
             $query->where('payment_status', $request->payment_status);
         }
 
-        $workRequests = $query->orderBy('created_at', 'desc')->paginate(10);
+        $workRequests = $query->orderBy('created_at', 'desc')->paginate(8);
 
         $viewMode = $request->input('view', session('workrequests_view', 'grid'));
         if (in_array($viewMode, ['grid', 'list'])) {

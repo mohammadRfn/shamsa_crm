@@ -23,7 +23,7 @@ class UserController extends Controller
     {
         $users = User::withCount(['reports', 'partOrders', 'workRequests', 'comments'])
             ->latest()
-            ->paginate(15);
+            ->paginate(8);
         return view('users.index', compact('users'));
     }
 

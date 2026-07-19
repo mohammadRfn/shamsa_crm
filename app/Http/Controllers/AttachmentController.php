@@ -104,17 +104,16 @@ class AttachmentController extends Controller
         $model->touch();
         return back()->with('success', "{$count} فایل با موفقیت آپلود شد.");
     }
-    private function handleDelete(Attachment $attachment): \Illuminate\Http\RedirectResponse
+    private function handleDelete(Attachment $attachment, bool $checkUploader = true): \Illuminate\Http\RedirectResponse
     {
-        // فقط آپلودر می‌تونه فایل خودش رو حذف کنه
-        if ($attachment->uploaded_by !== Auth::id()) {
+        if ($checkUploader && $attachment->uploaded_by !== Auth::id()) {
             return back()->with('error', 'شما اجازه حذف این فایل را ندارید.');
         }
         $parent = $attachment->attachable;
         Storage::disk('public')->delete($attachment->file_path);
         $attachment->delete();
         if ($parent) {
-            $parent->touch();                       // ← اضافه شد
+            $parent->touch();
         }
 
         return back()->with('success', 'فایل حذف شد.');
@@ -159,7 +158,7 @@ class AttachmentController extends Controller
 
             'ceo' => match ($type) {
                 'work_request' => null,
-                // supply_proposal عمداً نیست: مدیر فقط مشاهده/دانلود دارد
+                'supply_proposal' => null,
                 default => abort(403, 'دسترسی مجاز نیست.'),
             },
 
@@ -200,6 +199,6 @@ class AttachmentController extends Controller
     {
         $this->authorizeUpload('supply_proposal', $proposal);
         $this->ensureBelongsTo($attachment, $proposal);
-        return $this->handleDelete($attachment);
+        return $this->handleDelete($attachment, checkUploader: false);
     }
 }

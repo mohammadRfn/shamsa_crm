@@ -33,7 +33,7 @@ class TaskController extends Controller
             $query->where('assigned_to', $request->assigned_to);
         }
 
-        $tasks       = $query->paginate(15);
+        $tasks       = $query->paginate(8);
         $technicians = User::where('role', 'technician')->get();
 
         return view('tasks.index', compact('tasks', 'technicians'));
@@ -188,7 +188,7 @@ class TaskController extends Controller
             $query->where('status', $request->status);
         }
 
-        $tasks = $query->paginate(15);
+        $tasks = $query->paginate(8);
 
         // تعداد تسک‌های ندیده‌شده برای نشان دادن badge
         $unseenCount = Task::where('assigned_to', $user->id)

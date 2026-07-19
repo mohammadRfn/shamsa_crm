@@ -7,6 +7,7 @@ use App\Models\PartOrder;
 use App\Models\SupplyProposal;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 
 class SupplyProposalController extends Controller
 {
@@ -36,7 +37,7 @@ class SupplyProposalController extends Controller
             });
         }
 
-        $proposals = $query->orderBy('created_at', 'desc')->paginate(15);
+        $proposals = $query->orderBy('created_at', 'desc')->paginate(8);
         $statuses  = SupplyProposal::STATUSES;
 
         return view('supply.proposals.index', compact('proposals', 'statuses'));

@@ -2,146 +2,117 @@
 
     @include('components._list-view-styles')
 
-    <div class="py-8 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto space-y-8">
+    <div class="py-5 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto space-y-3">
 
-            <!-- Header -->
-            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div>
-                    <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-l from-primary-400 to-cream-100 bg-clip-text text-transparent">
-                        گزارش کار
-                    </h1>
-                    <p class="text-dark-400 mt-2">مدیریت و پیگیری گزارشات تعمیرات</p>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <x-view-toggle :current="$viewMode" route="reports.index" />
-
+            <!-- Toolbar یکپارچه: ثبت گزارش + سرچ/فیلتر + سوییچ گرید/لیست همه توی یه ردیف -->
+            <div class="card-luxury p-2.5">
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2">
                     @if(auth()->user()->isTechnician())
-                    <a href="{{ route('reports.create') }}" class="btn-primary inline-flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <a href="{{ route('reports.create') }}" class="btn-primary inline-flex items-center justify-center gap-2 !py-2 !px-4 text-sm shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
                         ثبت گزارش جدید
                     </a>
                     @endif
+
+                    <form method="GET" action="{{ route('reports.index') }}" class="flex-1 flex flex-col lg:flex-row gap-2">
+                        <input type="hidden" name="view" value="{{ $viewMode }}">
+
+                        <input type="text"
+                            name="search"
+                            value="{{ request('search') }}"
+                            placeholder="جستجو در نام قطعه، سریال، مدل، شرح مشکل..."
+                            class="input-luxury flex-1 !py-2 !px-3 text-sm">
+
+                        <select name="status" class="input-luxury lg:w-40 !py-2 !px-3 text-sm">
+                            <option value="">همه وضعیت‌ها</option>
+                            <option value="new" {{ request('status') == 'new'      ? 'selected' : '' }}>جدید</option>
+                            <option value="pending" {{ request('status') == 'pending'  ? 'selected' : '' }}>در انتظار</option>
+                            <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>تایید شده</option>
+                            <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>رد شده</option>
+                        </select>
+
+                        <button type="submit" class="btn-primary lg:w-auto !py-2 !px-4 text-sm shrink-0">
+                            جستجو
+                        </button>
+
+                        @if(request('search') || request('status'))
+                        <a href="{{ route('reports.index', ['view' => $viewMode]) }}" class="btn-secondary lg:w-auto !py-2 !px-4 text-sm shrink-0">
+                            حذف فیلتر
+                        </a>
+                        @endif
+                    </form>
+
+                    <x-view-toggle :current="$viewMode" route="reports.index" />
                 </div>
-            </div>
-
-            <!-- Search & Filter Bar -->
-            <div class="card-luxury p-6">
-                <form method="GET" action="{{ route('reports.index') }}" class="flex flex-col lg:flex-row gap-4">
-                    <input type="hidden" name="view" value="{{ $viewMode }}">
-
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text"
-                                name="search"
-                                value="{{ request('search') }}"
-                                placeholder="جستجو در نام قطعه، سریال، مدل، شرح مشکل یا گزارش فعالیت..."
-                                class="input-luxury w-full pr-12">
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-
-                    <select name="status" class="input-luxury lg:w-48">
-                        <option value="">همه وضعیت‌ها</option>
-                        <option value="new" {{ request('status') == 'new'      ? 'selected' : '' }}>جدید</option>
-                        <option value="pending" {{ request('status') == 'pending'  ? 'selected' : '' }}>در انتظار</option>
-                        <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>تایید شده</option>
-                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>رد شده</option>
-                    </select>
-
-                    <button type="submit" class="btn-primary lg:w-auto">
-                        <svg class="w-5 h-5 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        جستجو
-                    </button>
-
-                    @if(request('search') || request('status'))
-                    <a href="{{ route('reports.index', ['view' => $viewMode]) }}" class="btn-secondary lg:w-auto">
-                        حذف فیلتر
-                    </a>
-                    @endif
-                </form>
             </div>
 
             @if($reports->count() > 0)
 
-            {{-- ════ GRID MODE ════ --}}
+            {{-- ════ GRID MODE — فشرده ولی همه‌ی فیلدهای مشخصه حفظ شده ════ --}}
             @if($viewMode === 'grid')
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 view-grid-mode">
+            <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 view-grid-mode">
                 @foreach($reports as $report)
-                {{-- ✅ card-unread روی همین div باشه، نه div جداگانه --}}
-                <div class="card-luxury p-6 hover:shadow-2xl hover:shadow-primary-900/20 hover:scale-[1.02] transition-all duration-300 group {{ $report->isUnreadBy() ? 'card-unread' : '' }}"
+                @php
+                $statusConfig = match($report->status) {
+                'approved' => ['badge-success', 'تایید شده', '✓'],
+                'rejected' => ['badge-danger', 'رد شده', '✕'],
+                'pending' => ['badge-warning', 'در انتظار', '⏱'],
+                default => ['badge-info', 'جدید', '★'],
+                };
+                @endphp
+                <div class="card-luxury p-3.5 hover:shadow-lg hover:shadow-primary-900/15 hover:-translate-y-0.5 transition-all duration-200 group {{ $report->isUnreadBy() ? 'card-unread' : '' }}"
                     data-bulk-item
                     data-id="{{ $report->id }}">
 
-                    <!-- Header -->
-                    <div class="flex items-start justify-between mb-4 pb-4 border-b border-dark-700">
-                        <div class="flex-1">
-                            <h3 class="text-xl font-bold text-cream-100 group-hover:text-primary-400 transition-colors">
-                                {{ $report->part_name }}
-                            </h3>
-                            {{-- ✅ badge اینجا کنار شماره درخواست --}}
-                            <div class="flex items-center gap-2 mt-1">
-                                <span class="text-sm text-dark-400">{{ $report->request_number }}</span>
+                    <!-- Header row -->
+                    <div class="flex items-start justify-between gap-1.5 mb-2 pb-2 border-b border-dark-700">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 mb-0.5">
+                                <span class="text-xs font-semibold text-dark-400 font-medium truncate">{{ $report->request_number }}</span>
                                 <x-unread-badge :model="$report" />
                             </div>
+                            <h3 class="text-sm font-bold text-cream-100 truncate group-hover:text-primary-400 transition-colors" title="{{ $report->part_name }}">
+                                {{ $report->part_name }}
+                            </h3>
                         </div>
-
-                        @php
-                        $statusConfig = match($report->status) {
-                        'approved' => ['badge-success', 'تایید شده', '✓'],
-                        'rejected' => ['badge-danger', 'رد شده', '✕'],
-                        'pending' => ['badge-warning', 'در انتظار', '⏱'],
-                        default => ['badge-info', 'جدید', '★'],
-                        };
-                        @endphp
-                        <span class="badge {{ $statusConfig[0] }}">
+                        <span class="badge {{ $statusConfig[0] }} !text-[10px] !px-2 !py-0.5 shrink-0">
                             {{ $statusConfig[2] }} {{ $statusConfig[1] }}
                         </span>
                     </div>
 
-                    <!-- Info Grid -->
-                    <div class="grid grid-cols-2 gap-4 mb-4">
-                        <div class="flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                    <!-- Info grid: تکنسین / تاریخ / سریال / نفرساعت -->
+                    <div class="grid grid-cols-2 gap-x-2 gap-y-1.5 mb-2.5 text-[11px]">
+                        <div class="flex items-center gap-1 text-dark-400 min-w-0" title="تکنسین">
+                            <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                             </svg>
-                            <span class="text-dark-400">تکنسین:</span>
-                            <span class="text-cream-200 font-medium">{{ $report->user->name }}</span>
+                            <span class="text-cream-200 font-medium truncate">{{ $report->user->name }}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        <div class="flex items-center gap-1 text-dark-400 min-w-0" title="تاریخ">
+                            <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span class="text-dark-400">تاریخ:</span>
-                            <span class="text-cream-200 font-medium">{{ $report->request_date_jalali }}</span>
+                            <span class="text-cream-200 font-medium truncate">{{ $report->request_date_jalali }}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        <div class="flex items-center gap-1 text-dark-400 min-w-0" title="سریال">
+                            <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
-                            <span class="text-dark-400">سریال:</span>
-                            <span class="text-cream-200 font-medium">{{ $report->serial_number }}</span>
+                            <span class="text-cream-200 font-medium truncate">{{ $report->serial_number }}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-sm">
-                            <svg class="w-4 h-4 text-primary-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <div class="flex items-center gap-1 text-dark-400 min-w-0" title="نفر‌ساعت">
+                            <svg class="w-3 h-3 text-primary-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
-                            <span class="text-dark-400">نفر‌ساعت:</span>
-                            <span class="text-cream-200 font-medium">{{ $report->workers_count }} × {{ $report->hours_per_worker }}</span>
+                            <span class="text-cream-200 font-medium truncate">{{ $report->workers_count }} × {{ $report->hours_per_worker }}</span>
                         </div>
                     </div>
 
-                    <!-- Approval Status -->
-                    <div class="flex gap-2 mb-4 flex-wrap">
+                    <!-- Approval pills (کامل با لیبل) -->
+                    <div class="flex gap-1.5 mb-2.5 flex-wrap">
                         @foreach([
                         ['label' => 'پذیرش', 'status' => $report->request_approval],
                         ['label' => 'تامین', 'status' => $report->supply_approval],
@@ -153,30 +124,30 @@
                         elseif ($sv === 0 || $sv === '0' || $sv === false) { $ac = 'bg-red-500/20 text-red-400 border-red-500/30'; $ai = '✕'; }
                         else { $ac = 'bg-stone-100 text-stone-500 border-stone-300'; $ai = '⏱'; }
                         @endphp
-                        <span class="px-3 py-1 rounded-full text-xs font-bold border {{ $ac }}">{{ $ai }} {{ $approval['label'] }}</span>
+                        <span class="px-2 py-0.5 rounded-full text-[10px] font-bold border {{ $ac }}">{{ $ai }} {{ $approval['label'] }}</span>
                         @endforeach
                     </div>
 
                     <!-- Actions -->
-                    <div class="flex gap-2 pt-4 border-t border-dark-700">
-                        <a href="{{ route('reports.show', $report) }}" class="flex-1 btn-secondary text-center py-2">
-                            <svg class="w-4 h-4 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    <div class="flex gap-1.5 pt-2 border-t border-dark-700">
+                        <a href="{{ route('reports.show', $report) }}" class="flex-1 btn-secondary text-center !py-1.5 text-xs">
+                            <svg class="w-3.5 h-3.5 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                             </svg>
                             مشاهده
                         </a>
                         @if(auth()->id() == $report->user_id && in_array($report->status, ['new', 'pending']))
-                        <a href="{{ route('reports.edit', $report) }}" class="px-4 py-2 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all border border-yellow-500/30">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        <a href="{{ route('reports.edit', $report) }}" class="px-3 py-1.5 bg-yellow-500/20 text-yellow-400 rounded-lg hover:bg-yellow-500/30 transition-all border border-yellow-500/30">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                         </a>
                         <form action="{{ route('reports.destroy', $report) }}" method="POST" onsubmit="return confirm('آیا از حذف این گزارش اطمینان دارید؟')">
                             @csrf @method('DELETE')
-                            <button type="submit" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all border border-red-500/30">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            <button type="submit" class="px-3 py-1.5 bg-red-500/20 text-red-400 rounded-lg hover:bg-red-500/30 transition-all border border-red-500/30">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </button>
                         </form>
@@ -187,7 +158,7 @@
             </div>
 
             @else
-            {{-- ════ LIST MODE ════ --}}
+            {{-- ════ LIST MODE ════ (بدون تغییر، از استایل‌های خارجی list-* استفاده می‌کنه) --}}
             <div class="items-list-mode view-list-mode">
                 @foreach($reports as $report)
                 @php
@@ -199,12 +170,10 @@
                 };
                 @endphp
 
-                {{-- ✅ card-unread روی list-card --}}
                 <div class="card-luxury list-card group hover:shadow-xl hover:shadow-primary-900/15 transition-all duration-200 {{ $report->isUnreadBy() ? 'card-unread' : '' }}"
                     data-bulk-item
                     data-id="{{ $report->id }}">
 
-                    {{-- ① Checkbox --}}
                     <div class="bulk-checkbox-col">
                         <input type="checkbox"
                             class="bulk-checkbox"
@@ -212,13 +181,11 @@
                             onchange="bulkToggle('{{ $report->id }}', this)">
                     </div>
 
-                    {{-- ② Main content --}}
                     <div class="list-main-content">
                         <div class="list-title-group">
                             <div class="list-title group-hover:text-primary-400">
                             <span>{{ $report->request_number }}</span>
                                 <x-unread-badge :model="$report" /></div>
-                            {{-- ✅ badge کنار شماره درخواست --}}
                             <div class="list-subtitle flex items-center gap-1.5">
                                 {{ $report->part_name }}
                             </div>
@@ -252,7 +219,6 @@
                         </div>
                     </div>
 
-                    {{-- ③ Approval pills --}}
                     <div class="list-approvals">
                         @foreach([
                         ['label' => 'پذیرش', 'status' => $report->request_approval],
@@ -269,7 +235,6 @@
                         @endforeach
                     </div>
 
-                    {{-- ④ Status + actions --}}
                     <div class="list-actions">
                         <span class="badge {{ $statusConfig[0] }} text-xs">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span>
 

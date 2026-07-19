@@ -1,60 +1,46 @@
 <x-app-layout>
-    <div class="py-8 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-7xl mx-auto space-y-8">
+    <div class="py-5 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-7xl mx-auto space-y-3">
 
-            {{-- Header --}}
-            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div>
-                    <h1 class="text-3xl sm:text-4xl font-bold bg-gradient-to-l from-primary-400 to-cream-100 bg-clip-text text-transparent">
-                        پیشنهادهای تامین
-                    </h1>
-                    <p class="text-dark-400 mt-2">مدیریت و پیگیری پیشنهادهای قیمت قطعات</p>
-                </div>
-                @if(auth()->user()->isSupply())
-                <a href="{{ route('supply-proposals.create') }}" class="btn-primary inline-flex items-center gap-2">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                    </svg>
-                    ثبت پیشنهاد جدید
-                </a>
-                @endif
-            </div>
-
-            {{-- فیلتر --}}
-            <div class="card-luxury p-6">
-                <form method="GET" action="{{ route('supply-proposals.index') }}" class="flex flex-col lg:flex-row gap-4">
-                    <div class="flex-1">
-                        <div class="relative">
-                            <input type="text" name="search" value="{{ request('search') }}"
-                                placeholder="جستجو در نام فروشنده، قطعه، شماره سفارش..."
-                                class="input-luxury w-full pr-12">
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2 text-dark-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
-                    <select name="status" class="input-luxury lg:w-52">
-                        <option value="">همه وضعیت‌ها</option>
-                        @foreach($statuses as $key => $label)
-                        <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                    <button type="submit" class="btn-primary lg:w-auto">
-                        <svg class="w-5 h-5 inline-block ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            {{-- تولبار یکپارچه: ثبت پیشنهاد + سرچ/فیلتر همه توی یه ردیف --}}
+            <div class="card-luxury p-2.5">
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center gap-2">
+                    @if(auth()->user()->isSupply())
+                    <a href="{{ route('supply-proposals.create') }}" class="btn-primary inline-flex items-center justify-center gap-2 !py-2 !px-4 text-sm shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                         </svg>
-                        جستجو
-                    </button>
-                    @if(request('search') || request('status'))
-                    <a href="{{ route('supply-proposals.index') }}" class="btn-secondary lg:w-auto">حذف فیلتر</a>
+                        ثبت پیشنهاد جدید
+                    </a>
                     @endif
-                </form>
+
+                    <form method="GET" action="{{ route('supply-proposals.index') }}" class="flex-1 flex flex-col lg:flex-row gap-2">
+                        <input type="text" name="search" value="{{ request('search') }}"
+                            placeholder="جستجو در نام فروشنده، قطعه، شماره سفارش..."
+                            class="input-luxury flex-1 !py-2 !px-3 text-sm">
+
+                        <select name="status" class="input-luxury lg:w-44 !py-2 !px-3 text-sm">
+                            <option value="">همه وضعیت‌ها</option>
+                            @foreach($statuses as $key => $label)
+                            <option value="{{ $key }}" {{ request('status') == $key ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+
+                        <button type="submit" class="btn-primary lg:w-auto !py-2 !px-4 text-sm shrink-0">
+                            جستجو
+                        </button>
+
+                        @if(request('search') || request('status'))
+                        <a href="{{ route('supply-proposals.index') }}" class="btn-secondary lg:w-auto !py-2 !px-4 text-sm shrink-0">
+                            حذف فیلتر
+                        </a>
+                        @endif
+                    </form>
+                </div>
             </div>
 
             @if($proposals->count() > 0)
-            <div class="space-y-2.5">
+            <div class="space-y-1.5">
                 @foreach($proposals as $proposal)
                 @php
                 $statusConfig = match($proposal->status) {
@@ -65,7 +51,7 @@
                 default => ['badge-warning', 'در انتظار بررسی','⏱'],
                 };
                 @endphp
-                <div class="card-luxury p-3 sm:p-4 hover:shadow-lg hover:shadow-primary-900/10 transition-all duration-200 group">
+                <div class="card-luxury p-2.5 hover:shadow-lg hover:shadow-primary-900/10 transition-all duration-200 group">
                     <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
 
                         {{-- عنوان + بج + متادیتا فشرده --}}
@@ -146,13 +132,6 @@
                             </form>
                             @endif
                         </div>
-                    </div>
-
-                    {{-- ثبت‌کننده و تاریخ: خیلی ریز، فقط یک خط پایین --}}
-                    <div class="mt-1.5 pt-1.5 border-t border-dark-700/40 flex items-center gap-1 text-[11px] text-dark-500">
-                        <span>{{ $proposal->creator->name ?? '---' }}</span>
-                        <span>·</span>
-                        <span>{{ $proposal->created_at->diffForHumans() }}</span>
                     </div>
                 </div>
                 @endforeach

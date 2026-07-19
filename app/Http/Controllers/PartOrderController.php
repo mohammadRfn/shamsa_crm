@@ -33,7 +33,7 @@ class PartOrderController extends Controller
             });
         }
 
-        $partOrders = $query->orderBy('created_at', 'desc')->paginate(10);
+        $partOrders = $query->orderBy('created_at', 'desc')->paginate(8);
 
         $viewMode = $request->input('view', session('partorders_view', 'grid'));
         if (in_array($viewMode, ['grid', 'list'])) {
@@ -199,6 +199,7 @@ class PartOrderController extends Controller
         $partorder->update($validated);
 
         $submittedIds = [];
+        $rowKeys = $request->input('row_key', []);
 
         foreach ($validated['part_name'] as $i => $name) {
             $itemData = [
@@ -213,10 +214,31 @@ class PartOrderController extends Controller
 
             if ($itemId && $partorder->items()->where('id', $itemId)->exists()) {
                 $partorder->items()->where('id', $itemId)->update($itemData);
+                $currentItem = $partorder->items()->find($itemId);
                 $submittedIds[] = $itemId;
             } else {
-                $newItem = $partorder->items()->create($itemData);
-                $submittedIds[] = $newItem->id;
+                $currentItem = $partorder->items()->create($itemData);
+                $submittedIds[] = $currentItem->id;
+            }
+
+            $rowKey = $rowKeys[$i] ?? null;
+            if ($rowKey !== null && $request->hasFile("item_files.$rowKey")) {
+                foreach ($request->file("item_files.$rowKey") as $file) {
+                    $mime = $file->getMimeType();
+                    $path = $file->storeAs(
+                        "attachments/part-order-items/{$currentItem->id}",
+                        \Str::uuid() . '.' . $file->getClientOriginalExtension(),
+                        'public'
+                    );
+                    $currentItem->attachments()->create([
+                        'uploaded_by' => auth()->id(),
+                        'file_name'   => $file->getClientOriginalName(),
+                        'file_path'   => $path,
+                        'file_type'   => \App\Models\Attachment::resolveFileType($mime),
+                        'mime_type'   => $mime,
+                        'file_size'   => $file->getSize(),
+                    ]);
+                }
             }
         }
 

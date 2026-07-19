@@ -13,7 +13,7 @@
 .items-list-mode {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.35rem;
 }
 
 /* Each card in list mode */
@@ -22,7 +22,7 @@
     grid-template-columns: auto 1fr auto auto;
     align-items: center;
     gap: 0 1.25rem;
-    padding: 0.875rem 1.25rem;
+    padding: 0.5rem 1rem;
     border-radius: 0.875rem;
     transition: all .22s cubic-bezier(.4,0,.2,1);
 }
