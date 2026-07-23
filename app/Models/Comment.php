@@ -69,35 +69,38 @@ class Comment extends Model
     /**
      * Scope برای نمایش کامنت‌ها بر اساس نقش
      */
-    public function scopeForUser($query, $user)
+    public function scopeForUser($query, $user, $reportableType = null)
     {
-        // CEO همه چیز رو می‌بینه
         if ($user->isCEO()) {
             return $query;
         }
 
-        // تعمیرکار: همه کامنت‌های آیتم‌هایی که متعلق به خودشه
-        // (این scope بعد از اینکه query روی یه reportable خاص اجرا میشه،
-        //  پس reportable_id و reportable_type قبلاً فیلتر شدن)
         if ($user->isTechnician()) {
-            // چون تعمیرکار فقط آیتم‌های خودشو می‌بینه (از controller چک شده)
-            // پس همه کامنت‌های اون آیتم رو باید ببینه
             return $query;
         }
 
-        // پذیرش و تامین:
-        // ۱. کامنت‌هایی که خودشون نوشتن (parent یا reply)
-        // ۲. کامنت‌هایی که کسی به اونها ریپلای زده
-        //    (یعنی id این کامنت، parent_id یه کامنت دیگه‌ست)
+        if ($reportableType === \App\Models\WorkRequest::class && $user->isReception()) {
+            return $query;
+        }
+
+        if ($reportableType === \App\Models\SupplyProposal::class && $user->isSupply()) {
+            return $query;
+        }
+
+        $openTypes = [
+            \App\Models\PartOrder::class,
+            \App\Models\Report::class,
+        ];
+
+        if (in_array($reportableType, $openTypes)) {
+            return $query;
+        }
+
         if ($user->isApprover()) {
             $userId = $user->id;
 
             return $query->where(function ($q) use ($userId) {
-                $q
-                    // کامنت‌های خودش
-                    ->where('user_id', $userId)
-                    // یا کامنت‌هایی که کسی بهشون ریپلای داده
-                    // (یعنی id این کامنت در parent_id جدول comments وجود داره)
+                $q->where('user_id', $userId)
                     ->orWhereIn('id', function ($sub) use ($userId) {
                         $sub->select('parent_id')
                             ->from('comments')

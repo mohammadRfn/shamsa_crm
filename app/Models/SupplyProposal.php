@@ -26,7 +26,7 @@ class SupplyProposal extends Model
         'unit_price'          => 'decimal:2',
         'estimated_delivery'  => 'date',
         'selected_at'         => 'datetime',
-        'created_by'          => 'integer',  
+        'created_by'          => 'integer',
         'part_order_id'       => 'integer',
     ];
 
@@ -49,6 +49,10 @@ class SupplyProposal extends Model
     public function partOrder()
     {
         return $this->belongsTo(PartOrder::class);
+    }
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'reportable');
     }
 
     public function creator()

@@ -40,7 +40,7 @@ class CommentController extends Controller
         $comments = $reportable->comments()
             ->active()
             ->parentOnly()
-            ->forUser($user)
+            ->forUser($user, $type)
             ->with(['user', 'replies.user'])
             ->latest()
             ->get();
@@ -54,7 +54,7 @@ class CommentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'reportable_type' => 'required|string|in:App\Models\Report,App\Models\PartOrder,App\Models\WorkRequest',
+            'reportable_type' => 'required|string|in:App\Models\Report,App\Models\PartOrder,App\Models\WorkRequest,App\Models\SupplyProposal',
             'reportable_id' => 'required|integer',
             'parent_id' => 'nullable|integer|exists:comments,id',
             'comment' => 'required|string|max:1000',
@@ -152,7 +152,7 @@ class CommentController extends Controller
         $comments = $reportable->comments()
             ->active()
             ->parentOnly()
-            ->forUser($user)
+            ->forUser($user, $type)
             ->with(['user', 'replies.user'])
             ->latest()
             ->get();

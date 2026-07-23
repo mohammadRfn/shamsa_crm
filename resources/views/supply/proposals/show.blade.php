@@ -304,7 +304,22 @@
                     <x-attachments.panel :model="$proposal" mode="show" />
                 </div>
             </details>
-
+            <details class="card-luxury p-3 group">
+                <summary class="flex items-center justify-between gap-1.5 cursor-pointer select-none list-none [&::-webkit-details-marker]:hidden">
+                    <span class="text-sm font-bold text-cream-100 flex items-center gap-1.5">
+                        <svg class="w-4 h-4 text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        نظرات و مکالمات
+                    </span>
+                    <svg class="w-4 h-4 text-dark-400 transition-transform duration-200 group-open:rotate-180" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </summary>
+                <div class="pt-3 mt-2 border-t border-dark-700">
+                    <x-comments-section :reportable="$proposal" reportableType="App\Models\SupplyProposal" />
+                </div>
+            </details>
         </div>
     </div>
 </x-app-layout>
