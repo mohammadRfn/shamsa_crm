@@ -20,6 +20,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkrole' => CheckRole::class,
             'technician' => EnsureTechnician::class,
             'approver' => EnsureApprover::class,
+            'ceo' => EnsureCEO::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'activation-requests',
