@@ -1,6 +1,4 @@
-@extends('layouts.app')
-
-@section('content')
+<x-app-layout>
 <div class="card-luxury p-4" dir="rtl">
     <h2 class="text-sm font-semibold text-dark-400 mb-4">درخواست‌های فعال‌سازی</h2>
 
@@ -42,4 +40,4 @@
         </tbody>
     </table>
 </div>
-@endsection
+</x-app-layout>
