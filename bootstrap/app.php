@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\CheckLicense;
 use App\Http\Middleware\CheckRole;
 use App\Http\Middleware\EnsureApprover;
 use App\Http\Middleware\EnsureCEO;
@@ -19,7 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
             'checkrole' => CheckRole::class,
             'technician' => EnsureTechnician::class,
             'approver' => EnsureApprover::class,
-            'ceo' => EnsureCEO::class,
+        ]);
+        $middleware->validateCsrfTokens(except: [
+            'activation-requests',
+            'activation-requests/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
