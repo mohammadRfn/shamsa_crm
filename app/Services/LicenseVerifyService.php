@@ -4,7 +4,7 @@ namespace App\Services;
 
 class LicenseVerifyService
 {
-    protected string $publicKeyB64 = 'PUBLIC_KEY_BASE64_شما_اینجا';
+    protected string $publicKeyB64 = '/CRfoCsmPklPiOYghMMTwBDOLopj8E78DcdjPzj9I3U=';
 
     public function verify(string $licenseKeyB64, string $currentFingerprint): ?array
     {
