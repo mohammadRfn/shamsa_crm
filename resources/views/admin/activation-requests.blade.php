@@ -45,7 +45,7 @@
                                 <td class="border border-dark-600 px-2 py-1.5 text-center">
                                     <span class="badge {{ $statusConfig[0] }} !text-[10px] !py-0.5">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span>
                                 </td>
-                                <td class="border border-dark-600 px-2 py-1.5 text-center text-dark-400">{{ $r->created_at->diffForHumans() }}</td>
+                                <td class="border border-dark-600 px-2 py-1.5 text-center text-dark-400">{{ \Carbon\Carbon::parse($r->created_at)->diffForHumans() }}</td>
                                 <td class="border border-dark-600 px-2 py-1.5 text-center">
                                     @if($r->status === 'pending')
                                         <div class="flex items-center justify-center gap-1.5">
