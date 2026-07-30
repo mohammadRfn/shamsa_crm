@@ -8,21 +8,29 @@ use Illuminate\Support\Facades\DB;
 class GenerateLicense extends Command
 {
     protected $signature = 'license:generate {request_id}';
-    protected $description = 'تولید لایسنس امضاشده بر اساس درخواست تایید شده';
+    protected $description = 'تولید لایسنس امضاشده برای یک درخواست تایید شده';
 
     public function handle()
     {
         $id = $this->argument('request_id');
         $row = DB::table('activation_requests')->find($id);
 
-        if (!$row || $row->status !== 'approved') {
-            $this->error('درخواست پیدا نشد یا تایید نشده است.');
+        if (!$row) {
+            $this->error('درخواست پیدا نشد.');
             return 1;
         }
 
-        // Private Key رو از یه محل امن بخون (نه داخل کد، نه در git)
-        // مثلا از یه فایل خارج از public/ یا از .env
+        if ($row->status !== 'approved') {
+            $this->error('این درخواست هنوز approved نشده.');
+            return 1;
+        }
+
         $privateKeyB64 = env('LICENSE_PRIVATE_KEY');
+
+        if (!$privateKeyB64) {
+            $this->error('LICENSE_PRIVATE_KEY در .env تنظیم نشده.');
+            return 1;
+        }
 
         $payload = json_encode([
             'machine_fingerprint' => $row->raw_fingerprint,
@@ -33,8 +41,20 @@ class GenerateLicense extends Command
         $signed = sodium_crypto_sign($payload, base64_decode($privateKeyB64));
         $licenseKey = base64_encode($signed);
 
+        DB::table('issued_licenses')->updateOrInsert(
+            ['machine_fingerprint' => $row->raw_fingerprint],
+            [
+                'activation_request_id' => $row->id,
+                'customer_note'         => $row->customer_note,
+                'revoked'               => 0,
+                'created_at'            => now(),
+            ]
+        );
+
         $this->info('کد لایسنس نهایی (این رو برای مشتری بفرست):');
+        $this->newLine();
         $this->line($licenseKey);
+        $this->newLine();
 
         return 0;
     }

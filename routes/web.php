@@ -14,12 +14,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\SupplyProposalController;
 use App\Http\Controllers\ActivationRequestController;
 use App\Http\Controllers\Admin\ActivationAdminController;
-
+use App\Http\Controllers\LicenseHeartbeatController;
+use App\Http\Controllers\Admin\IssuedLicenseAdminController;
 /*
 |--------------------------------------------------------------------------
 | Public Routes
 |--------------------------------------------------------------------------
 */
+
 
 
 // --- Endpoint هایی که اپ مشتری بهشون وصل میشه ---
@@ -28,11 +30,22 @@ Route::middleware('throttle:20,1')->group(function () {
     Route::get('/activation-requests/{uuid}/status', [ActivationRequestController::class, 'status']);
 });
 
+
 // --- پنل ادمین (پشت auth خودت) ---
 Route::middleware(['web', 'auth'])->prefix('admin')->group(function () {
     Route::get('/activation-requests', [ActivationAdminController::class, 'index'])->name('admin.activations.index');
     Route::post('/activation-requests/{id}/approve', [ActivationAdminController::class, 'approve'])->name('admin.activations.approve');
     Route::post('/activation-requests/{id}/reject', [ActivationAdminController::class, 'reject'])->name('admin.activations.reject');
+});
+
+Route::middleware('throttle:20,1')->group(function () {
+    Route::post('/license-heartbeat', [LicenseHeartbeatController::class, 'ping']);
+});
+
+Route::middleware(['web', 'auth'])->prefix('admin')->group(function () {
+    Route::get('/licenses', [IssuedLicenseAdminController::class, 'index'])->name('admin.licenses.index');
+    Route::post('/licenses/{id}/revoke', [IssuedLicenseAdminController::class, 'revoke'])->name('admin.licenses.revoke');
+    Route::post('/licenses/{id}/reactivate', [IssuedLicenseAdminController::class, 'reactivate'])->name('admin.licenses.reactivate');
 });
 Route::get('/', function () {
     return view('welcome');
