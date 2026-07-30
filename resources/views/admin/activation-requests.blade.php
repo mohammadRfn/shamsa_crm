@@ -23,7 +23,7 @@
                     <table class="w-full border-collapse text-xs">
                         <thead>
                             <tr class="bg-dark-700/50">
-                                <th class="border border-dark-600 px-2 py-1.5 text-cream-300 text-right">پروژه</th>
+                                <th class="border border-dark-600 px-2 py-1.5 text-cream-300 text-right">پروژه / یادداشت</th>
                                 <th class="border border-dark-600 px-2 py-1.5 text-cream-300 text-right">Fingerprint</th>
                                 <th class="border border-dark-600 px-2 py-1.5 text-cream-300 text-center">وضعیت</th>
                                 <th class="border border-dark-600 px-2 py-1.5 text-cream-300 text-center">تاریخ</th>
@@ -40,12 +40,22 @@
                             };
                             @endphp
                             <tr class="hover:bg-dark-700/30 transition-all">
-                                <td class="border border-dark-600 px-2 py-1.5 text-cream-100 font-medium">{{ $r->customer_note ?? '-' }}</td>
-                                <td class="border border-dark-600 px-2 py-1.5 text-cream-400 font-mono truncate max-w-[220px]">{{ $r->raw_fingerprint }}</td>
+                                <td class="border border-dark-600 px-2 py-1.5 text-cream-100 font-medium whitespace-nowrap">{{ $r->customer_note ?? '-' }}</td>
+                                <td class="border border-dark-600 px-2 py-1.5 text-cream-400">
+                                    <div class="flex items-center gap-1.5">
+                                        <span class="font-mono break-all">{{ $r->raw_fingerprint }}</span>
+                                        <button
+                                            type="button"
+                                            onclick="navigator.clipboard.writeText('{{ $r->raw_fingerprint }}'); this.innerText='✓'; setTimeout(() => this.innerText='📋', 1200)"
+                                            class="shrink-0 p-1 rounded-md bg-dark-700/60 hover:bg-primary-500/20 text-cream-300 hover:text-primary-400 transition-all border border-dark-600"
+                                            title="کپی fingerprint"
+                                        >📋</button>
+                                    </div>
+                                </td>
                                 <td class="border border-dark-600 px-2 py-1.5 text-center">
                                     <span class="badge {{ $statusConfig[0] }} !text-[10px] !py-0.5">{{ $statusConfig[2] }} {{ $statusConfig[1] }}</span>
                                 </td>
-                                <td class="border border-dark-600 px-2 py-1.5 text-center text-dark-400">{{ \Carbon\Carbon::parse($r->created_at)->diffForHumans() }}</td>
+                                <td class="border border-dark-600 px-2 py-1.5 text-center text-dark-400 whitespace-nowrap">{{ \Carbon\Carbon::parse($r->created_at)->diffForHumans() }}</td>
                                 <td class="border border-dark-600 px-2 py-1.5 text-center">
                                     @if($r->status === 'pending')
                                         <div class="flex items-center justify-center gap-1.5">
