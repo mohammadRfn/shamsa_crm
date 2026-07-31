@@ -46,6 +46,7 @@ class GenerateLicense extends Command
             [
                 'activation_request_id' => $row->id,
                 'customer_note'         => $row->customer_note,
+                'auto_registered'       => 0,
                 'revoked'               => 0,
                 'created_at'            => now(),
             ]

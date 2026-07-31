@@ -25,6 +25,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->validateCsrfTokens(except: [
             'activation-requests',
             'activation-requests/*',
+            'license-heartbeat',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
